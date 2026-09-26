@@ -205,55 +205,46 @@ document.addEventListener("DOMContentLoaded", () => {
     // Display first FAQ when page loads
     displayFaq(currentFaqIndex);
 
-    // EMAIL CTA
-    const emailInput =
-        document.querySelector(
-            'input[type="email"]'
-        );
+    // FOOTER EMAIL CTA
+    
+    const footerEmailInput = document.querySelector(
+        "#contact input[type='email']"
+    );
 
-    const getStartedButton =
-        document.querySelector(
-            'a[href="./register.html"]'
-        );
+    const footerGetStartedButton = document.querySelector(
+        "#contact a[href='./register.html']"
+    );
 
-    if (emailInput && getStartedButton) {
-        getStartedButton.addEventListener("click", (event) => {
+    if (footerEmailInput && footerGetStartedButton) {
+        footerGetStartedButton.addEventListener("click", (event) => {
 
-            const email =
-                emailInput.value.trim();
+            const email = footerEmailInput.value.trim();
 
-            // If email is empty
+            // Check if email is empty
             if (email === "") {
                 event.preventDefault();
-                emailInput.focus();
 
-                emailInput.classList.add(
-                    "border-red-500"
-                );
+                footerEmailInput.focus();
+                footerEmailInput.classList.add("border-red-500");
 
                 return;
             }
 
-            // Basic email check
+            // Basic email validation
             if (!email.includes("@")) {
-
                 event.preventDefault();
 
-                emailInput.focus();
-
-                emailInput.classList.add(
-                    "border-red-500"
-                );
+                footerEmailInput.focus();
+                footerEmailInput.classList.add("border-red-500");
 
                 return;
             }
 
-            emailInput.classList.remove(
-                "border-red-500"
-            );
+            // Remove error styling
+            footerEmailInput.classList.remove("border-red-500");
+
+            // Save email temporarily
+            localStorage.setItem("reenBankPrefillEmail", email);
         });
     }
 });
-
-
-
