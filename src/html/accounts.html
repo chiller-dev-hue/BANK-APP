@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accounts | Reen Bank</title>
+
+  <!-- Tailwind CSS CLI output -->
+  <link rel="stylesheet" href="../output.css">
+</head>
+
+<body class="min-h-screen overflow-x-hidden bg-[#F2FBF8] text-[#242424]">
+
+  <!-- =========================================================
+       PAGE WRAPPER
+  ========================================================== -->
+  <div class="min-h-screen lg:flex">
+
+    <!-- =====================================================
+         DESKTOP / MOBILE SIDEBAR
+    ====================================================== -->
+    <aside id="dashboard-sidebar" class="fixed inset-y-0 left-0 z-50 flex w-[270px] -translate-x-full flex-col bg-[#F2FBF8] px-8 py-8 transition-transform duration-300 lg:static lg:translate-x-0 lg:px-10">
+      
+      <!-- LOGO -->
+      <a href="./dashboard.html" class="flex items-center">
+        <img src="../assets/images/logo.png" alt="Reen Bank" class="h-auto w-[205px]">
+      </a>
+
+      <!-- NAVIGATION -->
+      <nav class="mt-24">
+        <ul class="space-y-7">
+          <!-- OVERVIEW -->
+          <li>
+            <a href="./dashboard.html" class="flex items-center gap-7 text-[15px] font-medium text-[#555555] transition hover:text-primary">
+              <span class="flex h-7 w-7 shrink-0 items-center justify-center">
+                <img src="../assets/icons/house.svg" alt="" class="h-6 w-6">
+              </span>
+              <span>Overview</span>
+            </a>
+          </li>
+
+          <!-- ACCOUNTS - ACTIVE -->
+          <li>
+            <a href="./accounts.html" aria-current="page" class="flex items-center gap-7 text-[15px] font-semibold text-primary">
+              <span class="flex h-7 w-7 shrink-0 items-center justify-center">
+                <img src="../assets/icons/wallet.svg" alt="" class="h-6 w-6">
+              </span>
+              <span>Accounts</span>
+            </a>
+          </li>
+
+          <!-- TRANSACTIONS -->
+          <li>
+            <a href="./transaction.html" class="flex items-center gap-7 text-[15px] font-medium text-[#555555] transition hover:text-primary">
+              <span class="flex h-7 w-7 shrink-0 items-center justify-center">
+                <img src="../assets/icons/arrow-left-right.svg" alt="" class="h-6 w-6">
+              </span>
+              <span>Transactions</span>
+            </a>
+          </li>
+
+          <!-- PROFILE -->
+          <li>
+            <a href="./profile.html" class="flex items-center gap-7 text-[15px] font-medium text-[#555555] transition hover:text-primary">
+              <span class="flex h-7 w-7 shrink-0 items-center justify-center">
+                <img src="../assets/icons/user.svg" alt="" class="h-6 w-6">
+              </span>
+              <span>Profile</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- LOGOUT -->
+      <div class="mt-auto">
+        <button id="logout-button" type="button" class="flex items-center gap-7 text-[15px] font-medium text-[#555555] transition hover:text-red-500">
+          <span class="flex h-7 w-7 shrink-0 items-center justify-center">
+            <img src="../assets/icons/log-out.svg" alt="" class="h-6 w-6">
+          </span>
+          <span>Logout</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- =====================================================
+         MOBILE SIDEBAR OVERLAY
+    ====================================================== -->
+    <div id="dashboard-overlay" class="fixed inset-0 z-40 hidden bg-black/30 lg:hidden"></div>
+
+    <!-- =====================================================
+         MAIN AREA
+    ====================================================== -->
+    <main class="min-w-0 flex-1">
+
+      <!-- =================================================
+           TOP HEADER
+      ================================================== -->
+      <header class="px-5 pt-6 sm:px-8 lg:px-10 lg:pt-8">
+        <div class="flex items-center gap-4">
+
+          <!-- MOBILE MENU BUTTON -->
+          <button id="dashboard-menu-button" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="dashboard-sidebar" class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-black/10 bg-white lg:hidden">
+            <img src="../assets/icons/menu.svg" alt="" class="h-6 w-6">
+          </button>
+
+          <!-- DESKTOP PAGE TITLE -->
+          <div class="hidden lg:block">
+            <h1 class="text-[38px] font-semibold tracking-[-1.5px]">Accounts</h1>
+          </div>
+
+          <!-- MOBILE LOGO -->
+          <a href="./dashboard.html" class="lg:hidden">
+            <img src="../assets/images/logo.png" alt="Reen Bank" class="h-auto w-[155px] sm:w-[175px]">
+          </a>
+
+          <!-- RIGHT SIDE HEADER -->
+          <div class="ml-auto flex items-center gap-5 sm:gap-7 lg:gap-9">
+
+            <!-- USER INFORMATION -->
+            <div class="hidden text-right sm:block">
+              <p id="dashboard-user-name" class="text-sm font-medium text-primary">Maureen Oguche</p>
+              <p id="dashboard-account-number" class="mt-1 text-[22px] font-bold leading-none sm:text-[24px] lg:text-[27px]">1234567890</p>
+            </div>
+
+            <!-- SEARCH -->
+            <div class="hidden items-center gap-3 md:flex">
+              <img src="../assets/icons/search.svg" alt="Search" class="h-5 w-5">
+              <input type="search" placeholder="Search" aria-label="Search" class="w-[75px] bg-transparent text-sm outline-none placeholder:text-[#777777] lg:w-[85px]">
+            </div>
+
+            <!-- MOBILE SEARCH ICON -->
+            <button type="button" aria-label="Search" class="md:hidden">
+              <img src="../assets/icons/search.svg" alt="" class="h-5 w-5">
+            </button>
+
+            <!-- NOTIFICATION -->
+            <button type="button" aria-label="Notifications" class="relative flex h-8 w-8 items-center justify-center">
+              <img src="../assets/icons/bell.svg" alt="" class="h-6 w-6">
+              <span class="absolute right-0 top-0 h-2 w-2 rounded-full bg-danger"></span>
+            </button>
+
+            <!-- PROFILE INITIALS -->
+            <div id="dashboard-profile-initials" class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary text-xs font-semibold text-white sm:h-11 sm:w-11 lg:h-12 lg:w-12">
+              <span>MO</span>
+            </div>
+
+          </div>
+        </div>
+      </header>
+
+      <!-- =================================================
+           MOBILE PAGE TITLE
+      ================================================== -->
+      <section class="px-5 pb-8 pt-8 sm:px-8 lg:hidden">
+        <h1 class="text-[28px] font-semibold tracking-tight sm:text-[32px]">Accounts</h1>
+      </section>
+
+      <!-- =================================================
+           ACCOUNT CARDS SECTION
+      ================================================== -->
+      <section class="px-5 pb-10 pt-8 sm:px-8 lg:px-10 lg:pt-12">
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+
+          <!-- MAIN ACCOUNT -->
+          <div class="min-w-0 rounded-xl border-l-[7px] border-[#452080] bg-[#D4F3E7] p-5">
+            <div class="flex items-center justify-between gap-3">
+              <p class="truncate text-sm font-semibold text-[#452080]">Main Account</p>
+              <button type="button" class="shrink-0">
+                <img src="../assets/icons/eye-closed.svg" alt="Hide balance" class="h-5 w-5">
+              </button>
+            </div>
+            <h2 class="mt-3 truncate text-[clamp(18px,1.4vw,25px)] font-bold">₦ 44,500.00</h2>
+            <div class="mt-6 flex gap-3">
+              <button class="flex-1 rounded-md bg-[#33B786] py-2 text-xs font-semibold text-white transition hover:opacity-90">Fund</button>
+              <button class="flex-1 rounded-md bg-[#D0D0D0] py-2 text-xs font-semibold text-[#333333]">Withdraw</button>
+            </div>
+          </div>
+
+          <!-- SCHOOL SAVINGS -->
+          <div class="min-w-0 rounded-xl bg-[#D4F3E7] p-5">
+            <div class="flex items-center justify-between gap-3">
+              <p class="truncate text-sm font-semibold text-[#452080]">School Savings</p>
+              <button type="button" class="shrink-0">
+                <img src="../assets/icons/eye-closed.svg" alt="Hide balance" class="h-5 w-5">
+              </button>
+            </div>
+            <h2 class="mt-3 truncate text-[clamp(18px,1.4vw,25px)] font-bold">₦ 44,500.00</h2>
+            <div class="mt-6 flex gap-3">
+              <button class="flex-1 rounded-md bg-[#33B786] py-2 text-xs font-semibold text-white">Fund</button>
+              <button class="flex-1 rounded-md bg-[#D0D0D0] py-2 text-xs font-semibold text-[#333333]">Withdraw</button>
+            </div>
+          </div>
+
+          <!-- HOLIDAY PLAN -->
+          <div class="min-w-0 rounded-xl bg-[#D4F3E7] p-5">
+            <div class="flex items-center justify-between gap-3">
+              <p class="truncate text-sm font-semibold text-[#452080]">Holiday Plan</p>
+              <button type="button" class="shrink-0">
+                <img src="../assets/icons/eye-closed.svg" alt="Hide balance" class="h-5 w-5">
+              </button>
+            </div>
+            <h2 class="mt-3 truncate text-[clamp(18px,1.4vw,25px)] font-bold">₦ 44,500.00</h2>
+            <div class="mt-6 flex gap-3">
+              <button class="flex-1 rounded-md bg-[#33B786] py-2 text-xs font-semibold text-white">Fund</button>
+              <button class="flex-1 rounded-md bg-[#D0D0D0] py-2 text-xs font-semibold text-[#333333]">Withdraw</button>
+            </div>
+          </div>
+
+          <!-- ADD ACCOUNT -->
+          <button class="min-w-0 rounded-xl bg-[#EEEEEE] p-5 text-left">
+            <div class="flex items-center gap-3">
+              <span class="text-3xl font-light text-[#555555]">+</span>
+              <span class="truncate text-sm font-semibold text-[#555555]">Add Account</span>
+            </div>
+            <h2 class="mt-8 text-[clamp(18px,1.4vw,25px)] font-bold text-[#555555]">₦ 00,000.00</h2>
+          </button>
+
+        </div>
+      </section>
+
+      <!-- =========================================================
+           TRANSACTIONS SECTION
+      ========================================================= -->
+      <section class="px-3.5 pb-12 pt-10 sm:px-8 lg:px-10 lg:pt-14">
+
+        <!-- TRANSACTIONS HEADER -->
+        <div class="mb-4 flex items-center justify-between sm:mb-5">
+          <h2 class="text-[18px] font-semibold sm:text-[21px] lg:text-[22px]">Transactions</h2>
+          <a href="./transaction.html" class="flex items-center gap-2 text-[11px] font-medium text-primary sm:gap-3 sm:text-sm">
+            <span>View All</span>
+            <img src="../assets/icons/arrow-right.svg" alt="" class="h-4 w-4 sm:h-5 sm:w-5">
+          </a>
+        </div>
+
+        <!-- TRANSACTION LIST -->
+        <div class="w-full">
+
+          <!-- TRANSACTION 1 -->
+          <div class="grid w-full grid-cols-[clamp(20px,3.3vw,48px)_minmax(55px,1.25fr)_minmax(45px,1fr)_minmax(65px,1.1fr)_minmax(40px,0.9fr)_clamp(50px,12.2vw,175px)] items-center gap-x-[clamp(4px,1.3vw,24px)] border-b border-[#D8E1DE] py-2 sm:py-3 lg:py-[10px]">
+            <div class="flex h-5 w-5 items-center justify-center rounded-full bg-danger text-[13px] font-medium leading-none text-white sm:h-7 sm:w-7 sm:text-[17px] lg:h-[35px] lg:w-[35px] lg:text-[22px]">&minus;</div>
+            <p class="whitespace-nowrap text-[6px] text-[#777777] sm:text-[10px] lg:text-[13px]">Oluwaben Jamin</p>
+            <p class="whitespace-nowrap text-[6px] text-[#777777] sm:text-[10px] lg:text-[13px]">Bank Transfer</p>
+            <p class="whitespace-nowrap text-[6px] text-[#777777] sm:text-[10px] lg:text-[13px]">06.Mar.2023 &ndash; 09:39</p>
+            <p class="whitespace-nowrap text-[6px] font-semibold text-danger sm:text-[10px] lg:text-[13px]">- 10,000.00</p>
+            <span class="flex h-6 w-full items-center justify-center rounded-md bg-[#D2D2D2] px-1 text-[6px] font-semibold text-[#555555] sm:h-8 sm:rounded-lg sm:text-[10px] lg:h-[35px] lg:text-[13px]">Pending</span>
+          </div>
+
+          <!-- TRANSACTION 2 -->
+          <div class="grid w-full grid-cols-[clamp(20px,3.3vw,48px)_minmax(55px,1.25fr)_minmax(45px,1fr)_minmax(65px,1.1fr)_minmax(40px,0.9fr)_clamp(50px,12.2vw,175px)] items-center gap-x-[clamp(4px,1.3vw,24px)] border-b border-[#D8E1DE] py-2 sm:py-3 lg:py-[10px]">
+            <div class="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[13px] font-medium leading-none text-white sm:h-7 sm:w-7 sm:text-[17px] lg:h-[35px] lg:w-[35px] lg:text-[22px]">+</div>
+            <p class="whitespace-nowrap text-[6px] text-[#777777] sm:text-[10px] lg:text-[13px]">Oluwaben Jamin</p>
+            <p class="whitespace-nowrap text-[6px] text-[#777777] sm:text-[10px] lg:text-[13px]">Direct Pay</p>
+            <p class="whitespace-nowrap text-[6px] text-[#777777] sm:text-[10px] lg:text-[13px]">06.Mar.2023 &ndash; 09:39</p>
+            <p class="whitespace-nowrap text-[6px] font-semibold text-primary sm:text-[10px] lg:text-[13px]">+ 10,000.00</p>
+            <span class="flex h-6 w-full items-center justify-center rounded-md bg-primary px-1 text-[6px] font-semibold text-white sm:h-8 sm:rounded-lg sm:text-[10px] lg:h-[35px] lg:text-[13px]">Completed</span>
+          </div>
+
+          <!-- TRANSACTION 3 -->
+          <div class="grid w-full grid-cols-[clamp(20px,3.3vw,48px)_minmax(55px,1.25fr)_minmax(45px,1fr)_minmax(65px,1.1fr)_minmax(40px,0.9fr)_clamp(50px,12.2vw,175px)] items-center gap-x-[clamp(4px,1.3vw,24px)] border-b border-[#D8E1DE] py-2 sm:py-3 lg:py-[10px]">
+            <div class="flex h-5 w-5 items-center justify-center rounded-full bg-danger text-[13px] font-medium leading-none text-white sm:h-7 sm:w-7 sm:text-[17px] lg:h-[35px] lg:w-[35px] lg:text-[22px]">&minus;</div>
+            <p class="whitespace-nowrap text-[6px] text-[#777777] sm:text-[10px] lg:text-[13px]">Oluwaben Jamin</p>
+            <p class="whitespace-nowrap text-[6px] text-[#777777] sm:text-[10px] lg:text-[13px]">Bank Transfer</p>
+            <p class="whitespace-nowrap text-[6px] text-[#777777] sm:text-[10px] lg:text-[13px]">06.Mar.2023 &ndash; 09:39</p>
+            <p class="whitespace-nowrap text-[6px] font-semibold text-danger sm:text-[10px] lg:text-[13px]">- 10,000.00</p>
+            <span class="flex h-6 w-full items-center justify-center rounded-md bg-danger px-1 text-[6px] font-semibold text-white sm:h-8 sm:rounded-lg sm:text-[10px] lg:h-[35px] lg:text-[13px]">Canceled</span>
+          </div>
+
+          <!-- TRANSACTION 4 -->
+          <div class="grid w-full grid-cols-[clamp(20px,3.3vw,48px)_minmax(55px,1.25fr)_minmax(45px,1fr)_minmax(65px,1.1fr)_minmax(40px,0.9fr)_clamp(50px,12.2vw,175px)] items-center gap-x-[clamp(4px,1.3vw,24px)] border-b border-[#D8E1DE] py-2 sm:py-3 lg:py-[10px]">
+            <div class="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[13px] font-medium leading-none text-white sm:h-7 sm:w-7 sm:text-[17px] lg:h-[35px] lg:w-[35px] lg:text-[22px]">+</div>
+            <p class="whitespace-nowrap text-[6px] text-[#777777] sm:text-[10px] lg:text-[13px]">Oluwaben Jamin</p>
+            <p class="whitespace-nowrap text-[6px] text-[#777777] sm:text-[10px] lg:text-[13px]">Credit Card</p>
+            <p class="whitespace-nowrap text-[6px] text-[#777777] sm:text-[10px] lg:text-[13px]">06.Mar.2023 &ndash; 09:39</p>
+            <p class="whitespace-nowrap text-[6px] font-semibold text-primary sm:text-[10px] lg:text-[13px]">+ 10,000.00</p>
+            <span class="flex h-6 w-full items-center justify-center rounded-md bg-primary px-1 text-[6px] font-semibold text-white sm:h-8 sm:rounded-lg sm:text-[10px] lg:h-[35px] lg:text-[13px]">Completed</span>
+          </div>
+
+          <!-- TRANSACTION 5 -->
+          <div class="grid w-full grid-cols-[clamp(20px,3.3vw,48px)_minmax(55px,1.25fr)_minmax(45px,1fr)_minmax(65px,1.1fr)_minmax(40px,0.9fr)_clamp(50px,12.2vw,175px)] items-center gap-x-[clamp(4px,1.3vw,24px)] border-b border-[#D8E1DE] py-2 sm:py-3 lg:py-[10px]">
+            <div class="flex h-5 w-5 items-center justify-center rounded-full bg-danger text-[13px] font-medium leading-none text-white sm:h-7 sm:w-7 sm:text-[17px] lg:h-[35px] lg:w-[35px] lg:text-[22px]">&minus;</div>
+            <p class="whitespace-nowrap text-[6px] text-[#777777] sm:text-[10px] lg:text-[13px]">Oluwaben Jamin</p>
+            <p class="whitespace-nowrap text-[6px] text-[#777777] sm:text-[10px] lg:text-[13px]">Bank Transfer</p>
+            <p class="whitespace-nowrap text-[6px] text-[#777777] sm:text-[10px] lg:text-[13px]">06.Mar.2023 &ndash; 09:39</p>
+            <p class="whitespace-nowrap text-[6px] font-semibold text-danger sm:text-[10px] lg:text-[13px]">- 10,000.00</p>
+            <span class="flex h-6 w-full items-center justify-center rounded-md bg-[#D2D2D2] px-1 text-[6px] font-semibold text-[#555555] sm:h-8 sm:rounded-lg sm:text-[10px] lg:h-[35px] lg:text-[13px]">Pending</span>
+          </div>
+
+          <!-- TRANSACTION 6 -->
+          <div class="grid w-full grid-cols-[clamp(20px,3.3vw,48px)_minmax(55px,1.25fr)_minmax(45px,1fr)_minmax(65px,1.1fr)_minmax(40px,0.9fr)_clamp(50px,12.2vw,175px)] items-center gap-x-[clamp(4px,1.3vw,24px)] border-b border-[#D8E1DE] py-2 sm:py-3 lg:py-[10px]">
+            <div class="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[13px] font-medium leading-none text-white sm:h-7 sm:w-7 sm:text-[17px] lg:h-[35px] lg:w-[35px] lg:text-[22px]">+</div>
+            <p class="whitespace-nowrap text-[6px] text-[#777777] sm:text-[10px] lg:text-[13px]">Oluwaben Jamin</p>
+            <p class="whitespace-nowrap text-[6px] text-[#777777] sm:text-[10px] lg:text-[13px]">Direct Pay</p>
+            <p class="whitespace-nowrap text-[6px] text-[#777777] sm:text-[10px] lg:text-[13px]">06.Mar.2023 &ndash; 09:39</p>
+            <p class="whitespace-nowrap text-[6px] font-semibold text-primary sm:text-[10px] lg:text-[13px]">+ 10,000.00</p>
+            <span class="flex h-6 w-full items-center justify-center rounded-md bg-primary px-1 text-[6px] font-semibold text-white sm:h-8 sm:rounded-lg sm:text-[10px] lg:h-[35px] lg:text-[13px]">Completed</span>
+          </div>
+
+          <!-- TRANSACTION 7 -->
+          <div class="grid w-full grid-cols-[clamp(20px,3.3vw,48px)_minmax(55px,1.25fr)_minmax(45px,1fr)_minmax(65px,1.1fr)_minmax(40px,0.9fr)_clamp(50px,12.2vw,175px)] items-center gap-x-[clamp(4px,1.3vw,24px)] py-2 sm:py-3 lg:py-[10px]">
+            <div class="flex h-5 w-5 items-center justify-center rounded-full bg-danger text-[13px] font-medium leading-none text-white sm:h-7 sm:w-7 sm:text-[17px] lg:h-[35px] lg:w-[35px] lg:text-[22px]">&minus;</div>
+            <p class="whitespace-nowrap text-[6px] text-[#777777] sm:text-[10px] lg:text-[13px]">Oluwaben Jamin</p>
+            <p class="whitespace-nowrap text-[6px] text-[#777777] sm:text-[10px] lg:text-[13px]">Bank Transfer</p>
+            <p class="whitespace-nowrap text-[6px] text-[#777777] sm:text-[10px] lg:text-[13px]">06.Mar.2023 &ndash; 09:39</p>
+            <p class="whitespace-nowrap text-[6px] font-semibold text-danger sm:text-[10px] lg:text-[13px]">- 10,000.00</p>
+            <span class="flex h-6 w-full items-center justify-center rounded-md bg-danger px-1 text-[6px] font-semibold text-white sm:h-8 sm:rounded-lg sm:text-[10px] lg:h-[35px] lg:text-[13px]">Canceled</span>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+
+    <!-- =========================================================
+         EXISTING BANK JAVASCRIPT
+
+         This already contains:
+         - Mobile sidebar open
+         - Mobile sidebar close
+         - Overlay close
+         - Sidebar link close
+         - Logout
+         - User information
+         - Account number
+    ========================================================== -->
+  <!-- JAVASCRIPT -->
+  <script src="../js/bank.js"></script>
+
+  
+</body>
+</html>

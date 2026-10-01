@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Reen Bank</title>
+    <link rel="stylesheet" href="../output.css">
+
+    <style>
+        /* Figma-inspired dashboard background pattern.
+           Kept very subtle so the content remains the visual focus. */
+        .dashboard-pattern {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.42;
+            background-color: #f2fbf8;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420' viewBox='0 0 420 420'%3E%3Cg fill='none' stroke='%23d9f2e9' stroke-width='2' opacity='.75'%3E%3Cpath d='M58 42h42v32H58zM68 74v20M90 74v20M54 94h50'/%3E%3Cpath d='M205 40c18 0 32 14 32 32s-14 32-32 32-32-14-32-32 14-32 32-32zM205 58v28M193 72h24'/%3E%3Cpath d='M322 40l18 12v32h-36V52zM312 84V64h16v20M304 94h32'/%3E%3Cpath d='M70 210c0-18 15-33 33-33s33 15 33 33-15 33-33 33-33-15-33-33zM103 188v44M89 204h28M91 218h24'/%3E%3Cpath d='M250 178c20 0 36 16 36 36s-16 36-36 36-36-16-36-36 16-36 36-36zM250 194v40M230 210h40M232 222h36'/%3E%3Cpath d='M350 190h42v42h-42zM358 232v18M386 232v18M352 250h40'/%3E%3Cpath d='M48 330c12-18 36-18 48 0l-24 34zM36 366h72M60 348h24'/%3E%3Cpath d='M208 326h54v34h-54zM218 360v22M252 360v22M204 382h62'/%3E%3Cpath d='M330 328c0-18 15-33 33-33s33 15 33 33-15 33-33 33-33-15-33-33zM363 305v46M348 320h30M350 333h26'/%3E%3C/g%3E%3C/svg%3E");
+            background-repeat: repeat;
+            background-size: 420px 420px;
+        }
+
+        /* Keep only the main dashboard content above the decorative pattern.
+           The sidebar must keep Tailwind's fixed/z-50 mobile drawer behavior. */
+        main {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Statistics: desktop keeps the Figma horizontal arrangement;
+           smaller screens reflow each metric into a compact two-row layout. */
+        .statistics-row {
+            display: grid;
+            grid-template-columns: 45px 85px minmax(100px, 1fr) 120px;
+            align-items: center;
+            gap: 20px;
+        }
+
+        @media (max-width: 767px) {
+            .statistics-row {
+                grid-template-columns: 44px minmax(0, 1fr) auto;
+                gap: 12px;
+            }
+
+            .statistics-row .statistics-label {
+                font-size: 0.875rem;
+            }
+
+            .statistics-row .statistics-bar {
+                grid-column: 2 / -1;
+                grid-row: 2;
+                width: 100%;
+            }
+
+            .statistics-row .statistics-amount {
+                font-size: 0.95rem;
+                white-space: nowrap;
+            }
+        }
+
+        /* Transactions: desktop remains three columns; mobile uses
+           a two-line layout so dates and amounts never force overflow. */
+        .transaction-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto auto;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .transaction-name {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .transaction-date,
+        .transaction-amount {
+            white-space: nowrap;
+        }
+
+        @media (max-width: 639px) {
+            .transaction-row {
+                grid-template-columns: minmax(0, 1fr) auto;
+                gap: 4px 12px;
+                padding-top: 14px;
+                padding-bottom: 14px;
+            }
+
+            .transaction-name {
+                font-size: 0.875rem;
+            }
+
+            .transaction-amount {
+                grid-column: 2;
+                grid-row: 1;
+                font-size: 0.875rem;
+            }
+
+            .transaction-date {
+                grid-column: 1 / -1;
+                grid-row: 2;
+                font-size: 0.75rem;
+            }
+        }
+
+        @media (min-width: 640px) and (max-width: 1279px) {
+            .transaction-row {
+                grid-template-columns: minmax(0, 1fr) auto;
+                gap: 6px 12px;
+            }
+
+            .transaction-date {
+                grid-column: 1;
+                grid-row: 2;
+                font-size: 0.75rem;
+            }
+
+            .transaction-amount {
+                grid-column: 2;
+                grid-row: 1 / span 2;
+            }
+        }
+    </style>
+
+</head>
+
+
+<body class="min-h-screen bg-[#f2fbf8] text-[#242424]">
+
+    <div class="dashboard-pattern" aria-hidden="true"></div>
+
+         <!-- DASHBOARD WRAPPER -->
+    <div class="min-h-screen lg:flex">
+
+             <!-- SIDEBAR -->
+        <aside id="dashboard-sidebar"
+            class="fixed inset-y-0 left-0 z-50 flex w-[270px] -translate-x-full flex-col bg-[#f2fbf8] px-10 py-8 transition-transform duration-300 lg:static lg:translate-x-0">
+
+            <!-- Logo -->
+            <a href="./index.html" class="flex items-center gap-4">
+                <img src="../assets/images/logo.png" alt="Reen Bank" class="h-14 w-auto">
+            </a>
+
+            <!-- Navigation -->
+            <nav class="mt-28">
+                <ul class="space-y-7">
+
+                    <!-- Overview -->
+                    <li>
+                        <a href="./dashboard.html"
+                            class="flex items-center gap-7 text-[15px] font-semibold text-primary">
+
+                            <span class="flex h-7 w-7 items-center justify-center">
+                                <img src="../assets/icons/house.svg" alt="" class="h-6 w-6">
+                            </span>
+                            <span>
+                                Overview
+                            </span>
+                        </a>
+                    </li>
+
+                    <!-- Accounts -->
+                    <li>
+                        <a href="./accounts.html"
+                            class="flex items-center gap-7 text-[15px] font-medium text-[#555] transition hover:text-primary">
+                            <span class="flex h-7 w-7 items-center justify-center">
+                                <img src="../assets/icons/wallet.svg" alt="" class="h-6 w-6">
+                            </span>
+                            <span>
+                                Accounts
+                            </span>
+                        </a>
+                    </li>
+
+                    <!-- Transactions -->
+                    <li>
+                        <a href="./transaction.html"
+                            class="flex items-center gap-7 text-[15px] font-medium text-[#555] transition hover:text-primary">
+                            <span class="flex h-7 w-7 items-center justify-center">
+                                <img
+                                    src="../assets/icons/arrow-left-right.svg"
+                                    alt="" class="h-6 w-6">
+                            </span>
+                            <span>
+                                Transactions
+                            </span>
+                        </a>
+                    </li>
+
+                    <!-- Profile -->
+                    <li>
+                        <a href="./profile.html"
+                            class="flex items-center gap-7 text-[15px] font-medium text-[#555] transition hover:text-primary">
+                            <span class="flex h-7 w-7 items-center justify-center">
+                                <img src="../assets/icons/user.svg" alt="" class="h-6 w-6">
+                            </span>
+                            <span>
+                                Profile
+                            </span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Logout -->
+            <div class="mt-auto">
+                <button
+                    id="logout-button"
+                    type="button"
+                    class="flex items-center gap-7 text-[15px] font-medium text-[#555] transition hover:text-red-500">
+                    <span class="flex h-7 w-7 items-center justify-center">
+                        <img src="../assets/icons/log-out.svg" alt="" class="h-6 w-6">
+                    </span>
+                    <span>
+                        Logout
+                    </span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Mobile overlay -->
+        <div
+            id="dashboard-overlay"
+            class="fixed inset-0 z-40 hidden bg-black/30 lg:hidden">
+        </div>
+
+             <!-- MAIN -->
+        <main class="min-w-0 flex-1">
+
+                 <!-- TOP HEADER -->
+            <header class="px-6 pt-8 sm:px-10 lg:px-12">
+                <div class="flex items-start gap-5">
+
+                    <!-- Mobile menu -->
+                    <button
+                        id="dashboard-menu-button"
+                        type="button"
+                        aria-label="Open menu"
+                        aria-expanded="false"
+                        aria-controls="dashboard-sidebar"
+                        class="mt-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-black/10 bg-white lg:hidden">
+                        <img src="../assets/icons/menu.svg" alt="" class="h-6 w-6">
+                    </button>
+
+                    <!-- Overview -->
+                    <div class="shrink-0">
+                        <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">
+                            Overview
+                        </h1>
+                    </div>
+
+                    <!-- Customer information -->
+                    <div class="ml-auto hidden text-right sm:block">
+                        <p id="dashboard-user-name" class="text-sm font-medium text-primary">
+                            Maureen Oguche
+                        </p>
+                        <p id="dashboard-account-number" class="mt-1 text-2xl font-bold tracking-tight">
+                            1234567890
+                        </p>
+                    </div>
+
+                    <!-- Search -->
+                    <div class="hidden items-center gap-3 pt-2 md:flex">
+                        <img src="../assets/icons/search.svg" alt="" class="h-5 w-5">
+                        <input
+                            type="search"
+                            placeholder="Search"
+                            class="w-20 bg-transparent text-sm outline-none placeholder:text-[#777]">
+                    </div>
+
+                    <!-- Notification -->
+                    <button
+                        type="button"
+                        aria-label="Notifications"
+                        class="relative mt-1 hidden h-8 w-8 items-center justify-center md:flex">
+                        <img src="../assets/icons/bell.svg" alt="" class="h-6 w-6">
+                        <span class="absolute right-0 top-0 h-2 w-2 rounded-full bg-red-500">
+                        </span>
+                    </button>
+
+                    <!-- Profile image -->
+                    <div id="dashboard-profile-initials" class="mt-[-3px] flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary text-sm font-semibold text-white">
+
+                        <!-- Figma profile image isn't included in the BANK APP asset folder,
+                             so this placeholder will be replaced later. -->
+                        <span class="text-xs font-semibold text-white">
+                            MO
+                        </span>
+                    </div>
+                </div>
+            </header>
+
+                 <!-- CONTENT -->
+            <section class="px-6 pb-10 pt-20 sm:px-10 lg:px-12">
+                <div class="grid gap-12 xl:grid-cols-[minmax(0,1fr)_415px]">
+
+                         <!-- LEFT COLUMN -->
+                    <div class="min-w-0">
+
+                             <!-- CURRENT ACCOUNT BALANCE -->
+                        <section>
+                            <div class="mb-7 flex flex-wrap items-center justify-between gap-5">
+                                <h2 class="text-xl font-semibold">
+                                    Current Account Balance
+                                </h2>
+                                <div class="flex items-center gap-3">
+
+                                    <!-- Hide balance -->
+                                    <button
+                                        id="toggle-balance"
+                                        type="button"
+                                        aria-label="Hide balance"
+                                        class="flex h-10 w-10 items-center justify-center rounded-lg bg-[#ededed]">
+                                        <img src="../assets/icons/eye-closed.svg" alt="" class="h-5 w-5">
+                                    </button>
+
+                                    <!-- Date -->
+                                    <button type="button" class="flex h-10 items-center gap-3 rounded-lg bg-[#ededed] px-4 text-xs text-[#555]">
+                                        <img src="../assets/icons/calendar.svg" alt="" class="h-4 w-4">
+                                        <span>
+                                            Feb 22 - Mar 21, 2023
+                                        </span>
+                                        <img src="../assets/icons/chevron-down.svg" alt="" class="h-4 w-4">
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Balance card -->
+                            <div class="rounded-xl bg-[#cff2e6] px-7 py-8 sm:px-9">
+                                <div class="grid gap-8 sm:grid-cols-[auto_1fr_1fr_1fr] sm:items-center">
+
+                                    <!-- Reen Bank icon -->
+                                     <img src="../assets/images/image 32.png" alt="Reen Bank logo" class="h-12 w-12">
+
+                                    <!-- Current Balance -->
+                                    <div>
+                                        <p class="text-sm font-medium text-[#40258f]">
+                                            Current Balance
+                                        </p>
+                                        <p id="current-balance" class="mt-2 text-xl font-bold sm:text-2xl">
+                                            ₦44,500.00
+                                        </p>
+                                    </div>
+
+                                    <!-- Income -->
+                                    <div>
+                                        <p class="text-sm font-medium text-[#40258f]">
+                                            Income
+                                        </p>
+                                        <p class="mt-2 text-xl font-bold sm:text-2xl">
+                                            ₦54,500.00
+                                        </p>
+                                    </div>
+
+                                    <!-- Expense -->
+                                    <div>
+                                        <p class="text-sm font-medium text-[#40258f]">
+                                            Expense
+                                        </p>
+                                        <p class="mt-2 text-xl font-bold sm:text-2xl">
+                                            ₦10,000.00
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                             <!-- ACCOUNTS -->
+                        <section class="mt-14">
+
+                            <!-- Accounts Header -->
+                            <div class="mb-6 flex items-center justify-between">
+                                <h2 class="text-xl font-semibold">
+                                    Accounts
+                                </h2>
+
+                                <button
+                                    id="add-account-button"
+                                    type="button"
+                                    aria-label="Add account"
+                                    class="flex h-10 w-10 items-center justify-center rounded-lg bg-[#ededed]">
+                                    <img src="../assets/icons/circle-plus.svg" alt="" class="h-5 w-5">
+                                </button>
+                            </div>
+
+                            <!-- Accounts Container -->
+                            <div id="accounts-container" class="grid gap-6 sm:grid-cols-3">
+
+                                <!-- Main Account -->
+                                <div class="rounded-xl bg-[#cff2e6] px-8 py-9">
+                                    <p class="text-sm font-medium text-[#40258f]">
+                                        Main Account
+                                    </p>
+                                    <p id="main-account-balance" class="mt-2 text-xl font-bold">
+                                        ₦44,500.00
+                                    </p>
+                                </div>
+
+                                <!-- School Savings -->
+                                <div class="rounded-xl bg-[#cff2e6] px-8 py-9">
+                                    <p class="text-sm font-medium text-[#40258f]">
+                                        School Savings
+                                    </p>
+                                    <p id="school-savings-balance" class="mt-2 text-xl font-bold">
+                                        ₦44,500.00
+                                    </p>
+                                </div>
+
+                                <!-- Holiday Plan -->
+                                <div class="rounded-xl bg-[#cff2e6] px-8 py-9">
+                                    <p id="holiday-plan-balance" class="text-sm font-medium text-[#40258f]">
+                                        Holiday Plan
+                                    </p>
+                                    <p class="mt-2 text-xl font-bold">
+                                        ₦44,500.00
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                             <!-- STATISTICS -->
+                        <section class="mt-14">
+                            <div class="mb-7 flex items-center justify-between">
+                                <h2 class="text-xl font-semibold">
+                                    Statistics
+                                </h2>
+                                <button
+                                    type="button"
+                                    class="flex items-center gap-3 rounded-lg bg-[#ededed] px-4 py-3 text-xs text-[#555]">
+                                    <span>
+                                        This Month
+                                    </span>
+                                    <img src="../assets/icons/chevron-down.svg" alt="" class="h-4 w-4">
+                                </button>
+                            </div>
+
+                            <!-- Income -->
+                            <div class="statistics-row">
+                                <img src="../assets/images/image 32.png" alt="Reen Bank logo" class="h-12 w-12">
+                                <p class="statistics-label font-medium text-[#555]">
+                                    Income
+                                </p>
+                                <div class="statistics-bar h-3 overflow-hidden rounded-full bg-white">
+                                    <div class="h-full w-[75%] rounded-full bg-primary">
+                                    </div>
+                                </div>
+                                <p class="statistics-amount text-right text-lg font-semibold">
+                                    ₦54,500.00
+                                </p>
+                            </div>
+
+                            <!-- Expense -->
+                            <div class="statistics-row mt-8">
+                               <img src="../assets/images/image 34.png" alt="Reen Bank logo" class="h-12 w-12">
+                               <p class="statistics-label font-medium text-[#555]">
+                                    Expense
+                                </p>
+                                <div class="statistics-bar h-3 overflow-hidden rounded-full bg-white">
+                                    <div class="h-full w-[60%] rounded-full bg-red-500"></div>
+                                </div>
+                                <p class="statistics-amount text-right text-lg font-semibold">
+                                    ₦10,000.00
+                                </p>
+                            </div>
+                        </section>
+                    </div>
+
+                         <!-- RIGHT COLUMN -->
+                    <div class="min-w-0">
+
+                             <!-- TRANSACTIONS -->
+                        <section>
+                            <div class="mb-4 flex items-center justify-between">
+                                <h2 class="text-xl font-semibold">
+                                    Transactions
+                                </h2>
+                                <a href="./transaction.html" aria-label="View all transactions" class="flex h-8 w-8 items-center justify-center">
+                                    <img src="../assets/icons/arrow-right.svg" alt="" class="h-6 w-6">
+                                </a>
+                            </div>
+
+                            <div>
+
+                                <!-- Transaction -->
+                                <div class="transaction-row border-b border-[#d7d7d7] py-4">
+                                    <p class="transaction-name text-sm text-[#777]">
+                                        Oluwaben Jamin
+                                    </p>
+                                    <p class="transaction-date whitespace-nowrap text-sm text-[#888]">
+                                        06.Mar.2023 - 09:39
+                                    </p>
+                                    <p class="transaction-amount whitespace-nowrap text-sm font-semibold text-red-500">
+                                        - 10,000.00
+                                    </p>
+                                </div>
+
+                                <div class="transaction-row border-b border-[#d7d7d7] py-4">
+                                    <p class="transaction-name text-sm text-[#777]">
+                                        Oluwaben Jamin
+                                    </p>
+                                    <p class="transaction-date whitespace-nowrap text-sm text-[#888]">
+                                        06.Mar.2023 - 09:39
+                                    </p>
+                                    <p class="transaction-amount whitespace-nowrap text-sm font-semibold text-primary">
+                                        + 10,000.00
+                                    </p>
+                                </div>
+
+                                <div class="transaction-row border-b border-[#d7d7d7] py-4">
+                                    <p class="transaction-name text-sm text-[#777]">
+                                        Oluwaben Jamin
+                                    </p>
+                                    <p class="transaction-date whitespace-nowrap text-sm text-[#888]">
+                                        06.Mar.2023 - 09:39
+                                    </p>
+                                    <p class="transaction-amount whitespace-nowrap text-sm font-semibold text-red-500">
+                                        - 10,000.00
+                                    </p>
+                                </div>
+
+                                <div class="transaction-row border-b border-[#d7d7d7] py-4">
+                                    <p class="transaction-name text-sm text-[#777]">
+                                        Oluwaben Jamin
+                                    </p>
+                                    <p class="transaction-date whitespace-nowrap text-sm text-[#888]">
+                                        06.Mar.2023 - 09:39
+                                    </p>
+                                    <p class="transaction-amount whitespace-nowrap text-sm font-semibold text-primary">
+                                        + 10,000.00
+                                    </p>
+                                </div>
+
+                                <div class="transaction-row border-b border-[#d7d7d7] py-4">
+                                    <p class="transaction-name text-sm text-[#777]">
+                                        Oluwaben Jamin
+                                    </p>
+                                    <p class="transaction-date whitespace-nowrap text-sm text-[#888]">
+                                        06.Mar.2023 - 09:39
+                                    </p>
+                                    <p class="transaction-amount whitespace-nowrap text-sm font-semibold text-red-500">
+                                        - 10,000.00
+                                    </p>
+                                </div>
+
+                                <div class="transaction-row border-b border-[#d7d7d7] py-4">
+                                    <p class="transaction-name text-sm text-[#777]">
+                                        Oluwaben Jamin
+                                    </p>
+                                    <p class="transaction-date whitespace-nowrap text-sm text-[#888]">
+                                        06.Mar.2023 - 09:39
+                                    </p>
+                                    <p class="transaction-amount whitespace-nowrap text-sm font-semibold text-primary">
+                                        + 10,000.00
+                                    </p>
+                                </div>
+
+                                <div class="transaction-row py-4">
+                                    <p class="transaction-name text-sm text-[#777]">
+                                        Oluwaben Jamin
+                                    </p>
+                                    <p class="transaction-date whitespace-nowrap text-sm text-[#888]">
+                                        06.Mar.2023 - 09:39
+                                    </p>
+                                    <p class="transaction-amount whitespace-nowrap text-sm font-semibold text-red-500">
+                                        - 10,000.00
+                                    </p>
+                                </div>
+                            </div>
+                        </section>
+
+                             <!-- UPGRADE TO PRO -->
+                        <section
+                            class="relative mt-8 min-h-[188px] overflow-hidden rounded-xl bg-primary px-7 py-6 text-white">
+
+                            <!-- Decorative pattern -->
+                            <div class="pointer-events-none absolute inset-0 opacity-20">
+                                <div class="absolute -right-8 -top-8 h-40 w-40 rounded-full border-[25px] border-white"></div>
+                                <div class="absolute bottom-[-60px] left-20 h-40 w-40 rounded-full border-[22px] border-white"></div>
+                                <div class="absolute right-32 top-20 h-20 w-20 rounded-full border-[15px] border-white"></div>
+                            </div>
+
+                            <div class="relative z-10">
+                                <div class="mb-8">
+                                    <img src="../assets/icons/arrow-right.svg" alt="" class="h-7 w-7 brightness-0 invert">
+                                </div>
+                                <h3 class="text-2xl font-semibold sm:text-3xl">
+                                    Upgrade to PRO
+                                </h3>
+                                <p class="mt-1 text-sm text-white/90">
+                                    Sign in more than one device
+                                </p>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+         <!-- JAVASCRIPT -->
+    <script src="../js/bank.js"></script>
+
+</body>
+</html>
