@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register | Reen Bank</title>
     <link rel="stylesheet" href="../output.css">
+    <style>
+        /* Hide Microsoft Edge's built-in password reveal button */
+        #password::-ms-reveal,
+        #password::-ms-clear {
+            display: none;
+        }
+    </style>
 </head>
 
 <body class="min-h-screen bg-mint text-dark">
@@ -109,16 +116,35 @@
                             <label for="password" class="mb-2 block text-sm font-semibold">
                                 Password
                             </label>
-                            <div class="relative">
+                            <div id="register-password-wrapper" class="relative">
                                 <input id="password"
                                     name="password"
                                     type="password"
                                     placeholder="Enter your Password"
                                     autocomplete="new-password"
                                     required
-                                    class="h-14 w-full rounded-xl border border-dark/30 bg-white px-5 pr-14 text-sm outline-none transition focus:border-primary focus:ring-1 focus:ring-primary">
-                                <img src="../assets/icons/lock-keyhole.svg" alt="" class="pointer-events-none absolute right-5 top-1/2 h-5 w-5 -translate-y-1/2 opacity-50">
+                                    class="h-14 w-full rounded-xl border border-dark/30 bg-white px-5 pr-24 text-sm outline-none transition focus:border-primary focus:ring-1 focus:ring-primary">
+                                    
+                                    <!-- Right-side password icons -->
+                                    <div class="absolute right-4 top-1/2 flex -translate-y-1/2 items-center gap-3">
+                                        <!-- Password Toggle Eye icon -->
+                                        <button
+                                            id="toggle-register-password"
+                                            type="button"
+                                            aria-label="show-password"
+                                            class="hidden items-center justify-center">
+                                            <img id="register-password-icon" src="../assets/icons/eye-closed.svg" alt="Show Password" class="h-5 w-5 opacity-50">
+                                        </button>
+
+                                    <!-- Keyhole icon -->
+                                    <img src="../assets/icons/lock-keyhole.svg" alt="" class="h-5 w-5 opacity-50">
+                                </div>
+
                             </div>
+
+
+                                <!-- Register Validation Message -->
+                                <p id="register-message" class="hidden mt-2 text-sm text-red-500"></p>
                         </div>
 
                         <!-- Terms -->

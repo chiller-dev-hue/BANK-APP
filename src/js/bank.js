@@ -25,6 +25,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const dashboardProfileInitials =
         document.getElementById("dashboard-profile-initials");
 
+    const dashboardProfileInitialsMobile =
+        document.getElementById("dashboard-profile-initials-mobile");
+
     const dashboardAccountNumber =
         document.getElementById("dashboard-account-number");
 
@@ -125,16 +128,10 @@ document.addEventListener("DOMContentLoaded", function () {
     // CALCULATE TOTAL BALANCE
     // ==========================================
 
-    let totalBalance = 0;
+    // The Overview card shows the selected/current account balance,
+    // which is the Main Account balance in the Figma design.
+    const totalBalance = accounts[0].balance;
 
-    accounts.forEach(function (account) {
-
-        totalBalance += account.balance;
-
-    });
-
-
-    // Display total balance
     if (currentBalance) {
 
         currentBalance.textContent =
@@ -177,14 +174,27 @@ document.addEventListener("DOMContentLoaded", function () {
     // LOAD USER INFORMATION
     // ==========================================
 
-    const savedUser =
-        localStorage.getItem("reenBankUser");
+    /*
+       Load the account belonging to the currently logged-in user.
+       This replaces the old single-user "reenBankUser" system.
+    */
+    const currentUserData =
+        localStorage.getItem("reenBankCurrentUser");
 
 
-    if (savedUser) {
+    if (currentUserData) {
 
-        const user =
-            JSON.parse(savedUser);
+        let user = null;
+
+        try {
+            user = JSON.parse(currentUserData);
+        } catch {
+            user = null;
+        }
+
+        if (!user) {
+            return;
+        }
 
 
         // --------------------------------------
@@ -210,16 +220,30 @@ document.addEventListener("DOMContentLoaded", function () {
 
         }
 
+        if (dashboardProfileInitialsMobile && user.name) {
+
+            dashboardProfileInitialsMobile.textContent =
+                getUserInitials(user.name);
+
+        }
+
 
         // --------------------------------------
         // CREATE ACCOUNT NUMBER
         // --------------------------------------
 
+        /*
+           Every user gets a separate account number.
+           Example: reenBankAccountNumber_user1
+        */
+        const accountNumberKey =
+            `reenBankAccountNumber_${user.id}`;
+
         let accountNumber =
-            localStorage.getItem("reenBankAccountNumber");
+            localStorage.getItem(accountNumberKey);
 
 
-        // If user doesn't have an account number,
+        // If this user doesn't have an account number,
         // create one.
         if (!accountNumber) {
 
@@ -227,7 +251,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 generateAccountNumber();
 
             localStorage.setItem(
-                "reenBankAccountNumber",
+                accountNumberKey,
                 accountNumber
             );
 
@@ -289,6 +313,16 @@ document.addEventListener("DOMContentLoaded", function () {
                     "hidden"
                 );
 
+                dashboardMenuButton.setAttribute(
+                    "aria-expanded",
+                    "true"
+                );
+
+                dashboardOverlay.setAttribute(
+                    "aria-hidden",
+                    "false"
+                );
+
             }
         );
 
@@ -304,7 +338,6 @@ document.addEventListener("DOMContentLoaded", function () {
         );
 
     }
-
 
     // ==========================================
     // CLOSE MOBILE SIDEBAR
@@ -325,6 +358,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
             dashboardOverlay.classList.add(
                 "hidden"
+            );
+
+            dashboardOverlay.setAttribute(
+                "aria-hidden",
+                "true"
+            );
+
+        }
+
+        if (dashboardMenuButton) {
+
+            dashboardMenuButton.setAttribute(
+                "aria-expanded",
+                "false"
             );
 
         }
@@ -356,6 +403,27 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
     }
+
+
+    // ==========================================
+    // MOBILE SIDEBAR ACCESSIBILITY / RESIZE
+    // ==========================================
+
+    if (dashboardOverlay) {
+        dashboardOverlay.setAttribute("aria-hidden", "true");
+    }
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+            closeDashboardMenu();
+        }
+    });
+
+    window.addEventListener("resize", function () {
+        if (window.innerWidth >= 1024) {
+            closeDashboardMenu();
+        }
+    });
 
 
     // ==========================================
@@ -410,41 +478,108 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     // ==========================================
-    // LOGOUT
+    // LOGOUT OVERLAY
     // ==========================================
+
+    const logoutOverlay =
+        document.getElementById("logout-overlay");
+
+    const logoutModal =
+        document.getElementById("logout-modal");
+
+    const cancelLogout =
+        document.getElementById("cancel-logout");
+
+    const confirmLogout =
+        document.getElementById("confirm-logout");
+
+
+    function openLogoutOverlay() {
+
+        if (!logoutOverlay) return;
+
+        logoutOverlay.classList.remove("hidden");
+        logoutOverlay.classList.add("flex");
+        logoutOverlay.setAttribute("aria-hidden", "false");
+        document.body.classList.add("overflow-hidden");
+
+    }
+
+
+    function closeLogoutOverlay() {
+
+        if (!logoutOverlay) return;
+
+        logoutOverlay.classList.add("hidden");
+        logoutOverlay.classList.remove("flex");
+        logoutOverlay.setAttribute("aria-hidden", "true");
+        document.body.classList.remove("overflow-hidden");
+
+    }
+
 
     if (logoutButton) {
 
-        logoutButton.addEventListener(
-            "click",
-            function () {
-
-                const confirmLogout =
-                    confirm(
-                        "Are you sure you want to logout?"
-                    );
-
-
-                if (!confirmLogout) {
-
-                    return;
-
-                }
-
-
-                // Remove login/session information
-                localStorage.removeItem(
-                    "reenBankLoggedIn"
-                );
-
-
-                // Return to login page
-                window.location.href =
-                    "./login.html";
-
-            }
-        );
+        logoutButton.addEventListener("click", openLogoutOverlay);
 
     }
+
+
+    if (cancelLogout) {
+
+        cancelLogout.addEventListener("click", closeLogoutOverlay);
+
+    }
+
+
+    if (logoutOverlay) {
+
+        logoutOverlay.addEventListener("click", function (event) {
+
+            if (event.target === logoutOverlay) {
+
+                closeLogoutOverlay();
+
+            }
+
+        });
+
+    }
+
+
+    if (logoutModal) {
+
+        logoutModal.addEventListener("click", function (event) {
+
+            event.stopPropagation();
+
+        });
+
+    }
+
+
+    if (confirmLogout) {
+
+        confirmLogout.addEventListener("click", function () {
+
+            localStorage.removeItem("reenBankLoggedIn");
+            localStorage.removeItem("reenBankCurrentUser");
+
+            window.location.href = "./login.html";
+
+        });
+
+    }
+
+
+    document.addEventListener("keydown", function (event) {
+
+        if (event.key === "Escape") {
+
+            closeLogoutOverlay();
+
+        }
+
+    });
 
 });

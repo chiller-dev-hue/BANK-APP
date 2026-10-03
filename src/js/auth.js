@@ -1,432 +1,771 @@
-// REGISTER FORM
-const registerForm = document.getElementById("register-form");
+/* =========================================================
+   REEN BANK AUTHENTICATION
+   Register -> OTP -> Login
+   Multiple users are stored permanently in localStorage.
+   Passwords are stored as SHA-256 hashes, not plain text.
+   ========================================================= */
 
-if (registerForm) {
+const USERS_PREFIX = "user";
+const USER_COUNT_KEY = "reenBankUserCount";
+const PENDING_USER_KEY = "reenBankPendingUser";
+const OTP_KEY = "reenBankOTP";
+const OTP_EXPIRES_KEY = "reenBankOTPExpires";
+const PREFILL_EMAIL_KEY = "reenBankPrefillEmail";
+const CURRENT_USER_KEY = "reenBankCurrentUser";
+const REMEMBER_ME_KEY = "reenBankRememberMe";
 
-    // PREFILL EMAIL FROM FOOTER
-    const savedEmail =
-        localStorage.getItem("reenBankPrefillEmail");
+/*
+   One-time migration for the previous version of this project.
+   If an older build stored a single "reenBankUser", move it into
+   the new multi-user system instead of losing that account.
+*/
+function migrateLegacyUser() {
+    const legacy = localStorage.getItem("reenBankUser");
 
-    if (savedEmail) {
-        document.getElementById("email").value = savedEmail;
+    if (!legacy || getUserCount() > 0) return;
 
-        // Remove it after using it
-        localStorage.removeItem("reenBankPrefillEmail");
+    try {
+        const oldUser = JSON.parse(legacy);
+
+        if (!oldUser || !oldUser.email || !oldUser.password) return;
+
+        const number = 1;
+
+        /*
+           The old version stored the password as plain text.
+           It is immediately converted to a SHA-256 hash when
+           the migration runs.
+        */
+        hashPassword(oldUser.password).then(passwordHash => {
+            const migratedUser = {
+                id: "user1",
+                name: oldUser.name || "",
+                email: oldUser.email.toLowerCase(),
+                passwordHash,
+                termsAccepted: true,
+                verified: true,
+                createdAt: new Date().toISOString(),
+                migratedFromLegacy: true
+            };
+
+            saveUser(number, migratedUser);
+            localStorage.setItem(USER_COUNT_KEY, "1");
+            localStorage.removeItem("reenBankUser");
+        });
+    } catch {
+        // Ignore invalid legacy data.
+    }
+}
+
+/* ---------------------------------------------------------
+   Small helpers
+   --------------------------------------------------------- */
+
+function getElement(id) {
+    return document.getElementById(id);
+}
+
+function showMessage(element, message, type = "error") {
+    if (!element) return;
+
+    element.textContent = message;
+    element.classList.remove("hidden", "text-red-500", "text-primary");
+
+    element.classList.add(
+        type === "success" ? "text-primary" : "text-red-500"
+    );
+}
+
+function hideMessage(element) {
+    if (!element) return;
+
+    element.textContent = "";
+    element.classList.add("hidden");
+    element.classList.remove("text-red-500", "text-primary");
+}
+
+function getUserCount() {
+    return Number(localStorage.getItem(USER_COUNT_KEY)) || 0;
+}
+
+function getUserKey(number) {
+    return `${USERS_PREFIX}${number}`;
+}
+
+function getUser(number) {
+    const saved = localStorage.getItem(getUserKey(number));
+
+    if (!saved) return null;
+
+    try {
+        return JSON.parse(saved);
+    } catch {
+        return null;
+    }
+}
+
+function saveUser(number, user) {
+    localStorage.setItem(getUserKey(number), JSON.stringify(user));
+}
+
+function getAllUsers() {
+    const users = [];
+
+    for (let i = 1; i <= getUserCount(); i++) {
+        const user = getUser(i);
+
+        if (user) {
+            users.push({
+                ...user,
+                userNumber: i
+            });
+        }
     }
 
-    // REGISTER SUBMIT
-    registerForm.addEventListener("submit", function (event) {
+    return users;
+}
 
-        // Stop the page from refreshing
+/* ---------------------------------------------------------
+   Password security
+   --------------------------------------------------------- */
+
+/*
+   Minimum rule:
+   - At least 8 characters
+   - At least one letter
+   - At least one number
+*/
+function validatePassword(password) {
+    if (password.length < 8) {
+        return "Password must be at least 8 characters long.";
+    }
+
+    if (!/[A-Za-z]/.test(password)) {
+        return "Password must contain at least one letter.";
+    }
+
+    if (!/[0-9]/.test(password)) {
+        return "Password must contain at least one number.";
+    }
+
+    return "";
+}
+
+async function hashPassword(password) {
+    const data = new TextEncoder().encode(password);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+
+    return Array.from(new Uint8Array(hashBuffer))
+        .map(byte => byte.toString(16).padStart(2, "0"))
+        .join("");
+}
+
+migrateLegacyUser();
+
+/* ---------------------------------------------------------
+   Password eye helpers
+   --------------------------------------------------------- */
+
+function setupPasswordToggle({
+    input,
+    button,
+    icon,
+    wrapper
+}) {
+    if (!input || !button || !icon) return;
+
+    function updateEye() {
+        /*
+           Eye is hidden when there is no password.
+           Eye appears as soon as the user types.
+        */
+        if (input.value.length > 0) {
+            button.classList.remove("hidden");
+            button.classList.add("flex");
+        } else {
+            button.classList.add("hidden");
+            button.classList.remove("flex");
+
+            // Always return to hidden-password mode.
+            input.type = "password";
+            icon.src = "../assets/icons/eye-closed.svg";
+            button.setAttribute("aria-label", "Show password");
+        }
+    }
+
+    function togglePassword(event) {
         event.preventDefault();
 
-        // Get values
-        const name = document.getElementById("name").value.trim();
-        const email = document.getElementById("email").value.trim();
-        const password = document.getElementById("password").value;
-        const terms = document.getElementById("terms").checked;
+        if (input.value.length === 0) return;
 
-        // BASIC VALIDATION
+        const isHidden = input.type === "password";
+
+        input.type = isHidden ? "text" : "password";
+
+        icon.src = isHidden
+            ? "../assets/icons/eye.svg"
+            : "../assets/icons/eye-closed.svg";
+
+        button.setAttribute(
+            "aria-label",
+            isHidden ? "Hide password" : "Show password"
+        );
+    }
+
+    input.addEventListener("input", updateEye);
+
+    button.addEventListener("click", togglePassword);
+
+    /*
+       Clicking anywhere inside the password wrapper focuses
+       the password input, including the empty outer area.
+       Clicking the eye itself still toggles visibility.
+    */
+    if (wrapper) {
+        wrapper.addEventListener("click", function(event) {
+            if (event.target.closest("button")) return;
+            input.focus();
+        });
+    }
+
+    updateEye();
+}
+
+/* =========================================================
+   REGISTER PAGE
+   ========================================================= */
+
+const registerForm = getElement("register-form");
+
+if (registerForm) {
+    const nameInput = getElement("name");
+    const emailInput = getElement("email");
+    const passwordInput = getElement("password");
+    const termsInput = getElement("terms");
+    const registerMessage = getElement("register-message");
+
+    const toggleButton = getElement("toggle-register-password");
+    const passwordIcon = getElement("register-password-icon");
+
+    const passwordWrapper = passwordInput
+        ? passwordInput.closest(".relative")
+        : null;
+
+    setupPasswordToggle({
+        input: passwordInput,
+        button: toggleButton,
+        icon: passwordIcon,
+        wrapper: passwordWrapper
+    });
+
+    /* Prefill email from the landing-page CTA */
+    const savedEmail = localStorage.getItem(PREFILL_EMAIL_KEY);
+
+    if (savedEmail && emailInput) {
+        emailInput.value = savedEmail;
+        localStorage.removeItem(PREFILL_EMAIL_KEY);
+    }
+
+    registerForm.addEventListener("submit", async function(event) {
+        event.preventDefault();
+        hideMessage(registerMessage);
+
+        const name = nameInput.value.trim();
+        const email = emailInput.value.trim().toLowerCase();
+        const password = passwordInput.value;
+        const termsAccepted = termsInput.checked;
+
+        /* ---------------------------------------------
+           Registration validation
+           --------------------------------------------- */
+
         if (name === "") {
-            alert("Please enter your name.");
+            showMessage(registerMessage, "Please enter your name.");
+            nameInput.focus();
             return;
         }
+
         if (email === "") {
-            alert("Please enter your email.");
+            showMessage(registerMessage, "Please enter your email.");
+            emailInput.focus();
             return;
         }
-        if (password === "") {
-            alert("Please enter your password.");
+
+        if (!emailInput.checkValidity()) {
+            showMessage(registerMessage, "Please enter a valid email address.");
+            emailInput.focus();
             return;
         }
-        if (password.length < 8) {
-            alert("Password must be at least 8 characters long.");
+
+        const passwordError = validatePassword(password);
+
+        if (passwordError) {
+            showMessage(registerMessage, passwordError);
+            passwordInput.focus();
             return;
         }
-        if (!terms) {
-            alert(
+
+        if (!termsAccepted) {
+            showMessage(
+                registerMessage,
                 "Please agree to the Terms, Privacy Policy and Fees."
             );
+            termsInput.focus();
             return;
         }
 
-        // GENERATE 6-DIGIT OTP
-        const otp = Math.floor(100000 + Math.random() * 900000);
+        /* ---------------------------------------------
+           Prevent duplicate email accounts
+           --------------------------------------------- */
 
-        // Development only
-        console.log("Development OTP:", otp);
+        const existingUser = getAllUsers().find(
+            user => user.email.toLowerCase() === email
+        );
 
-        // SAVE USER INFORMATION
-        const user = { name: name, email: email, password: password};
+        if (existingUser) {
+            showMessage(
+                registerMessage,
+                "An account with this email already exists. Please log in instead."
+            );
+            emailInput.focus();
+            return;
+        }
 
-        localStorage.setItem("reenBankUser", JSON.stringify(user));
+        /* ---------------------------------------------
+           Create a permanent user number
+           --------------------------------------------- */
 
-        // SAVE OTP
-        localStorage.setItem("reenBankOTP", otp.toString());
+        const userNumber = getUserCount() + 1;
+        const userKey = getUserKey(userNumber);
+        const passwordHash = await hashPassword(password);
 
-        // MOVE TO OTP PAGE
+        const user = {
+            id: userKey,
+            name,
+            email,
+            passwordHash,
+            termsAccepted: true,
+            verified: false,
+            createdAt: new Date().toISOString()
+        };
+
+        saveUser(userNumber, user);
+
+        localStorage.setItem(USER_COUNT_KEY, String(userNumber));
+
+        /* ---------------------------------------------
+           Generate OTP
+           --------------------------------------------- */
+
+        const otp = String(
+            Math.floor(100000 + Math.random() * 900000)
+        );
+
+        const otpExpiresAt = Date.now() + 5 * 60 * 1000;
+
+        localStorage.setItem(OTP_KEY, otp);
+        localStorage.setItem(OTP_EXPIRES_KEY, String(otpExpiresAt));
+        localStorage.setItem(PENDING_USER_KEY, userKey);
+
+        /*
+           Development mode:
+           The real app would send this OTP by email.
+           Keeping it in localStorage lets the current
+           frontend-only project continue working.
+        */
+        console.log(`Development OTP for ${userKey}:`, otp);
+
         window.location.href = "./otp-verification.html";
     });
 }
 
+/* =========================================================
+   OTP VERIFICATION PAGE
+   ========================================================= */
 
-// OTP VERIFICATION
-const otpForm = document.getElementById("otp-form");
+const otpForm = getElement("otp-form");
+
 if (otpForm) {
-
-    // GET OTP ELEMENTS
     const otpInputs = document.querySelectorAll(".otp-input");
-    const otpTimer = document.getElementById("otp-timer");
-    const resendButton = document.getElementById("resend-code");
-    const verifyButton = document.getElementById("verify-otp");
-    const otpMessage = document.getElementById("otp-message");
-    const maskedEmail = document.getElementById("masked-email");
-    const changeEmail = document.getElementById("change-email");
+    const otpTimer = getElement("otp-timer");
+    const resendButton = getElement("resend-code");
+    const otpMessage = getElement("otp-message");
+    const maskedEmail = getElement("masked-email");
+    const changeEmail = getElement("change-email");
 
-    // GET SAVED USER
-    const savedUser = JSON.parse(localStorage.getItem("reenBankUser"));
+    const pendingUserKey = localStorage.getItem(PENDING_USER_KEY);
 
-    // MASK EMAIL
+    function getPendingUser() {
+        if (!pendingUserKey) return null;
+
+        const match = pendingUserKey.match(/^user(\d+)$/);
+
+        if (!match) return null;
+
+        return getUser(Number(match[1]));
+    }
+
     function maskEmail(email) {
-        if (!email || !email.includes("@")) {
-            return "";
-        }
+        if (!email || !email.includes("@")) return "";
 
-        const parts = email.split("@");
-        const username = parts[0];
-        const domain = parts[1];
+        const [username, domain] = email.split("@");
 
-        // Very short username
         if (username.length <= 2) {
-            return username[0] + "***@" + domain;
+            return `${username[0] || ""}***@${domain}`;
         }
 
-        // Keep first and last character
-        const firstCharacter = username[0];
-        const lastCharacter = username[username.length - 1];
-        const stars = "*".repeat(Math.max(3, username.length - 2));
-
-        return (firstCharacter + stars + lastCharacter + "@" + domain);
+        return (
+            username[0] +
+            "*".repeat(Math.max(username.length - 2, 1)) +
+            username[username.length - 1] +
+            "@" +
+            domain
+        );
     }
 
-    // DISPLAY MASKED EMAIL
-    if (savedUser && savedUser.email) {
-        maskedEmail.textContent = maskEmail(savedUser.email);
+    function showOTPMessage(message, type = "error") {
+        showMessage(otpMessage, message, type);
     }
 
-    // CHANGE EMAIL
-    changeEmail.addEventListener("click", function () {
+    const pendingUser = getPendingUser();
 
-        // Take the user back to registration
-        window.location.href = "./register.html";
-    });
+    if (pendingUser && maskedEmail) {
+        maskedEmail.textContent = maskEmail(pendingUser.email);
+    }
 
-    // OTP INPUT FUNCTIONALITY
-    otpInputs.forEach(function (input, index) {
+    if (changeEmail) {
+        changeEmail.addEventListener("click", function() {
+            window.location.href = "./register.html";
+        });
+    }
 
-        // Only allow numbers
-        input.addEventListener("input", function () {
-            input.value = input.value.replace(/\D/g, "");
+    /* OTP input behavior */
+    otpInputs.forEach((input, index) => {
+        input.addEventListener("input", function() {
+            input.value = input.value.replace(/\D/g, "").slice(0, 1);
 
-            // Move to next box
-            if (
-                input.value &&
-                index < otpInputs.length - 1
-            ) {
+            if (input.value && otpInputs[index + 1]) {
                 otpInputs[index + 1].focus();
             }
         });
 
-        // Backspace
-        input.addEventListener("keydown", function (event) {
+        input.addEventListener("keydown", function(event) {
             if (
                 event.key === "Backspace" &&
-                input.value === "" &&
-                index > 0
+                !input.value &&
+                otpInputs[index - 1]
             ) {
                 otpInputs[index - 1].focus();
             }
         });
 
-        // Prevent non-number keys
-        input.addEventListener("keypress", function (event) {
-            if (!/[0-9]/.test(event.key)) {
-                event.preventDefault();
-            }
+        input.addEventListener("paste", function(event) {
+            event.preventDefault();
+
+            const pasted = event.clipboardData
+                .getData("text")
+                .replace(/\D/g, "")
+                .slice(0, otpInputs.length);
+
+            pasted.split("").forEach((digit, i) => {
+                if (otpInputs[i]) {
+                    otpInputs[i].value = digit;
+                }
+            });
+
+            const nextEmpty = Array.from(otpInputs).find(
+                field => field.value === ""
+            );
+
+            (nextEmpty || otpInputs[otpInputs.length - 1]).focus();
         });
     });
 
-    // PASTE OTP
-    otpInputs[0].addEventListener("paste",
-         function (event) {
+    function startOTPTimer() {
+        if (!otpTimer) return;
 
-            event.preventDefault();
-
-            const pastedOTP = event.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
-
-            pastedOTP.split("").forEach(
-                function (digit, index) {
-
-                    if (otpInputs[index]) {
-                        otpInputs[index].value = digit;
-                    }
-                }
+        function updateTimer() {
+            const expiresAt = Number(
+                localStorage.getItem(OTP_EXPIRES_KEY)
             );
 
-            // Focus last filled box
-            const nextIndex = Math.min(pastedOTP.length, otpInputs.length - 1);
-            otpInputs[nextIndex].focus();
+            const remaining = Math.max(
+                0,
+                Math.ceil((expiresAt - Date.now()) / 1000)
+            );
+
+            const minutes = Math.floor(remaining / 60);
+            const seconds = String(remaining % 60).padStart(2, "0");
+
+            otpTimer.textContent =
+                `${minutes}:${seconds} remaining`;
+
+            if (remaining <= 0) {
+                otpTimer.classList.add("text-red-500");
+                otpTimer.classList.remove("text-primary");
+            } else {
+                otpTimer.classList.remove("text-red-500");
+                otpTimer.classList.add("text-primary");
+                setTimeout(updateTimer, 1000);
+            }
         }
-    );
 
-    // SHOW MESSAGE
-    function showMessage(message, type) {
-
-        otpMessage.textContent = message;
-        otpMessage.classList.remove("hidden", "text-red-500", "text-primary");
-
-        if (type === "error") {
-            otpMessage.classList.add("text-red-500");
-
-        } else {otpMessage.classList.add("text-primary");
-        }
+        updateTimer();
     }
 
+    startOTPTimer();
 
-    // VERIFY OTP
-    otpForm.addEventListener("submit", function (event) {
-            event.preventDefault();
+    otpForm.addEventListener("submit", function(event) {
+        event.preventDefault();
+        hideMessage(otpMessage);
 
-            // Combine all six inputs
-            let enteredOTP = "";
-            otpInputs.forEach(function (input) {
-                enteredOTP += input.value;
-            });
+        let enteredOTP = "";
 
-            // Check if all six digits exist
-            if (enteredOTP.length !== 6) {
+        otpInputs.forEach(input => {
+            enteredOTP += input.value;
+        });
 
-                showMessage(
-                    "Please enter the complete 6-digit verification code.",
-                    "error"
-                );
-
-                return;
-            }
-
-            // Get generated OTP
-            const savedOTP = localStorage.getItem("reenBankOTP");
-
-            // Compare OTPs
-            if (enteredOTP === savedOTP) {
-
-                // Remove OTP after successful verification
-                localStorage.removeItem("reenBankOTP");
-
-                // Get the seccess overlay
-                const successOverlay = document.getElementById("success-overlay");
-
-                // Show the overlay
-                successOverlay.classList.remove("hidden");
-                successOverlay.classList.add("flex");
-
-                // Go to Dashboard
-                const successContinue = document.getElementById("success-continue");
-                successContinue.addEventListener("click", function () {
-                    window.location.href = "./dashboard.html";
-                });
-          
-            } else {
-                showMessage("Invalid verification code, please try again.", "error");
-            }
+        if (enteredOTP.length !== 6) {
+            showOTPMessage(
+                "Please enter the complete 6-digit verification code."
+            );
+            return;
         }
-    );
 
-    // OTP COUNTDOWN
-    let timeLeft = 45;
-    let timer;
-
-    function startTimer() {
-        timeLeft = 45;
-        resendButton.disabled = true;
-        resendButton.classList.add("cursor-not-allowed", "opacity-50"
+        const savedOTP = localStorage.getItem(OTP_KEY);
+        const expiresAt = Number(
+            localStorage.getItem(OTP_EXPIRES_KEY)
         );
 
-        timer = setInterval(function () {
-            const seconds = timeLeft.toString().padStart(2, "0");
-            otpTimer.textContent = `0:${seconds} remaining`;
-            timeLeft--;
-
-            if (timeLeft < 0) {
-                clearInterval(timer);
-                otpTimer.textContent = "Code expired. You can request a new one.";
-                resendButton.disabled = false;
-
-                resendButton.classList.remove("cursor-not-allowed", "opacity-50"
-                );
-            }
-
-        }, 1000);
-    }
-
-
-    // RESEND OTP
-    resendButton.addEventListener("click", function () {
-
-            // Generate new OTP
-            const newOTP = Math.floor(100000 + Math.random() * 900000);
-
-            // Save new OTP
-            localStorage.setItem("reenBankOTP", newOTP.toString());
-
-            // Development only
-            console.log("New Development OTP:", newOTP);
-
-            // Clear previous inputs
-            otpInputs.forEach(function (input) {
-                input.value = "";
-            });
-
-            // Focus first box
-            otpInputs[0].focus();
-
-            // Message
-            showMessage("A new verification code has been generated.", "success"
+        if (!pendingUser) {
+            showOTPMessage(
+                "Your registration session could not be found. Please register again."
             );
-
-            // Restart timer
-            clearInterval(timer);
-            startTimer();
+            return;
         }
-    );
 
-    // START TIMER
-    startTimer();
-}
+        if (!savedOTP || Date.now() > expiresAt) {
+            showOTPMessage(
+                "This verification code has expired. Please request a new code."
+            );
+            return;
+        }
 
-// LOGIN FORM
-const loginForm = document.getElementById("login-form");
+        if (enteredOTP !== savedOTP) {
+            showOTPMessage(
+                "Invalid verification code, please try again."
+            );
+            return;
+        }
 
-if (loginForm) {
+        /* Mark the correct user as verified */
+        const userNumber = Number(
+            pendingUserKey.replace("user", "")
+        );
 
-    // LOGIN ELEMENTS
-    const loginEmail = document.getElementById("login-email");
-    const loginPassword = document.getElementById("login-password");
-    const rememberMe = document.getElementById("remember-me");
-    const loginMessage = document.getElementById("login-message");
-    const togglePassword = document.getElementById("toggle-login-password");
-    const passwordIcon = document.getElementById("login-password-icon");
+        const verifiedUser = {
+            ...pendingUser,
+            verified: true,
+            verifiedAt: new Date().toISOString()
+        };
 
-    // PASSWORD VISIBILITY
-    togglePassword.addEventListener("click", function () {
-        if (loginPassword.type === "password") {
+        saveUser(userNumber, verifiedUser);
 
-            // Show Password
-            loginPassword.type = "text";
+        localStorage.removeItem(OTP_KEY);
+        localStorage.removeItem(OTP_EXPIRES_KEY);
+        localStorage.removeItem(PENDING_USER_KEY);
 
-            // Change to Open-eye icon
-            passwordIcon.src = "../assets/icons/eye.svg";
+        localStorage.setItem(
+            CURRENT_USER_KEY,
+            JSON.stringify({
+                id: verifiedUser.id,
+                name: verifiedUser.name,
+                email: verifiedUser.email
+            })
+        );
 
-            togglePassword.setAttribute("aria-label", "Hide password");
+        const successOverlay = getElement("success-overlay");
 
-        } else {
+        if (successOverlay) {
+            successOverlay.classList.remove("hidden");
+            successOverlay.classList.add("flex");
+        }
 
-            // Hide Password
-            loginPassword.type = "password";
+        const successContinue = getElement("success-continue");
 
-            // Change back to closed-eye icon
-            passwordIcon.src = "../assets/icons/eye-closed.svg"
-            
-            togglePassword.setAttribute("aria-label", "Show password");
+        if (successContinue) {
+            successContinue.onclick = function() {
+                window.location.href = "./dashboard.html";
+            };
         }
     });
 
-    // LOGIN SUBMIT
-    loginForm.addEventListener("submit", function (event) {
+    /* Resend OTP */
+    if (resendButton) {
+        resendButton.addEventListener("click", function() {
+            if (!pendingUser) {
+                showOTPMessage(
+                    "Registration session not found. Please register again."
+                );
+                return;
+            }
 
-        // Prevent page refresh
+            const newOTP = String(
+                Math.floor(100000 + Math.random() * 900000)
+            );
+
+            localStorage.setItem(OTP_KEY, newOTP);
+            localStorage.setItem(
+                OTP_EXPIRES_KEY,
+                String(Date.now() + 5 * 60 * 1000)
+            );
+
+            console.log(
+                `Development OTP for ${pendingUser.id}:`,
+                newOTP
+            );
+
+            showOTPMessage(
+                "A new verification code has been generated.",
+                "success"
+            );
+
+            startOTPTimer();
+        });
+    }
+}
+
+/* =========================================================
+   LOGIN PAGE
+   ========================================================= */
+
+const loginForm = getElement("login-form");
+
+if (loginForm) {
+    const loginEmail = getElement("login-email");
+    const loginPassword = getElement("login-password");
+    const rememberMe = getElement("remember-me");
+    const loginMessage = getElement("login-message");
+
+    const toggleButton = getElement("toggle-login-password");
+    const passwordIcon = getElement("login-password-icon");
+
+    const passwordWrapper = loginPassword
+        ? loginPassword.closest(".relative")
+        : null;
+
+    setupPasswordToggle({
+        input: loginPassword,
+        button: toggleButton,
+        icon: passwordIcon,
+        wrapper: passwordWrapper
+    });
+
+    function findUserByEmail(email) {
+        return getAllUsers().find(
+            user => user.email.toLowerCase() === email.toLowerCase()
+        );
+    }
+
+    loginForm.addEventListener("submit", async function(event) {
         event.preventDefault();
+        hideMessage(loginMessage);
 
-        // GET VALUES 
-        const email = loginEmail.value.trim();
-
+        const email = loginEmail.value.trim().toLowerCase();
         const password = loginPassword.value;
 
-        // CLEAR OLD MESSAGE
-        loginMessage.textContent = "";
-        loginMessage.classList.add("hidden");
-
-        // BASIC VALIDATION
         if (email === "") {
-            loginMessage.textContent = "Please enter your email.";
+            showMessage(loginMessage, "Please enter your email.");
+            loginEmail.focus();
+            return;
+        }
 
-            loginMessage.classList.remove("hidden");
-            loginMessage.classList.add("text-red-500");
-
+        if (!loginEmail.checkValidity()) {
+            showMessage(loginMessage, "Please enter a valid email address.");
+            loginEmail.focus();
             return;
         }
 
         if (password === "") {
-            loginMessage.textContent = "Please enter your password.";
-
-            loginMessage.classList.remove("hidden");
-            loginMessage.classList.add("text-red-500");
-
+            showMessage(loginMessage, "Please enter your password.");
+            loginPassword.focus();
             return;
         }
 
-        // GET REGISTERED USER
-        const savedUser = JSON.parse(localStorage.getItem("reenBankUser"));
+        /*
+           Login password validation:
+           An invalid/too-short password is rejected before
+           checking the stored account.
+        */
+        const passwordError = validatePassword(password);
 
-        // CHECK IF ACCOUNT EXISTS
-        if (!savedUser) {
-            loginMessage.textContent = "No account found. Please create an account first.";
-
-            loginMessage.classList.remove("hidden");
-            loginMessage.classList.add("text-red-500");
-
+        if (passwordError) {
+            showMessage(
+                loginMessage,
+                "Invalid password. Password must be at least 8 characters and contain a letter and a number."
+            );
+            loginPassword.focus();
             return;
         }
 
-        // CHECK EMAIL
-        if (email !== savedUser.email) {
-            loginMessage.textContent = "Incorrect email or password.";
+        const user = findUserByEmail(email);
 
-            loginMessage.classList.remove("hidden");
-            loginMessage.classList.add("text-red-500");
-
+        if (!user) {
+            showMessage(
+                loginMessage,
+                "Invalid email or password."
+            );
             return;
         }
 
-        // CHECK PASSWORD
-        if (password !== savedUser.password) {
-            loginMessage.textContent = "Incorrect email or password.";
-            loginMessage.classList.remove("hidden");
-            loginMessage.classList.add("text-red-500");
-
+        if (!user.verified) {
+            showMessage(
+                loginMessage,
+                "Please verify your email before logging in."
+            );
             return;
         }
 
-        // REMEMBER ME
-        if (rememberMe.checked) {
+        const passwordHash = await hashPassword(password);
 
-            localStorage.setItem("reenBankRememberMe","true");
+        if (passwordHash !== user.passwordHash) {
+            showMessage(
+                loginMessage,
+                "Invalid email or password."
+            );
+            return;
+        }
 
+        /*
+           Remember only the logged-in user's ID.
+           Account records themselves remain stored permanently.
+        */
+        if (rememberMe && rememberMe.checked) {
+            localStorage.setItem(
+                REMEMBER_ME_KEY,
+                user.id
+            );
         } else {
-
-            localStorage.removeItem("reenBankRememberMe");
+            localStorage.removeItem(REMEMBER_ME_KEY);
         }
 
-        // LOGIN SUCCESS
-        loginMessage.textContent = "Login successful!";
-        loginMessage.classList.remove("hidden");
-        loginMessage.classList.remove("text-red-500");
-        loginMessage.classList.add("text-primary");
+        localStorage.setItem(
+            CURRENT_USER_KEY,
+            JSON.stringify({
+                id: user.id,
+                name: user.name,
+                email: user.email
+            })
+        );
 
-        // GO TO DASHBOARD
-        setTimeout(function () {
+        showMessage(
+            loginMessage,
+            "Login successful!",
+            "success"
+        );
+
+        setTimeout(function() {
             window.location.href = "./dashboard.html";
-
         }, 700);
     });
 }

@@ -1836,3 +1836,20 @@
     }
   }
 }
+/* Reen Bank navbar alignment utilities generated for the current Tailwind classes */
+@media (width >= 64rem) {
+  [class~="lg:grid-cols-[minmax(0,1.35fr)_minmax(340px,0.92fr)]"] {
+    grid-template-columns: minmax(0, 1.35fr) minmax(340px, 0.92fr);
+  }
+  [class~="lg:gap-x-[clamp(24px,3.5vw,56px)]"] {
+    column-gap: clamp(24px, 3.5vw, 56px);
+  }
+}
+@media (width >= 1400px) {
+  [class~="min-[1400px]:grid-cols-[570px_390px]"] {
+    grid-template-columns: 570px 390px;
+  }
+  [class~="min-[1400px]:gap-x-[80px]"] {
+    column-gap: 80px;
+  }
+}
