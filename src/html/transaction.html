@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- =========================================================
+       PAGE SETUP
+       ========================================================= -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Transactions | Reen Bank</title>
+
+  <!-- Tailwind CSS compiled output -->
+  <link rel="stylesheet" href="../output.css">
+
+  <!-- Google Fonts: Poppins -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  >
+</head>
+
+
+<body class="h-screen overflow-hidden bg-[#f2fbf8] font-poppins text-[#242424]">
+
+  <!-- =========================================================
+       BACKGROUND
+       ========================================================= -->
+  <div
+    class="pointer-events-none fixed inset-0 -z-10 bg-[#f2fbf8]"
+    aria-hidden="true"
+  ></div>
+
+
+  <!-- =========================================================
+       MAIN PAGE WRAPPER
+       ========================================================= -->
+  <div class="flex h-screen min-h-0">
+
+
+    <!-- =======================================================
+         SIDEBAR / DESKTOP NAVIGATION
+         ======================================================= -->
+    <aside
+      id="dashboard-sidebar"
+      class="fixed inset-y-0 left-0 z-50 flex w-[270px] -translate-x-full flex-col overflow-hidden bg-[#f2fbf8] px-8 py-8 transition-transform duration-300 lg:translate-x-0"
+    >
+
+      <!-- ReenBank Logo -->
+      <div class="flex items-center">
+        <img
+          src="../assets/images/logo.png"
+          alt="Reen Bank"
+          class="h-11 w-auto"
+        >
+      </div>
+
+
+      <!-- Sidebar Navigation Links -->
+      <nav
+        class="mt-24"
+        aria-label="Primary navigation"
+      >
+        <ul class="space-y-7">
+
+          <!-- Overview -->
+          <li>
+            <a
+              href="./dashboard.html"
+              class="flex items-center gap-7 text-[15px] font-medium text-[#555555] transition hover:text-primary"
+            >
+              <span class="flex h-7 w-7 shrink-0 items-center justify-center">
+                <img
+                  src="../assets/icons/house.svg"
+                  alt=""
+                  class="h-6 w-6"
+                >
+              </span>
+
+              <span>Overview</span>
+            </a>
+          </li>
+
+
+          <!-- Accounts -->
+          <li>
+            <a
+              href="./accounts.html"
+              class="flex items-center gap-7 text-[15px] font-medium text-[#555555] transition hover:text-primary"
+            >
+              <span class="flex h-7 w-7 shrink-0 items-center justify-center">
+                <img
+                  src="../assets/icons/credit-card.svg"
+                  alt=""
+                  class="h-6 w-6"
+                >
+              </span>
+
+              <span>Accounts</span>
+            </a>
+          </li>
+
+
+          <!-- Transactions - ACTIVE PAGE -->
+          <li>
+            <a
+              href="./transaction.html"
+              aria-current="page"
+              class="flex items-center gap-7 text-[15px] font-semibold text-primary"
+            >
+              <span class="flex h-7 w-7 shrink-0 items-center justify-center">
+                <img
+                  src="../assets/icons/arrow-left-right.svg"
+                  alt=""
+                  class="h-6 w-6"
+                >
+              </span>
+
+              <span>Transactions</span>
+            </a>
+          </li>
+
+
+          <!-- Profile -->
+          <li>
+            <a
+              href="./profile.html"
+              class="flex items-center gap-7 text-[15px] font-medium text-[#555555] transition hover:text-primary"
+            >
+              <span class="flex h-7 w-7 shrink-0 items-center justify-center">
+                <img
+                  src="../assets/icons/user.svg"
+                  alt=""
+                  class="h-6 w-6"
+                >
+              </span>
+
+              <span>Profile</span>
+            </a>
+          </li>
+
+        </ul>
+      </nav>
+
+
+      <!-- Sidebar Logout Button -->
+      <div class="mt-auto">
+        <button
+          id="logout-button"
+          type="button"
+          class="flex items-center gap-7 text-[15px] font-medium text-[#555555] transition hover:text-red-500"
+        >
+          <span class="flex h-7 w-7 shrink-0 items-center justify-center">
+            <img
+              src="../assets/icons/log-out.svg"
+              alt=""
+              class="h-6 w-6"
+            >
+          </span>
+
+          <span>Logout</span>
+        </button>
+      </div>
+
+    </aside>
+
+
+    <!-- =======================================================
+         MOBILE SIDEBAR OVERLAY
+         ======================================================= -->
+    <div
+      id="dashboard-overlay"
+      class="fixed inset-0 z-40 hidden bg-black/30 lg:hidden"
+    ></div>
+
+
+    <!-- =======================================================
+         MAIN CONTENT AREA
+         ======================================================= -->
+    <main
+      class="min-w-0 min-h-0 flex-1 overflow-hidden px-4 sm:px-6 lg:ml-[260px] lg:px-8 xl:px-10"
+    >
+
+      <div class="flex h-full min-h-0 flex-col">
+
+
+<!-- ===================================================
+     TOP NAVBAR / HEADER
+     =================================================== -->
+<header class="shrink-0 pt-5 sm:pt-6 lg:pt-7">
+
+  <!--
+    Desktop layout:
+    - Left: Transactions title
+    - Right: Account identity + Search + Notification + Profile
+  -->
+  <div
+    class="grid min-w-0 items-center gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-10"
+  >
+
+    <!-- =================================================
+         PAGE TITLE
+         ================================================= -->
+    <div class="flex min-w-0 items-center gap-3">
+
+      <!-- Mobile Menu Button -->
+      <button
+        id="dashboard-menu-button"
+        type="button"
+        aria-label="Open navigation menu"
+        aria-expanded="false"
+        aria-controls="dashboard-sidebar"
+        class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-black/10 bg-white lg:hidden"
+      >
+        <img
+          src="../assets/icons/menu.svg"
+          alt=""
+          class="h-4 w-4"
+        >
+      </button>
+
+      <!-- Page Title -->
+      <h1
+        class="m-0 shrink-0 text-[28px] font-semibold leading-none tracking-tight sm:text-[32px]"
+      >
+        Transactions
+      </h1>
+
+    </div>
+
+
+    <!-- =================================================
+         RIGHT SIDE:
+         ACCOUNT IDENTITY + SEARCH + NOTIFICATION + PROFILE
+         ================================================= -->
+    <div
+      class="flex min-w-0 items-center justify-end gap-7 lg:gap-8"
+    >
+
+      <!-- ===============================================
+           DESKTOP ACCOUNT IDENTITY
+           -----------------------------------------------
+           The identity block now uses its natural width.
+           It will not be forced to 145px wide.
+           =============================================== -->
+      <div
+        class="hidden w-fit items-center justify-center lg:flex"
+      >
+
+        <div class="w-fit text-center">
+
+          <!-- Account Name -->
+          <p
+            id="dashboard-user-name"
+            class="whitespace-nowrap text-[13px] font-medium leading-[1.2] text-primary"
+          >
+            Maureen Oguche
+          </p>
+
+          <!-- Account Number -->
+          <p
+            id="dashboard-account-number"
+            class="mt-1 whitespace-nowrap text-[24px] font-bold leading-none text-[#242424]"
+          >
+            1234567890
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <!-- ===============================================
+           MOBILE ACCOUNT INFORMATION
+           -----------------------------------------------
+           Hidden on desktop.
+           =============================================== -->
+      <span
+        id="dashboard-user-name-mobile"
+        class="hidden"
+      >
+        Maureen Oguche
+      </span>
+
+      <span
+        id="dashboard-account-number-mobile"
+        class="hidden"
+      >
+        1234567890
+      </span>
+
+
+      <!-- ===============================================
+           SEARCH
+           -----------------------------------------------
+           Kept close to identity but with breathing room.
+           =============================================== -->
+      <div
+        class="hidden min-w-0 items-center gap-2 md:flex"
+      >
+
+        <img
+          src="../assets/icons/search.svg"
+          alt="Search"
+          class="h-5 w-5 shrink-0"
+        >
+
+        <input
+          id="transaction-search"
+          type="search"
+          placeholder="Search"
+          aria-label="Search"
+          class="w-24 bg-transparent text-xs outline-none placeholder:text-[#777] sm:w-28"
+        >
+
+      </div>
+
+
+      <!-- ===============================================
+           MOBILE SEARCH BUTTON
+           =============================================== -->
+      <button
+        type="button"
+        aria-label="Search"
+        class="flex h-8 w-8 items-center justify-center md:hidden"
+      >
+        <img
+          src="../assets/icons/search.svg"
+          alt=""
+          class="h-5 w-5"
+        >
+      </button>
+
+
+      <!-- ===============================================
+           NOTIFICATIONS
+           =============================================== -->
+      <div class="relative">
+
+        <button
+          id="dashboard-notification-button"
+          type="button"
+          aria-label="Notifications"
+          aria-expanded="false"
+          class="relative flex h-8 w-8 shrink-0 items-center justify-center"
+        >
+
+          <img
+            src="../assets/icons/bell.svg"
+            alt=""
+            class="h-5 w-5 opacity-70"
+          >
+
+          <!-- Notification Dot -->
+          <span
+            id="dashboard-notification-dot"
+            class="absolute right-1 top-1 hidden h-2 w-2 rounded-full bg-danger"
+          ></span>
+
+        </button>
+
+
+        <!-- Notification Dropdown -->
+        <div
+          id="dashboard-notification-panel"
+          class="absolute right-0 top-10 z-[90] hidden w-[310px] rounded-xl border border-[#dce7e2] bg-white p-4 shadow-xl"
+        >
+
+          <!-- Notification Header -->
+          <div class="flex items-center justify-between gap-3">
+
+            <h3 class="text-sm font-semibold text-[#111]">
+              Notifications
+            </h3>
+
+            <button
+              id="dashboard-clear-notifications"
+              type="button"
+              class="text-xs font-semibold text-primary hover:underline"
+            >
+              Clear
+            </button>
+
+          </div>
+
+
+          <!-- Notification List -->
+          <div
+            id="dashboard-notification-list"
+            class="mt-3 space-y-2"
+          ></div>
+
+        </div>
+
+      </div>
+
+
+      <!-- ===============================================
+           PROFILE AVATAR
+           =============================================== -->
+      <a
+        id="dashboard-profile-link"
+        href="./profile.html"
+        aria-label="Open profile"
+        class="relative inline-flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[rgba(69,32,128,0.08)] bg-[#e2cfff] text-sm font-bold leading-none text-[#452080] no-underline sm:h-11 sm:w-11"
+      >
+
+        <span
+          id="dashboard-profile-initials"
+          aria-hidden="true"
+          class="absolute inset-0 flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-[#e2cfff] bg-cover bg-center bg-no-repeat"
+        >
+          MO
+        </span>
+
+      </a>
+
+    </div>
+
+  </div>
+
+</header>
+
+        <!-- ===================================================
+             TRANSACTIONS PAGE CONTENT
+             =================================================== -->
+        <section
+          class="flex min-h-0 flex-1 flex-col overflow-hidden pt-4 sm:pt-5 lg:pt-6"
+        >
+
+
+          <!-- =================================================
+               ACCOUNT CARDS / ACCOUNT SELECTOR
+               Horizontal scrolling is allowed here.
+               ================================================= -->
+          <div
+            class="min-w-0 overflow-x-auto overflow-y-hidden pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
+
+            <div
+              id="transaction-accounts-container"
+              class="flex min-w-0 gap-5 md:gap-6"
+              aria-label="Accounts"
+            ></div>
+
+          </div>
+<!-- =================================================
+     SCROLLABLE TRANSACTION LIST
+     ================================================= -->
+<div class="mt-3 min-h-0 flex-1 overflow-hidden">
+
+  <div class="reen-transaction-list h-full min-h-0">
+
+    <div
+      id="full-transactions-list"
+      aria-live="polite"
+      class="min-w-0"
+    ></div>
+
+  </div>
+
+</div>
+
+        </section>
+
+      </div>
+
+    </main>
+
+  </div>
+
+
+  <!-- =========================================================
+       LOGOUT CONFIRMATION OVERLAY
+       ========================================================= -->
+  <div
+    id="logout-overlay"
+    class="fixed inset-0 z-[9999] hidden flex items-center justify-center bg-[radial-gradient(circle_at_50%_50%,rgba(51,183,134,.42)_0%,rgba(51,183,134,.25)_38%,rgba(212,243,231,.60)_72%,rgba(255,255,255,.15)_100%)] p-7 font-poppins backdrop-blur-[3px]"
+    aria-hidden="true"
+  >
+
+    <!-- Logout Modal -->
+    <div
+      id="logout-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="logout-title"
+      class="relative z-[1] box-border rounded-[30px] bg-white text-[#242424] shadow-[0_24px_70px_rgba(51,183,134,0.18)] reen-overlay-card-logout"
+    >
+
+      <!-- Modal Title -->
+      <h2 id="logout-title">
+        Are you sure you want to Logout?
+      </h2>
+
+
+      <!-- Modal Buttons -->
+      <div class="reen-overlay-actions">
+
+        <!-- Cancel Logout -->
+        <button
+          id="cancel-logout"
+          type="button"
+          class="reen-overlay-cancel"
+        >
+          Cancel
+        </button>
+
+
+        <!-- Confirm Logout -->
+        <button
+          id="confirm-logout"
+          type="button"
+          class="reen-overlay-primary"
+        >
+          Logout
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================================================
+       JAVASCRIPT
+       ========================================================= -->
+
+  <!-- Main ReenBank JavaScript -->
+  <script src="../js/bank.js"></script>
+
+</body>
+</html>

@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | Reen Bank</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../output.css">
 </head>
 
@@ -18,9 +21,9 @@
 
                 <!-- Logo -->
                 <div>
-                    <a href="./index.html" class="inline-flex items-center">
-                        <img src="../assets/images/Logo.png" alt="Reen Bank logo" class="h-12 w-auto">
-                    </a>
+                    <div class="inline-flex items-center">
+                        <img src="../assets/images/logo.png" alt="Reen Bank logo" class="h-12 w-auto">
+                    </div>
                 </div>
 
                 <!-- Main Content -->
@@ -90,9 +93,9 @@
                                 <label for="login-password" class="block text-sm font-semibold">
                                     Password
                                 </label>
-                                <a href="#" id="forgot-password" class="text-sm font-semibold text-primary transition hover:opacity-80">
+                                <button type="button" id="forgot-password" class="text-sm font-semibold text-primary transition hover:opacity-80">
                                     Forgot Password?
-                                </a>
+                                </button>
                             </div>
 
                             <div class="relative">
@@ -151,8 +154,112 @@
         </div>
     </main>
 
+
+    <!-- =========================================================
+         RESET PASSWORD — FIGMA FLOW
+         Stage 1: Email → Stage 2: OTP → Stage 3: New Password
+         → Stage 4: Confirmation
+    ========================================================== -->
+    <section id="reset-password-modal" class="fixed inset-0 z-[9999] hidden flex items-center justify-center bg-[radial-gradient(circle_at_50%_50%,rgba(51,183,134,.42)_0%,rgba(51,183,134,.25)_38%,rgba(212,243,231,.60)_72%,rgba(255,255,255,.15)_100%)] p-7 font-poppins backdrop-blur-[3px]" aria-hidden="true">
+        <div class="reset-password-backdrop" data-reset-close></div>
+
+        <div class="reset-password-dialog" role="dialog" aria-modal="true" aria-labelledby="reset-stage-title">
+
+            <!-- STAGE 1 — RESET PASSWORD -->
+            <div id="reset-stage-email" class="reset-stage reset-stage-email">
+                <h2 id="reset-stage-title" class="reset-stage-title">Reset Password</h2>
+
+                <form id="reset-email-form" class="reset-form">
+                    <div class="reset-field">
+                        <label for="reset-email">Email</label>
+                        <div class="reset-input-wrap">
+                            <input
+                                id="reset-email"
+                                type="email"
+                                placeholder="Enter your Email"
+                                autocomplete="email"
+                                required
+                            >
+                            <img src="../assets/icons/mail.svg" alt="" aria-hidden="true">
+                        </div>
+                    </div>
+
+                    <p id="reset-email-message" class="reset-message hidden" aria-live="polite"></p>
+
+                    <button type="submit" class="reset-primary-button">Reset Password</button>
+                </form>
+            </div>
+
+            <!-- STAGE 2 — ENTER OTP -->
+            <div id="reset-stage-otp" class="reset-stage reset-stage-otp hidden">
+                <h2 class="reset-stage-title">Enter Otp</h2>
+
+                <p class="reset-stage-description">
+                    A 6-digit code has been sent to your email as <span id="reset-otp-email">us***me@gmail.com</span>
+                    <button type="button" id="reset-change-email" class="reset-inline-link">Change</button>
+                </p>
+
+                <form id="reset-otp-form" class="reset-form">
+                    <div class="reset-otp-inputs" aria-label="6 digit verification code">
+                        <input class="reset-otp-input" maxlength="1" inputmode="numeric" autocomplete="one-time-code" aria-label="Digit 1">
+                        <input class="reset-otp-input" maxlength="1" inputmode="numeric" aria-label="Digit 2">
+                        <input class="reset-otp-input" maxlength="1" inputmode="numeric" aria-label="Digit 3">
+                        <input class="reset-otp-input" maxlength="1" inputmode="numeric" aria-label="Digit 4">
+                        <input class="reset-otp-input" maxlength="1" inputmode="numeric" aria-label="Digit 5">
+                        <input class="reset-otp-input" maxlength="1" inputmode="numeric" aria-label="Digit 6">
+                    </div>
+
+                    <p id="reset-otp-timer" class="reset-timer">0:45 remaining</p>
+                    <p id="reset-otp-message" class="reset-message hidden" aria-live="polite"></p>
+
+                    <button type="submit" class="reset-primary-button">Confirm</button>
+
+                    <p class="reset-resend-text">
+                        Didn't receive the code?
+                        <button type="button" id="reset-resend-otp" class="reset-inline-link">Resend</button>
+                    </p>
+                </form>
+            </div>
+
+            <!-- STAGE 3 — ENTER NEW PASSWORD -->
+            <div id="reset-stage-password" class="reset-stage reset-stage-password hidden">
+                <h2 class="reset-stage-title">Enter new Password</h2>
+
+                <form id="reset-password-form" class="reset-form">
+                    <div class="reset-field">
+                        <label for="reset-new-password">New Password</label>
+                        <div class="reset-input-wrap">
+                            <input id="reset-new-password" type="password" placeholder="Enter your Password" autocomplete="new-password" required>
+                            <img src="../assets/icons/lock-keyhole.svg" alt="" aria-hidden="true">
+                        </div>
+                    </div>
+
+                    <div class="reset-field">
+                        <label for="reset-confirm-password">Retype Password</label>
+                        <div class="reset-input-wrap">
+                            <input id="reset-confirm-password" type="password" placeholder="Retype your Password" autocomplete="new-password" required>
+                            <img src="../assets/icons/lock-keyhole.svg" alt="" aria-hidden="true">
+                        </div>
+                    </div>
+
+                    <p id="reset-password-message" class="reset-message hidden" aria-live="polite"></p>
+
+                    <button type="submit" class="reset-primary-button">Change Password</button>
+                </form>
+            </div>
+
+            <!-- STAGE 4 — CONFIRMATION -->
+            <div id="reset-stage-success" class="reset-stage reset-stage-success hidden">
+                <div class="reen-success-tick" aria-hidden="true"><img src="../assets/icons/check.svg" alt=""></div>
+                <p class="reset-success-text">Your password has been changed!</p>
+                <button type="button" id="reset-go-back" class="reset-primary-button">Go Back</button>
+            </div>
+        </div>
+    </section>
+
     <!-- JavaScript -->
     <script src="../js/auth.js"></script>
+    <script src="../js/reset-password.js"></script>
 
 </body>
 </html>

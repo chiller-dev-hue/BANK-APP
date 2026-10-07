@@ -1,0 +1,47 @@
+@import "tailwindcss";
+@source "../html/**/*.html";
+@source "./js/**/*.js";
+
+@theme {
+    --font-poppins: "Poppins", sans-serif;
+    --color-primary: #33B786;
+    --color-mint: #D4F3E7;
+    --color-dark: #181818;
+    --color-soft-green: #BFDAD0;
+    --color-danger: #FF4B55;
+}
+
+
+@layer components {
+  /* Keep transaction-page account balances readable inside the fixed card width. */
+  .transaction-account-card [data-transaction-account-balance] {
+    font-size: clamp(17px, 1.15vw, 20px);
+    letter-spacing: -0.025em;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: visible;
+  }
+}
+
+@layer components {
+  .profile-transaction-arrow {
+    display: block;
+    background-color: #33B786;
+    -webkit-mask: url("../assets/icons/arrow-right.svg") center / contain no-repeat;
+    mask: url("../assets/icons/arrow-right.svg") center / contain no-repeat;
+  }
+}
+
+
+/* PASS 58 — Transaction page: Figma-aligned header, seven-row viewport, and safe card amounts. */
+@media (min-width: 1024px) {
+  .reen-transaction-header-grid { grid-template-columns: minmax(0, 620px) 430px; column-gap: 32px; }
+}
+.reen-transaction-list { min-height: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; }
+.reen-transaction-list::-webkit-scrollbar { width: 6px; }
+.reen-transaction-list::-webkit-scrollbar-track { background: transparent; }
+.reen-transaction-list::-webkit-scrollbar-thumb { background: rgba(51,183,134,.28); border-radius: 999px; }
+.transaction-account-card [data-transaction-account-balance] { font-size: clamp(16px, 1.1vw, 20px) !important; letter-spacing: -0.02em !important; line-height: 1 !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: clip !important; }
+.transaction-page-row { min-height: 48px !important; padding-top: 7px !important; padding-bottom: 7px !important; }
+@media (max-width: 1279px) and (min-width: 768px) { .transaction-account-card [data-transaction-account-balance] { font-size: 17px !important; } }
+@media (max-width: 767px) { .transaction-page-row { min-height: 50px !important; } }

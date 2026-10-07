@@ -1,4 +1,17 @@
+
+/* =========================================================
+   TAILWIND SETUP
+   ========================================================= */
+
 @import "tailwindcss";
+
+@source "../html/**/*.html";
+@source "./js/**/*.js";
+
+
+/* =========================================================
+   REENBANK THEME
+   ========================================================= */
 
 @theme {
     --font-poppins: "Poppins", sans-serif;
@@ -9,3 +22,202 @@
     --color-soft-green: #BFDAD0;
     --color-danger: #FF4B55;
 }
+
+
+/* =========================================================
+   TRANSACTION ACCOUNT BALANCES
+   ---------------------------------------------------------
+   Keeps large account balances inside their cards.
+   ========================================================= */
+
+@layer components {
+
+  .transaction-account-card {
+    width: 220px !important;
+    min-width: 220px !important;
+    height: 110px !important;
+    min-height: 110px !important;
+  }
+
+  .transaction-account-card [data-transaction-account-balance] {
+    font-size: clamp(16px, 1.1vw, 20px);
+    letter-spacing: -0.02em;
+    line-height: 1;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: clip;
+  }
+
+}
+
+
+/* =========================================================
+   PROFILE / TRANSACTION ARROW
+   ---------------------------------------------------------
+   Green arrow used for transaction/profile navigation.
+   ========================================================= */
+
+@layer components {
+
+  .profile-transaction-arrow {
+    display: block;
+
+    background-color: #33B786;
+
+    -webkit-mask:
+      url("../assets/icons/arrow-right.svg")
+      center / contain
+      no-repeat;
+
+    mask:
+      url("../assets/icons/arrow-right.svg")
+      center / contain
+      no-repeat;
+  }
+
+}
+
+
+/* =========================================================
+   TRANSACTION HEADER
+   ---------------------------------------------------------
+   Desktop Figma alignment.
+   ========================================================= */
+
+@media (min-width: 1024px) {
+
+  .reen-transaction-header-grid {
+    grid-template-columns: minmax(0, 620px) 430px;
+    column-gap: 32px;
+  }
+
+}
+
+
+/* =========================================================
+   TRANSACTION LIST
+   ---------------------------------------------------------
+   The transaction area scrolls internally.
+
+   IMPORTANT:
+   The scrollbar is hidden visually, but scrolling still
+   works with:
+   - Mouse wheel
+   - Trackpad
+   - Touch scrolling
+   - Keyboard scrolling
+   ========================================================= */
+
+.reen-transaction-list {
+  min-height: 0;
+  height: 100%;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  /* Firefox */
+  scrollbar-width: none;
+
+  /* IE / old Edge */
+  -ms-overflow-style: none;
+}
+
+
+/* Chrome / Edge / Safari */
+.reen-transaction-list::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+
+/* =========================================================
+   TRANSACTION ROWS
+   ---------------------------------------------------------
+   Reduced row height so approximately 7 transactions can
+   fit inside the available Figma transaction area.
+   ========================================================= */
+
+.transaction-page-row {
+  min-height: 42px !important;
+
+  padding-top: 5px !important;
+  padding-bottom: 5px !important;
+}
+
+
+/* =========================================================
+   TABLET
+   ---------------------------------------------------------
+   Slightly smaller account balance text.
+   ========================================================= */
+
+@media (max-width: 1279px) and (min-width: 768px) {
+
+  .transaction-account-card
+  [data-transaction-account-balance] {
+    font-size: 17px !important;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+   ---------------------------------------------------------
+   Gives transaction rows a little more vertical breathing
+   room on smaller screens.
+   ========================================================= */
+
+@media (max-width: 767px) {
+
+  .transaction-page-row {
+    min-height: 44px !important;
+
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+  }
+
+}
+
+/* =========================================================
+   ACCOUNTS PAGE NAVBAR
+   ---------------------------------------------------------
+   Aligns the top navbar with the sidebar logo.
+   ========================================================= */
+
+@media (min-width: 1024px) {
+
+  main > div > header {
+    padding-top: 8px !important;
+  }
+
+  main > div > header > div {
+    min-height: 44px;
+  }
+
+}
+
+/* =========================================================
+   ACCOUNTS PAGE TRANSACTIONS
+   ---------------------------------------------------------
+   Shrinks transaction rows so 7 transactions fit visibly.
+   ========================================================= */
+
+#dashboard-transactions-list > .transaction-row {
+  min-height: 38px !important;
+  height: 38px !important;
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+}
+
+/* @media (min-width: 1024px) {
+    #transaction-page > div > header {
+        padding-top: 32px !important;
+    }
+
+    #transaction-page > div > header > div {
+        min-height: 44px;
+    }
+} */
