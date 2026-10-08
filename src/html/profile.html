@@ -10,25 +10,25 @@
       <nav class="mt-24" aria-label="Primary navigation">
         <ul class="space-y-7">
           <li>
-            <a href="./dashboard.html" class="flex items-center gap-7 text-[15px] font-medium text-[#555555] transition hover:text-primary">
+            <a href="./dashboard.html" class="flex items-center gap-7 text-[15px] font-normal text-[#555555] transition hover:text-primary">
               <span class="flex h-7 w-7 shrink-0 items-center justify-center"><img src="../assets/icons/house.svg" alt="" class="h-6 w-6"></span>
               <span>Overview</span>
             </a>
           </li>
           <li>
-            <a href="./accounts.html" class="flex items-center gap-7 text-[15px] font-medium text-[#555555] transition hover:text-primary">
+            <a href="./accounts.html" class="flex items-center gap-7 text-[15px] font-normal text-[#555555] transition hover:text-primary">
               <span class="flex h-7 w-7 shrink-0 items-center justify-center"><img src="../assets/icons/credit-card.svg" alt="" class="h-6 w-6"></span>
               <span>Accounts</span>
             </a>
           </li>
           <li>
-            <a href="./transaction.html" class="flex items-center gap-7 text-[15px] font-medium text-[#555555] transition hover:text-primary">
+            <a href="./transaction.html" class="flex items-center gap-7 text-[15px] font-normal text-[#555555] transition hover:text-primary">
               <span class="flex h-7 w-7 shrink-0 items-center justify-center"><img src="../assets/icons/arrow-left-right.svg" alt="" class="h-6 w-6"></span>
               <span>Transactions</span>
             </a>
           </li>
           <li>
-            <a href="./profile.html" aria-current="page" class="flex items-center gap-7 text-[15px] font-semibold text-primary">
+            <a href="./profile.html" aria-current="page" class="flex items-center gap-7 text-[15px] font-normal text-primary">
               <span class="flex h-7 w-7 shrink-0 items-center justify-center"><img src="../assets/icons/user.svg" alt="" class="h-6 w-6"></span>
               <span>Profile</span>
             </a>
@@ -37,7 +37,7 @@
       </nav>
 
       <div class="mt-auto">
-        <button id="logout-button" type="button" class="flex items-center gap-7 text-[15px] font-medium text-[#555555] transition hover:text-red-500">
+        <button id="logout-button" type="button" class="flex items-center gap-7 text-[15px] font-normal text-[#555555] transition hover:text-red-500">
           <span class="flex h-7 w-7 shrink-0 items-center justify-center"><img src="../assets/icons/log-out.svg" alt="" class="h-6 w-6"></span>
           <span>Logout</span>
         </button>
@@ -58,34 +58,34 @@
       </div>
 
       <div class="hidden min-w-0 shrink-0 flex-col items-end text-right lg:flex">
-        <p id="dashboard-user-name" class="whitespace-nowrap text-xs font-medium leading-tight text-primary sm:text-sm">Maureen Oguche</p>
-        <p id="dashboard-account-number" class="mt-0.5 whitespace-nowrap text-xl font-bold leading-none tracking-tight sm:text-2xl">1234567890</p>
+        <p id="dashboard-user-name" class="whitespace-nowrap text-base font-medium leading-tight text-primary">Maureen Oguche</p>
+        <p id="dashboard-account-number" class="mt-0.5 whitespace-nowrap text-3xl font-bold leading-none tracking-tight">1234567890</p>
       </div>
     </div>
 
     <!-- RIGHT HEADER COLUMN: search begins at the right-column edge -->
     <div class="grid min-w-0 grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-3 sm:gap-4">
       <div class="hidden min-w-0 items-center gap-2 md:flex justify-self-start">
-        <img src="../assets/icons/search.svg" alt="Search" class="h-5 w-5 shrink-0">
+        <img src="../assets/icons/search.svg" alt="Search" class="h-4 w-4 shrink-0">
         <input id="profile-transaction-search" type="search" placeholder="Search" aria-label="Search" class="w-20 bg-transparent text-xs outline-none placeholder:text-[#777] sm:w-24">
       </div>
       <button type="button" aria-label="Search" class="flex h-8 w-8 items-center justify-center md:hidden">
-        <img src="../assets/icons/search.svg" alt="" class="h-5 w-5">
+        <img src="../assets/icons/search.svg" alt="" class="h-4 w-4">
       </button>
       <div class="relative justify-self-end">
         <button id="dashboard-notification-button" type="button" aria-label="Notifications" aria-expanded="false" class="relative flex h-8 w-8 shrink-0 items-center justify-center">
           <img src="../assets/icons/bell.svg" alt="" class="h-5 w-5 opacity-70">
           <span id="dashboard-notification-dot" class="absolute right-1 top-1 hidden h-2 w-2 rounded-full bg-danger"></span>
         </button>
-        <div id="dashboard-notification-panel" class="absolute right-0 top-10 z-[90] hidden w-[310px] rounded-xl border border-[#dce7e2] bg-white p-4 shadow-xl">
+        <div id="dashboard-notification-panel" class="absolute right-0 top-10 z-[90] hidden w-[300px] max-w-[calc(100vw-32px)] overflow-hidden rounded-xl border border-[#e4e4e4] bg-[#f4f4f4] p-2.5 shadow-xl">
           <div class="flex items-center justify-between gap-3">
             <h3 class="text-sm font-semibold text-[#111]">Notifications</h3>
             <button id="dashboard-clear-notifications" type="button" class="text-xs font-semibold text-primary hover:underline">Clear</button>
           </div>
-          <div id="dashboard-notification-list" class="mt-3 space-y-2"></div>
+          <div id="dashboard-notification-list" class="mt-1"></div>
         </div>
       </div>
-      <a id="dashboard-profile-button" href="./profile.html" aria-label="Open profile" class="relative inline-flex h-10 w-10 shrink-0 items-center justify-center justify-self-end overflow-hidden rounded-full border border-[rgba(69,32,128,0.08)] bg-[#e2cfff] text-sm font-bold leading-none text-[#452080] no-underline sm:h-11 sm:w-11 lg:h-12 lg:w-12">
+      <a id="dashboard-profile-button" href="./profile.html" aria-label="Open profile" class="relative inline-flex h-10 w-10 shrink-0 items-center justify-center justify-self-end overflow-hidden rounded-full border border-[rgba(69,32,128,0.08)] bg-[#e2cfff] text-sm font-bold leading-none text-[#452080] no-underline ">
         <span id="dashboard-profile-initials" aria-hidden="true" class="absolute inset-0 flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-[#e2cfff] bg-cover bg-center bg-no-repeat">MO</span>
       </a>
     </div>
@@ -108,12 +108,12 @@
       </form>
     </article>
     <aside class="min-h-0 overflow-hidden">
-      <article class="rounded-xl bg-[#D4F3E7] p-4 sm:p-5"><div class="flex items-center justify-between gap-4"><p class="text-sm font-semibold text-[#452080]">Main Account</p><button id="profile-balance-toggle" type="button" aria-label="Hide balance" class="shrink-0"><img src="../assets/icons/eye.svg" alt="" class="h-5 w-5"></button></div><p id="profile-main-balance" class="mt-2 whitespace-nowrap text-xl font-bold leading-none sm:text-2xl">₦ 0.00</p></article>
-      <div class="mt-5 min-h-0 overflow-hidden"><div class="flex items-center justify-between gap-4"><h2 class="text-base font-semibold">Transactions</h2><a href="./transaction.html" aria-label="View all transactions" class="flex h-8 w-8 items-center justify-center text-primary"><span aria-hidden="true" class="profile-transaction-arrow h-5 w-5"></span></a></div><div class="mt-3 min-h-0 overflow-hidden"><div id="profile-transactions-list" class="min-h-0 min-w-0"></div></div></div>
+      <article class="rounded-xl bg-[#D4F3E7] p-4 sm:p-5"><div class="flex items-center justify-between gap-4"><p class="text-sm font-semibold text-[#452080]">Main Account</p><button id="profile-balance-toggle" type="button" aria-label="Hide balance" class="shrink-0"><img src="../assets/icons/eye.svg" alt="" class="h-4 w-4"></button></div><p id="profile-main-balance" class="mt-2 whitespace-nowrap text-xl font-bold leading-none sm:text-2xl">₦ 0.00</p></article>
+      <div class="mt-5 min-h-0 overflow-hidden"><div class="flex items-center justify-between gap-4"><h2 class="text-base font-semibold">Transactions</h2><a href="./transaction.html" aria-label="View all transactions" class="flex h-8 w-8 items-center justify-center text-primary"><svg aria-hidden="true" class="h-5 w-5 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg></a></div><div class="mt-3 min-h-0 overflow-hidden"><div id="profile-transactions-list" class="min-h-0 min-w-0"></div></div></div>
     </aside>
   </div>
 </section></div></main></div>
-  <div id="logout-overlay" class="fixed inset-0 z-[9999] hidden flex items-center justify-center bg-[radial-gradient(circle_at_50%_50%,rgba(51,183,134,.42)_0%,rgba(51,183,134,.25)_38%,rgba(212,243,231,.60)_72%,rgba(255,255,255,.15)_100%)] p-7 font-poppins backdrop-blur-[3px]" aria-hidden="true"><div id="logout-modal" role="dialog" aria-modal="true" aria-labelledby="logout-title" class="relative z-[1] box-border rounded-[30px] bg-white text-[#242424] shadow-[0_24px_70px_rgba(51,183,134,0.18)] reen-overlay-card-logout"><h2 id="logout-title">Are you sure you want to Logout?</h2><div class="reen-overlay-actions"><button id="cancel-logout" type="button" class="reen-overlay-cancel">Cancel</button><button id="confirm-logout" type="button" class="reen-overlay-primary">Logout</button></div></div></div>
+  <!-- Shared logout overlay is created and controlled by bank.js. -->
   <script src="../js/bank.js"></script>
   <script src="../js/reset-password.js"></script>
 </body>

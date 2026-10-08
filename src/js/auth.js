@@ -10,9 +10,15 @@ const USER_COUNT_KEY = "reenBankUserCount";
 const PENDING_USER_KEY = "reenBankPendingUser";
 const OTP_KEY = "reenBankOTP";
 const OTP_EXPIRES_KEY = "reenBankOTPExpires";
+const OTP_SESSION_KEY = "reenBankOTPSession";
+const OTP_EXPIRES_SESSION_KEY = "reenBankOTPExpiresSession";
 const PREFILL_EMAIL_KEY = "reenBankPrefillEmail";
 const CURRENT_USER_KEY = "reenBankCurrentUser";
 const REMEMBER_ME_KEY = "reenBankRememberMe";
+
+// OTP values are temporary session data, never persistent localStorage data.
+localStorage.removeItem(OTP_KEY);
+localStorage.removeItem(OTP_EXPIRES_KEY);
 
 /*
    One-time migration for the previous version of this project.
@@ -363,17 +369,17 @@ if (registerForm) {
 
         const otpExpiresAt = Date.now() + 5 * 60 * 1000;
 
-        localStorage.setItem(OTP_KEY, otp);
-        localStorage.setItem(OTP_EXPIRES_KEY, String(otpExpiresAt));
+        sessionStorage.setItem(OTP_SESSION_KEY, otp);
+        sessionStorage.setItem(OTP_EXPIRES_SESSION_KEY, String(otpExpiresAt));
+        localStorage.removeItem(OTP_KEY);
+        localStorage.removeItem(OTP_EXPIRES_KEY);
         localStorage.setItem(PENDING_USER_KEY, userKey);
 
         /*
-           Development mode:
-           The real app would send this OTP by email.
-           Keeping it in localStorage lets the current
-           frontend-only project continue working.
+           Demo mode: the temporary OTP is kept only in sessionStorage
+           for the current registration session and is displayed on the
+           verification page instead of being persisted in localStorage.
         */
-        console.log(`Development OTP for ${userKey}:`, otp);
 
         window.location.href = "./otp-verification.html";
     });
@@ -390,6 +396,7 @@ if (otpForm) {
     const otpTimer = getElement("otp-timer");
     const resendButton = getElement("resend-code");
     const otpMessage = getElement("otp-message");
+    const generatedOtp = getElement("generated-otp");
     const maskedEmail = getElement("masked-email");
     const changeEmail = getElement("change-email");
 
@@ -428,6 +435,7 @@ if (otpForm) {
     }
 
     const pendingUser = getPendingUser();
+    if (generatedOtp) generatedOtp.textContent = sessionStorage.getItem(OTP_SESSION_KEY) || "------";
 
     if (pendingUser && maskedEmail) {
         maskedEmail.textContent = maskEmail(pendingUser.email);
@@ -486,7 +494,7 @@ if (otpForm) {
 
         function updateTimer() {
             const expiresAt = Number(
-                localStorage.getItem(OTP_EXPIRES_KEY)
+                sessionStorage.getItem(OTP_EXPIRES_SESSION_KEY)
             );
 
             const remaining = Math.max(
@@ -532,9 +540,9 @@ if (otpForm) {
             return;
         }
 
-        const savedOTP = localStorage.getItem(OTP_KEY);
+        const savedOTP = sessionStorage.getItem(OTP_SESSION_KEY);
         const expiresAt = Number(
-            localStorage.getItem(OTP_EXPIRES_KEY)
+            sessionStorage.getItem(OTP_EXPIRES_SESSION_KEY)
         );
 
         if (!pendingUser) {
@@ -571,6 +579,8 @@ if (otpForm) {
 
         saveUser(userNumber, verifiedUser);
 
+        sessionStorage.removeItem(OTP_SESSION_KEY);
+        sessionStorage.removeItem(OTP_EXPIRES_SESSION_KEY);
         localStorage.removeItem(OTP_KEY);
         localStorage.removeItem(OTP_EXPIRES_KEY);
         localStorage.removeItem(PENDING_USER_KEY);
@@ -614,16 +624,12 @@ if (otpForm) {
                 Math.floor(100000 + Math.random() * 900000)
             );
 
-            localStorage.setItem(OTP_KEY, newOTP);
-            localStorage.setItem(
-                OTP_EXPIRES_KEY,
+            sessionStorage.setItem(OTP_SESSION_KEY, newOTP);
+            sessionStorage.setItem(
+                OTP_EXPIRES_SESSION_KEY,
                 String(Date.now() + 5 * 60 * 1000)
             );
-
-            console.log(
-                `Development OTP for ${pendingUser.id}:`,
-                newOTP
-            );
+            if (generatedOtp) generatedOtp.textContent = newOTP;
 
             showOTPMessage(
                 "A new verification code has been generated.",

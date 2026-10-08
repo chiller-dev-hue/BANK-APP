@@ -34,6 +34,13 @@ document.addEventListener("DOMContentLoaded", () => {
             maximumFractionDigits: 2
         })}`;
 
+    // Overlay amounts follow the Figma copy style: whole naira values
+    // without trailing decimal places.
+    const formatOverlayAmount = amount =>
+        `₦ ${Number(amount || 0).toLocaleString("en-NG", {
+            maximumFractionDigits: 0
+        })}`;
+
     const accountStorageKey = `reenBankAccounts_${currentUser.id}`;
     const transactionStorageKey = `reenBankTransactions_${currentUser.id}`;
     const accountNumberKey = `reenBankAccountNumber_${currentUser.id}`;
@@ -41,6 +48,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const notificationStorageKey = `reenBankNotifications_${currentUser.id}`;
     const statisticsPeriodKey = `reenBankStatisticsPeriod_${currentUser.id}`;
     const beneficiaryStorageKey = `reenBankBeneficiaries_${currentUser.id}`;
+    const ACCOUNT_MAX_BALANCE = 1_000_000_000;
+    const balancePeriodKey = `reenBankBalancePeriod_${currentUser.id}`;
 
     const defaultAccounts = {
         main: { name: "Main Account", balance: 44500 },
@@ -137,6 +146,15 @@ document.addEventListener("DOMContentLoaded", () => {
     Object.keys(defaultAccounts).forEach(key => {
         if (!accounts[key] || typeof accounts[key].balance !== "number") {
             accounts[key] = { ...defaultAccounts[key] };
+        }
+        accounts[key].maxBalance = ACCOUNT_MAX_BALANCE;
+        if (accounts[key].balance > ACCOUNT_MAX_BALANCE) accounts[key].balance = ACCOUNT_MAX_BALANCE;
+    });
+    Object.values(accounts).forEach(account => {
+        if (account && typeof account === "object") {
+            account.maxBalance = ACCOUNT_MAX_BALANCE;
+            if (typeof account.balance !== "number" || account.balance < 0) account.balance = 0;
+            if (account.balance > ACCOUNT_MAX_BALANCE) account.balance = ACCOUNT_MAX_BALANCE;
         }
     });
 
@@ -288,7 +306,9 @@ document.addEventListener("DOMContentLoaded", () => {
         "Access Bank", "Guaranty Trust Bank (GTBank)", "Zenith Bank", "United Bank for Africa (UBA)",
         "First Bank of Nigeria", "Fidelity Bank", "Stanbic IBTC Bank", "Union Bank", "FCMB",
         "Sterling Bank", "Wema Bank", "Ecobank Nigeria", "Polaris Bank", "Keystone Bank",
-        "Providus Bank", "Moniepoint", "Opay", "Kuda Bank"
+        "Providus Bank", "Moniepoint", "Opay", "Kuda Bank", "PalmPay", "Jaiz Bank",
+        "Unity Bank", "Titan Trust Bank", "Globus Bank", "PremiumTrust Bank", "LOTUS Bank",
+        "Optimus Bank", "Signature Bank", "Parallex Bank"
     ];
 
     let actionModal = null;
@@ -299,23 +319,27 @@ document.addEventListener("DOMContentLoaded", () => {
         document.body.classList.remove("overflow-hidden");
     };
 
+    // ---------------------------------------------------------
+    // Shared success overlay
+    // ---------------------------------------------------------
+    // Matches the Figma success state: a wide white card, centered
+    // message, and one full-width green action button.
     const showSuccessOverlay = ({ message, amount = null, buttonText = "Go Back", onDone = closeActionModal }) => {
         actionModal.innerHTML = `
-            <div class="relative z-[1] box-border rounded-[30px] bg-white text-[#242424] shadow-[0_24px_70px_rgba(51,183,134,0.18)] reen-overlay-card-success">
-                <div class="reen-success-tick" aria-hidden="true"><img src="../assets/icons/check.svg" alt=""></div>
-                <p class="reen-success-message">${amount ? `<span>${escapeHTML(amount)}</span> ` : ""}${escapeHTML(message)}</p>
-                <button type="button" data-success-done class="reen-overlay-primary reen-success-button">${escapeHTML(buttonText)}</button>
+            <div class="relative z-[1] flex min-h-[480px] w-full max-w-[700px] flex-col items-center justify-center gap-14 rounded-[30px] bg-white px-8 py-12 text-center text-[#242424] shadow-[0_24px_70px_rgba(51,183,134,0.18)] sm:px-16">
+                <p class="text-xl font-semibold leading-snug text-[#666] sm:text-2xl">${amount ? `<span class="text-primary">${escapeHTML(amount)}</span> ` : ""}${escapeHTML(message)}</p>
+                <button type="button" data-success-done class="h-16 w-full max-w-[540px] rounded-xl bg-primary px-6 text-xl font-semibold text-white transition hover:bg-[#2fae80] sm:text-2xl">${escapeHTML(buttonText)}</button>
             </div>`;
         $("[data-success-done]", actionModal)?.addEventListener("click", onDone);
     };
 
     const getBeneficiaryOptions = () => beneficiaries.length
         ? beneficiaries.map(item => `
-            <button type="button" class="reen-beneficiary-item" data-beneficiary-id="${escapeHTML(item.id)}">
-                <span class="reen-beneficiary-name">${escapeHTML(formatTransactionName(item.name))}</span>
-                <span class="reen-beneficiary-meta">${escapeHTML(item.bank)} · ${escapeHTML(item.accountNumber)}</span>
+            <button type="button" data-beneficiary-id="${escapeHTML(item.id)}" class="flex w-full flex-col gap-0.5 rounded-lg px-3 py-2 text-left transition hover:bg-[#f2fbf8]">
+                <span class="truncate text-xs font-semibold text-[#242424]">${escapeHTML(formatTransactionName(item.name))}</span>
+                <span class="truncate text-[10px] text-[#888]">${escapeHTML(item.bank)} · ${escapeHTML(item.accountNumber)}</span>
             </button>`).join("")
-        : `<p class="reen-beneficiary-empty">No saved beneficiaries yet.</p>`;
+        : `<p class="px-3 py-3 text-xs text-[#888]">No saved beneficiaries yet.</p>`;
 
     const saveBeneficiary = beneficiary => {
         const exists = beneficiaries.some(item => item.accountNumber === beneficiary.accountNumber && item.bank === beneficiary.bank);
@@ -325,105 +349,121 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
+    const accountLimitError = () => `This account has a maximum balance limit of ${formatOverlayAmount(ACCOUNT_MAX_BALANCE)}. Upgrade to PRO to increase your account limit.`;
+
     const createActionModal = ({ title, accountKey, action }) => {
         closeActionModal();
         const account = accounts[accountKey];
         if (!account) return;
         const isFund = action === "fund";
 
+        // The overlay is rendered directly into <body> so it is never clipped
+        // by dashboard/page containers that use overflow-hidden.
         actionModal = document.createElement("div");
-        actionModal.className = "fixed inset-0 z-[9999] flex items-center justify-center bg-[radial-gradient(circle_at_50%_50%,rgba(51,183,134,.42)_0%,rgba(51,183,134,.25)_38%,rgba(212,243,231,.60)_72%,rgba(255,255,255,.15)_100%)] p-7 font-poppins backdrop-blur-[3px]";
+        actionModal.className = "fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_center,_rgba(51,183,134,.78)_0%,_rgba(51,183,134,.55)_42%,_rgba(212,243,231,.70)_76%,_rgba(255,255,255,.18)_100%)] px-3 py-4 font-poppins backdrop-blur-[3px] sm:px-7 sm:py-8";
         actionModal.setAttribute("aria-hidden", "false");
 
         if (isFund) {
             actionModal.innerHTML = `
-                <div class="relative z-[1] box-border rounded-[30px] bg-white text-[#242424] shadow-[0_24px_70px_rgba(51,183,134,0.18)] w-[min(540px,calc(100vw-32px))] p-[44px_56px_40px] reen-overlay-card-fund" role="dialog" aria-modal="true" aria-labelledby="action-title">
-                    <h2 id="action-title" class="reen-overlay-title">Fund Wallet</h2>
-                    <form id="action-form" class="reen-overlay-form reen-fund-form">
-                        <fieldset class="reen-fund-fieldset">
-                            <legend class="reen-overlay-label">Select Payment Method</legend>
-                            <div class="reen-payment-methods">
-                                <label class="reen-payment-option is-selected">
-                                    <input type="radio" name="payment-method" value="Direct Pay" checked>
-                                    <span class="reen-radio"></span><span>Direct Pay</span>
+                <div class="relative z-[1] w-full max-w-[540px] max-h-none overflow-hidden rounded-3xl bg-white px-6 py-5 text-[#242424] shadow-[0_24px_70px_rgba(51,183,134,0.18)] sm:px-7 sm:py-5" role="dialog" aria-modal="true" aria-labelledby="action-title">
+                    <h2 id="action-title" class="text-[26px] font-semibold leading-none text-primary sm:text-[30px]">Fund Wallet</h2>
+
+                    <form id="action-form" class="mt-5 flex flex-col" novalidate>
+                        <fieldset>
+                            <legend class="mb-2 text-sm font-semibold text-[#242424]">Select Payment Method</legend>
+                            <div class="grid grid-cols-2 gap-3">
+                                <label class="flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl border border-[#999] px-3 text-xs font-semibold text-[#242424] transition has-[:checked]:border-[#999]">
+                                    <input type="radio" name="payment-method" value="Direct Pay" checked class="h-4 w-4 accent-[#E55353]">
+                                    <span>Direct Pay</span>
                                 </label>
-                                <label class="reen-payment-option">
-                                    <input type="radio" name="payment-method" value="Credit Card">
-                                    <span class="reen-radio"></span><span>Credit Card</span>
+                                <label class="flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl border border-[#999] px-3 text-xs font-semibold text-[#242424] transition has-[:checked]:border-[#999]">
+                                    <input type="radio" name="payment-method" value="Credit Card" class="h-4 w-4 accent-[#E55353]">
+                                    <span>Credit Card</span>
                                 </label>
                             </div>
                         </fieldset>
 
-                        <div id="direct-pay-fields" class="reen-fund-method-fields">
-                            <label class="reen-overlay-label" for="action-amount">Amount</label>
-                            <input id="action-amount" class="reen-overlay-input" type="number" min="1" step="0.01" inputmode="decimal" placeholder="100,000" required>
+                        <div id="direct-pay-fields" class="mt-5">
+                            <label class="mb-1 block text-xs font-semibold text-[#242424]" for="action-amount">Amount</label>
+                            <input id="action-amount" class="h-10 w-full rounded-lg border border-[#999] bg-white px-4 text-sm text-[#242424] outline-none placeholder:text-[#b8b8b8] focus:border-primary focus:ring-1 focus:ring-primary" type="number" min="1" step="0.01" inputmode="decimal" placeholder="100,000" required>
                         </div>
 
-                        <div id="credit-card-fields" class="reen-fund-method-fields hidden">
-                            <label class="reen-overlay-label" for="action-card-number">Card Number</label>
-                            <input id="action-card-number" class="reen-overlay-input" type="text" inputmode="numeric" autocomplete="cc-number" maxlength="19" placeholder="0000 0000 0000 0000">
+                        <div id="credit-card-fields" class="mt-5 hidden">
+                            <label class="mb-1 block text-xs font-semibold text-[#242424]" for="action-card-number">Card Number</label>
+                            <input id="action-card-number" class="h-10 w-full rounded-lg border border-[#999] bg-white px-4 text-sm text-[#242424] outline-none placeholder:text-[#b8b8b8] focus:border-primary focus:ring-1 focus:ring-primary" type="text" inputmode="numeric" autocomplete="cc-number" maxlength="19" placeholder="0000 0000 0000 0000">
 
-                            <label class="reen-overlay-label" for="action-card-holder">Card holder name</label>
-                            <input id="action-card-holder" class="reen-overlay-input" type="text" autocomplete="cc-name" placeholder="Enter card holder name">
+                            <label class="mb-1 mt-2 block text-xs font-semibold text-[#242424]" for="action-card-holder">Card holder name</label>
+                            <input id="action-card-holder" class="h-10 w-full rounded-lg border border-[#999] bg-white px-4 text-sm text-[#242424] outline-none placeholder:text-[#b8b8b8] focus:border-primary focus:ring-1 focus:ring-primary" type="text" autocomplete="cc-name" placeholder="Enter card holder name">
 
-                            <div class="reen-card-small-fields">
+                            <div class="mt-2 grid grid-cols-2 gap-3">
                                 <div>
-                                    <label class="reen-overlay-label" for="action-card-expiry">Expiry date</label>
-                                    <input id="action-card-expiry" class="reen-overlay-input" type="text" inputmode="numeric" autocomplete="cc-exp" maxlength="5" placeholder="MM/YY">
+                                    <label class="mb-1 block text-xs font-semibold text-[#242424]" for="action-card-expiry">Expiry date</label>
+                                    <input id="action-card-expiry" class="h-10 w-full rounded-lg border border-[#999] bg-white px-4 text-sm text-[#242424] outline-none placeholder:text-[#b8b8b8] focus:border-primary focus:ring-1 focus:ring-primary" type="text" inputmode="numeric" autocomplete="cc-exp" maxlength="5" placeholder="MM/YY">
                                 </div>
                                 <div>
-                                    <label class="reen-overlay-label" for="action-card-cvc">CVC</label>
-                                    <input id="action-card-cvc" class="reen-overlay-input" type="password" inputmode="numeric" autocomplete="cc-csc" maxlength="4" placeholder="000">
+                                    <label class="mb-1 block text-xs font-semibold text-[#242424]" for="action-card-cvc">CVC</label>
+                                    <input id="action-card-cvc" class="h-10 w-full rounded-lg border border-[#999] bg-white px-4 text-sm text-[#242424] outline-none placeholder:text-[#b8b8b8] focus:border-primary focus:ring-1 focus:ring-primary" type="password" inputmode="numeric" autocomplete="cc-csc" maxlength="4" placeholder="000">
                                 </div>
                             </div>
 
-                            <label class="reen-overlay-label" for="credit-card-amount">Amount</label>
-                            <input id="credit-card-amount" class="reen-overlay-input" type="number" min="1" step="0.01" inputmode="decimal" placeholder="100,000">
+                            <label class="mb-1 mt-2 block text-xs font-semibold text-[#242424]" for="credit-card-amount">Amount</label>
+                            <input id="credit-card-amount" class="h-10 w-full rounded-lg border border-[#999] bg-white px-4 text-sm text-[#242424] outline-none placeholder:text-[#b8b8b8] focus:border-primary focus:ring-1 focus:ring-primary" type="number" min="1" step="0.01" inputmode="decimal" placeholder="100,000">
                         </div>
 
-                        <p id="action-error" class="reen-overlay-error hidden" aria-live="polite"></p>
-                        <div class="reen-overlay-actions">
-                            <button type="button" data-close-modal class="reen-overlay-cancel">Cancel</button>
-                            <button type="submit" class="reen-overlay-primary">Fund</button>
+                        <p id="action-error" class="mt-2 hidden text-xs font-medium text-[#E55353]" aria-live="polite"></p>
+                        <div class="mt-3 grid grid-cols-2 gap-3">
+                            <button type="button" data-close-modal class="h-10 w-full rounded-lg bg-[#D2D2D2] px-4 text-base font-semibold text-[#242424] transition hover:bg-[#c7c7c7]">Cancel</button>
+                            <button type="submit" class="h-10 w-full rounded-lg bg-primary px-4 text-base font-semibold text-white transition hover:bg-[#2fae80]">Fund</button>
                         </div>
                     </form>
                 </div>`;
         } else {
             actionModal.innerHTML = `
-                <div class="relative z-[1] box-border rounded-[30px] bg-white text-[#242424] shadow-[0_24px_70px_rgba(51,183,134,0.18)] w-[min(540px,calc(100vw-32px))] p-[44px_56px_40px] reen-overlay-card-withdraw" role="dialog" aria-modal="true" aria-labelledby="action-title">
-                    <h2 id="action-title" class="reen-overlay-title">Withdraw</h2>
-                    <form id="action-form" class="reen-overlay-form">
-                        <label class="reen-overlay-label" for="action-amount">Amount</label>
-                        <input id="action-amount" class="reen-overlay-input" type="number" min="1" step="0.01" inputmode="decimal" placeholder="100,000" required>
+                <div class="relative z-[1] w-full max-w-[540px] max-h-none overflow-hidden rounded-3xl bg-white px-6 py-5 text-[#242424] shadow-[0_24px_70px_rgba(51,183,134,0.18)] sm:px-7 sm:py-5" role="dialog" aria-modal="true" aria-labelledby="action-title">
+                    <h2 id="action-title" class="text-[26px] font-semibold leading-none text-primary sm:text-[30px]">Withdraw</h2>
 
-                        <label class="reen-overlay-label" for="withdraw-account-number">Account Number</label>
-                        <input id="withdraw-account-number" class="reen-overlay-input" type="text" inputmode="numeric" maxlength="11" autocomplete="off" placeholder="01234567890" required>
-                        <p class="reen-field-hint">Account number must be exactly 11 digits.</p>
+                    <form id="action-form" class="mt-7 flex flex-col" novalidate>
+                        <label class="mb-1 block text-xs font-semibold text-[#242424]" for="action-amount">Amount</label>
+                        <input id="action-amount" class="h-10 w-full rounded-lg border border-[#999] bg-white px-4 text-sm text-[#242424] outline-none placeholder:text-[#b8b8b8] focus:border-primary focus:ring-1 focus:ring-primary" type="number" min="1" step="0.01" inputmode="decimal" placeholder="100,000" required>
 
-                        <label class="reen-overlay-label" for="withdraw-account-name">Account Name</label>
-                        <input id="withdraw-account-name" class="reen-overlay-input" type="text" placeholder="Enter account name" autocomplete="off" required>
+                        <label class="mb-1 mt-2 block text-xs font-semibold text-[#242424]" for="withdraw-account-number">Account Number</label>
+                        <input id="withdraw-account-number" class="h-10 w-full rounded-lg border border-[#999] bg-white px-4 text-sm text-[#242424] outline-none placeholder:text-[#b8b8b8] focus:border-primary focus:ring-1 focus:ring-primary" type="text" inputmode="numeric" maxlength="10" autocomplete="off" placeholder="00 00 00 00 00" required>
 
-                        <div class="reen-beneficiary-field">
-                            <label class="reen-overlay-label" for="beneficiary-trigger">Beneficiary</label>
-                            <button type="button" id="beneficiary-trigger" class="reen-overlay-input reen-select-button" aria-expanded="false">
-                                <span id="beneficiary-trigger-label">Select beneficiary</span><span class="reen-select-chevron">⌄</span>
+                        <label class="mb-1 mt-2 block text-xs font-semibold text-[#242424]" for="withdraw-account-name">Account Name</label>
+                        <input id="withdraw-account-name" class="h-10 w-full rounded-lg border border-[#999] bg-white px-4 text-sm text-[#242424] outline-none placeholder:text-[#b8b8b8] focus:border-primary focus:ring-1 focus:ring-primary" type="text" placeholder="Enter account name" autocomplete="off" required>
+
+                        <label class="mb-1 mt-2 block text-xs font-semibold text-[#242424]" for="bank-dropdown-trigger">Bank</label>
+                        <div class="relative">
+                            <input id="withdraw-bank" type="hidden" value="">
+                            <button id="bank-dropdown-trigger" type="button" aria-haspopup="listbox" aria-expanded="false" class="flex h-12 w-full items-center justify-between rounded-lg border border-[#999] bg-white px-5 text-left text-base text-[#b8b8b8] outline-none transition focus:border-primary focus:ring-1 focus:ring-primary">
+                                <span id="bank-dropdown-label">Bank Name</span>
+                                <span class="ml-3 text-xl leading-none text-[#999]">⌄</span>
                             </button>
-                            <div id="beneficiary-list" class="reen-beneficiary-list hidden">${getBeneficiaryOptions()}</div>
+                            <div id="bank-dropdown-list" class="mt-1 hidden max-h-32 overflow-y-auto rounded-lg border border-[#dce7e2] bg-white p-1 shadow-xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="listbox" aria-label="Select bank">
+                                ${popularBanks.map(bank => `<button type="button" data-bank-value="${escapeHTML(bank)}" role="option" class="block h-9 w-full rounded-md px-3 text-left text-sm text-[#242424] transition hover:bg-[#e8f8f2]">${escapeHTML(bank)}</button>`).join("")}
+                            </div>
                         </div>
 
-                        <label class="reen-overlay-label" for="withdraw-bank">Bank</label>
-                        <div class="reen-select-wrap">
-                            <select id="withdraw-bank" class="reen-overlay-input" required>
-                                <option value="">Bank Name</option>
-                                ${popularBanks.map(bank => `<option value="${escapeHTML(bank)}">${escapeHTML(bank)}</option>`).join("")}
-                            </select>
+                        <label class="mb-1 mt-2 block text-xs font-semibold text-[#242424]" for="beneficiary-trigger">Beneficiary</label>
+                        <div class="relative">
+                            <button id="beneficiary-trigger" type="button" aria-haspopup="listbox" aria-expanded="false" class="flex h-12 w-full items-center justify-between rounded-lg border border-[#999] bg-white px-5 text-left text-base text-[#b8b8b8] outline-none transition focus:border-primary focus:ring-1 focus:ring-primary">
+                                <span id="beneficiary-trigger-label">Select saved beneficiary</span>
+                                <span class="ml-3 text-xl leading-none text-[#999]">⌄</span>
+                            </button>
+                            <div id="beneficiary-list" class="mt-1 hidden max-h-24 overflow-y-auto rounded-lg border border-[#dce7e2] bg-white p-1 shadow-xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="listbox" aria-label="Saved beneficiaries">
+                                ${getBeneficiaryOptions()}
+                            </div>
                         </div>
 
-                        <label class="reen-beneficiary-check"><input id="add-as-beneficiary" type="checkbox"><span class="reen-check-box"></span><span>Add as beneficiary</span></label>
-                        <p id="action-error" class="reen-overlay-error hidden" aria-live="polite"></p>
-                        <div class="reen-overlay-actions">
-                            <button type="button" data-close-modal class="reen-overlay-cancel">Cancel</button>
-                            <button type="submit" class="reen-overlay-primary">Withdraw</button>
+                        <label class="mt-2 flex items-center gap-2 text-xs font-medium text-[#555]" for="add-as-beneficiary">
+                            <input id="add-as-beneficiary" type="checkbox" class="h-4 w-4 accent-[#33B786]">
+                            <span>Save this beneficiary</span>
+                        </label>
+
+                        <p id="action-error" class="mt-2 hidden text-xs font-medium text-[#E55353]" aria-live="polite"></p>
+                        <div class="mt-3 grid grid-cols-2 gap-3">
+                            <button type="button" data-close-modal class="h-10 w-full rounded-lg bg-[#D2D2D2] px-4 text-base font-semibold text-[#242424] transition hover:bg-[#c7c7c7]">Cancel</button>
+                            <button type="submit" class="h-10 w-full rounded-lg bg-primary px-4 text-base font-semibold text-white transition hover:bg-[#2fae80]">Withdraw</button>
                         </div>
                     </form>
                 </div>`;
@@ -447,12 +487,11 @@ document.addEventListener("DOMContentLoaded", () => {
             const syncFundMethod = () => {
                 const selected = $("input[name='payment-method']:checked", actionModal)?.value || "Direct Pay";
                 const credit = selected === "Credit Card";
-                $$('label.reen-payment-option', actionModal).forEach(label => {
-                    label.classList.toggle("is-selected", $("input", label).checked);
+                $$('input[name="payment-method"]', actionModal).forEach(input => {
+                    input.closest("label")?.classList.toggle("border-[#999]", input.checked);
                 });
                 directPayFields?.classList.toggle("hidden", credit);
                 creditCardFields?.classList.toggle("hidden", !credit);
-                actionModal.querySelector(".reen-overlay-card-fund")?.classList.toggle("is-credit-card", credit);
                 if (directAmountInput) directAmountInput.required = !credit;
                 if (creditAmountInput) creditAmountInput.required = credit;
             };
@@ -476,15 +515,50 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             const accountNumberInput = $("#withdraw-account-number", actionModal);
             accountNumberInput?.addEventListener("input", () => {
-                accountNumberInput.value = accountNumberInput.value.replace(/\D/g, "").slice(0, 11);
+                accountNumberInput.value = accountNumberInput.value.replace(/\D/g, "").slice(0, 10);
             });
 
             const beneficiaryTrigger = $("#beneficiary-trigger", actionModal);
             const beneficiaryList = $("#beneficiary-list", actionModal);
             const beneficiaryLabel = $("#beneficiary-trigger-label", actionModal);
+            const bankInput = $("#withdraw-bank", actionModal);
+            const bankTrigger = $("#bank-dropdown-trigger", actionModal);
+            const bankList = $("#bank-dropdown-list", actionModal);
+            const bankLabel = $("#bank-dropdown-label", actionModal);
+
+            const closePickers = () => {
+                bankList?.classList.add("hidden");
+                beneficiaryList?.classList.add("hidden");
+                bankTrigger?.setAttribute("aria-expanded", "false");
+                beneficiaryTrigger?.setAttribute("aria-expanded", "false");
+            };
+
+            bankTrigger?.addEventListener("click", () => {
+                const opening = bankList?.classList.contains("hidden");
+                beneficiaryList?.classList.add("hidden");
+                beneficiaryTrigger?.setAttribute("aria-expanded", "false");
+                bankList?.classList.toggle("hidden", !opening);
+                bankTrigger.setAttribute("aria-expanded", String(opening));
+            });
+
+            $$('[data-bank-value]', actionModal).forEach(button => button.addEventListener("click", () => {
+                const value = button.dataset.bankValue || "";
+                if (bankInput) bankInput.value = value;
+                if (bankLabel) {
+                    bankLabel.textContent = value || "Bank Name";
+                    bankLabel.classList.toggle("text-[#242424]", Boolean(value));
+                    bankLabel.classList.toggle("text-[#b8b8b8]", !value);
+                }
+                bankList?.classList.add("hidden");
+                bankTrigger?.setAttribute("aria-expanded", "false");
+            }));
+
             beneficiaryTrigger?.addEventListener("click", () => {
-                const open = beneficiaryList.classList.toggle("hidden");
-                beneficiaryTrigger.setAttribute("aria-expanded", String(!open));
+                const opening = beneficiaryList?.classList.contains("hidden");
+                bankList?.classList.add("hidden");
+                bankTrigger?.setAttribute("aria-expanded", "false");
+                beneficiaryList?.classList.toggle("hidden", !opening);
+                beneficiaryTrigger.setAttribute("aria-expanded", String(opening));
             });
 
             $$('[data-beneficiary-id]', actionModal).forEach(button => button.addEventListener("click", () => {
@@ -492,11 +566,26 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (!item) return;
                 $("#withdraw-account-number", actionModal).value = item.accountNumber;
                 $("#withdraw-account-name", actionModal).value = item.name;
-                $("#withdraw-bank", actionModal).value = item.bank;
-                beneficiaryLabel.textContent = item.name;
-                beneficiaryList.classList.add("hidden");
-                beneficiaryTrigger.setAttribute("aria-expanded", "false");
+                if (bankInput) bankInput.value = item.bank;
+                if (bankLabel) {
+                    bankLabel.textContent = item.bank;
+                    bankLabel.classList.remove("text-[#b8b8b8]");
+                    bankLabel.classList.add("text-[#242424]");
+                }
+                if (beneficiaryLabel) {
+                    beneficiaryLabel.textContent = item.name;
+                    beneficiaryLabel.classList.remove("text-[#b8b8b8]");
+                    beneficiaryLabel.classList.add("text-[#242424]");
+                }
+                beneficiaryList?.classList.add("hidden");
+                beneficiaryTrigger?.setAttribute("aria-expanded", "false");
             }));
+
+            actionModal?.addEventListener("click", event => {
+                if (!bankTrigger?.contains(event.target) && !bankList?.contains(event.target) && !beneficiaryTrigger?.contains(event.target) && !beneficiaryList?.contains(event.target)) {
+                    closePickers();
+                }
+            });
         }
 
         form?.addEventListener("submit", event => {
@@ -543,8 +632,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 const accountNumberValue = $("#withdraw-account-number", actionModal).value.trim();
                 const accountNameValue = $("#withdraw-account-name", actionModal).value.trim();
                 const bankValue = $("#withdraw-bank", actionModal).value;
-                if (!/^\d{11}$/.test(accountNumberValue)) {
-                    error.textContent = "Account number must be exactly 11 digits.";
+                if (!/^\d{10}$/.test(accountNumberValue)) {
+                    error.textContent = "Account number must be exactly 10 digits.";
                     error.classList.remove("hidden"); return;
                 }
                 if (!accountNameValue) {
@@ -560,7 +649,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     error.classList.remove("hidden"); return;
                 }
 
-                if ($("#add-as-beneficiary", actionModal).checked) {
+                if ($("#add-as-beneficiary", actionModal)?.checked) {
                     saveBeneficiary({ name: accountNameValue, accountNumber: accountNumberValue, bank: bankValue });
                 }
 
@@ -579,7 +668,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 transactions.unshift(createdTransaction);
                 notifications.unshift({ id: `notification-${Date.now()}`, message: `A transaction was made: Withdrawal of ${transactionAmountTextSafe(createdTransaction)}.`, createdAt: Date.now(), transaction: createdTransaction });
                 saveState(); renderEverything();
-                showSuccessOverlay({ amount: formatMoney(amount), message: "has been sent to your Bank Account!" });
+                showSuccessOverlay({ amount: formatOverlayAmount(amount), message: "has been sent to your Bank Account!" });
+                return;
+            }
+
+            if (account.balance + amount > ACCOUNT_MAX_BALANCE) {
+                error.textContent = accountLimitError();
+                error.classList.remove("hidden");
                 return;
             }
 
@@ -597,56 +692,83 @@ document.addEventListener("DOMContentLoaded", () => {
             transactions.unshift(createdTransaction);
             notifications.unshift({ id: `notification-${Date.now()}`, message: `A transaction was made: Funding of ${transactionAmountTextSafe(createdTransaction)}.`, createdAt: Date.now(), transaction: createdTransaction });
             saveState(); renderEverything();
-            showSuccessOverlay({ amount: formatMoney(amount), message: "has been added to your Wallet!" });
+            showSuccessOverlay({ amount: formatOverlayAmount(amount), message: "has been added to your Wallet!" });
         });
 
         amountInput?.focus();
     };
 
+    // ---------------------------------------------------------
+    // Add-account overlay
+    // ---------------------------------------------------------
     const showAddAccountModal = () => {
         closeActionModal();
         actionModal = document.createElement("div");
-        actionModal.className = "fixed inset-0 z-[9999] flex items-center justify-center bg-[radial-gradient(circle_at_50%_50%,rgba(51,183,134,.42)_0%,rgba(51,183,134,.25)_38%,rgba(212,243,231,.60)_72%,rgba(255,255,255,.15)_100%)] p-7 font-poppins backdrop-blur-[3px]";
+        actionModal.className = "fixed inset-0 z-[9999] flex items-center justify-center overflow-y-auto bg-[radial-gradient(circle_at_center,_rgba(51,183,134,.78)_0%,_rgba(51,183,134,.55)_42%,_rgba(212,243,231,.70)_76%,_rgba(255,255,255,.18)_100%)] px-4 py-6 font-poppins backdrop-blur-[3px] sm:px-7 sm:py-8";
         actionModal.setAttribute("aria-hidden", "false");
+
         actionModal.innerHTML = `
-            <div class="relative z-[1] box-border rounded-[30px] bg-white text-[#242424] shadow-[0_24px_70px_rgba(51,183,134,0.18)] w-[min(540px,calc(100vw-32px))] p-[44px_56px_40px] reen-overlay-card-add" role="dialog" aria-modal="true" aria-labelledby="add-account-title">
-                <h2 id="add-account-title" class="reen-overlay-title">Add Account</h2>
-                <p class="reen-overlay-subtitle">Create another account for your savings goals.</p>
-                <form id="new-account-form" class="reen-overlay-form">
-                    <label class="reen-overlay-label" for="new-account-name">Account Name</label>
-                    <input id="new-account-name" class="reen-overlay-input" type="text" maxlength="40" placeholder="e.g. Emergency Fund" required>
-                    <p id="new-account-error" class="reen-overlay-error hidden" aria-live="polite"></p>
-                    <div class="reen-overlay-actions">
-                        <button type="button" data-close-modal class="reen-overlay-cancel">Cancel</button>
-                        <button type="submit" class="reen-overlay-primary">Create Account</button>
+            <div class="relative z-[1] w-full max-w-[480px] rounded-3xl bg-white px-7 py-9 text-[#242424] shadow-[0_24px_70px_rgba(51,183,134,0.18)] sm:min-h-[500px] sm:px-10 sm:py-11" role="dialog" aria-modal="true" aria-labelledby="add-account-title">
+                <h2 id="add-account-title" class="text-[30px] font-semibold leading-none text-primary sm:text-[34px]">Add Account</h2>
+
+                <form id="new-account-form" class="mt-9 flex flex-col" novalidate>
+                    <label class="mb-2 text-sm font-semibold text-[#242424]" for="new-account-name">Account Name</label>
+                    <input id="new-account-name" class="h-12 w-full rounded-lg border border-[#999] bg-white px-4 text-sm text-[#242424] outline-none placeholder:text-[#b8b8b8] focus:border-primary focus:ring-1 focus:ring-primary" type="text" maxlength="40" placeholder="Enter name" required>
+
+                    <label class="mb-2 mt-6 text-sm font-semibold text-[#242424]" for="new-account-description">Short Description</label>
+                    <textarea id="new-account-description" class="min-h-[120px] w-full resize-none rounded-lg border border-[#999] bg-white px-4 py-3 text-sm text-[#242424] outline-none placeholder:text-[#b8b8b8] focus:border-primary focus:ring-1 focus:ring-primary" maxlength="120" placeholder="Description"></textarea>
+
+                    <p id="new-account-error" class="mt-2 hidden text-xs font-medium text-[#E55353]" aria-live="polite"></p>
+
+                    <div class="mt-8 grid grid-cols-2 gap-8">
+                        <button type="button" data-close-modal class="h-12 w-full rounded-lg bg-[#D2D2D2] px-4 text-base font-semibold text-[#242424] transition hover:bg-[#c7c7c7]">Cancel</button>
+                        <button type="submit" class="h-12 w-full rounded-lg bg-primary px-4 text-base font-semibold text-white transition hover:bg-[#2fae80]">Add</button>
                     </div>
                 </form>
             </div>`;
+
         document.body.appendChild(actionModal);
         document.body.classList.add("overflow-hidden");
         $$('[data-close-modal]', actionModal).forEach(button => button.addEventListener("click", closeActionModal));
+
         $("#new-account-form", actionModal)?.addEventListener("submit", event => {
             event.preventDefault();
             const name = $("#new-account-name", actionModal).value.trim();
+            const description = $("#new-account-description", actionModal).value.trim();
             const error = $("#new-account-error", actionModal);
+
             if (!name) {
                 error.textContent = "Please enter an account name.";
-                error.classList.remove("hidden"); return;
+                error.classList.remove("hidden");
+                return;
             }
+
             const key = `custom_${Date.now()}`;
-            accounts[key] = { name, balance: 0 };
-            saveState(); renderEverything();
+            accounts[key] = { name, description, balance: 0, maxBalance: ACCOUNT_MAX_BALANCE };
+            saveState();
+            renderEverything();
+
             actionModal.innerHTML = `
-                <div class="relative z-[1] box-border rounded-[30px] bg-white text-[#242424] shadow-[0_24px_70px_rgba(51,183,134,0.18)] reen-overlay-card-success reen-overlay-card-account-created">
-                    <div class="reen-success-tick" aria-hidden="true"><img src="../assets/icons/check.svg" alt=""></div>
-                    <p class="reen-success-message">Your account has been created Successfully!</p>
-                    <button type="button" data-account-created-done class="reen-overlay-primary reen-success-button">Go to Dashboard</button>
+                <div class="relative z-[1] flex w-full max-w-xl flex-col items-center justify-center rounded-3xl bg-white px-6 py-8 text-center text-[#242424] shadow-[0_24px_70px_rgba(51,183,134,0.18)] sm:px-10 sm:py-10" role="dialog" aria-modal="true" aria-labelledby="account-created-title">
+                    <div class="mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-[#D4F3E7]">
+                        <div class="flex h-11 w-11 items-center justify-center rounded-full bg-primary">
+                            <img src="../assets/icons/check.svg" alt="Success" class="h-6 w-6 brightness-0 invert">
+                        </div>
+                    </div>
+                    <p id="account-created-title" class="max-w-xl text-base font-semibold leading-snug text-[#666] sm:text-xl">Your <span class="text-primary">${escapeHTML(name)}</span> has been created Successfully!</p>
+                    <div class="mt-7 flex w-full max-w-xl flex-col gap-3">
+                        <button type="button" data-account-created-done class="h-12 w-full rounded-lg bg-[#D2D2D2] px-5 text-base font-semibold text-[#242424] transition hover:bg-[#c7c7c7]">Go Back</button>
+                        <button type="button" data-account-created-fund class="h-12 w-full rounded-lg bg-primary px-5 text-base font-semibold text-white transition hover:bg-[#2fae80]">Fund Account</button>
+                    </div>
                 </div>`;
-            $("[data-account-created-done]", actionModal)?.addEventListener("click", () => {
+
+            $("[data-account-created-done]", actionModal)?.addEventListener("click", closeActionModal);
+            $("[data-account-created-fund]", actionModal)?.addEventListener("click", () => {
                 closeActionModal();
-                window.location.href = "./dashboard.html";
+                createActionModal({ title: "Fund Account", accountKey: key, action: "fund" });
             });
         });
+
         $("#new-account-name", actionModal)?.focus();
     };
 
@@ -661,14 +783,30 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     let dashboardBalancesHidden = false;
-    let selectedStatisticsMonth = readJSON(statisticsPeriodKey, monthKey(new Date()));
+    const latestTransactionDate = transactions
+        .map(item => parseTransactionDate(item.date))
+        .filter(Boolean)
+        .sort((a, b) => b - a)[0];
+    const defaultStatisticsMonth = monthKey(new Date());
+    let selectedStatisticsMonth = readJSON(statisticsPeriodKey, defaultStatisticsMonth);
+    if (!String(selectedStatisticsMonth).startsWith(String(new Date().getFullYear()))) {
+        selectedStatisticsMonth = monthKey(new Date());
+    }
+    let selectedBalanceMonth = readJSON(balancePeriodKey, monthKey(new Date()));
+    let dashboardPeriodValues = { balance: 0, income: 0, expense: 0 };
 
     const updateDashboardBalanceVisibility = () => {
-        const amountElements = $$("#dashboard-current-balance, #dashboard-income, #dashboard-expense");
-        amountElements.forEach(el => {
-            if (dashboardBalancesHidden) {
-                el.textContent = "₦ ••••••••";
-            }
+        const periodValues = dashboardPeriodValues;
+        const currentBalance = $("#dashboard-current-balance");
+        const income = $("#dashboard-income");
+        const expense = $("#dashboard-expense");
+        if (currentBalance) currentBalance.textContent = dashboardBalancesHidden ? "₦ ••••••••" : formatMoney(periodValues.balance);
+        if (income) income.textContent = dashboardBalancesHidden ? "₦ ••••••••" : formatMoney(periodValues.income);
+        if (expense) expense.textContent = dashboardBalancesHidden ? "₦ ••••••••" : formatMoney(periodValues.expense);
+
+        $$("#dashboard-accounts-container [data-account-balance]").forEach(el => {
+            const key = el.dataset.accountBalance;
+            el.textContent = dashboardBalancesHidden ? "₦ ••••••••" : (key && accounts[key] ? formatMoney(accounts[key].balance) : el.textContent);
         });
 
         const button = $("#dashboard-balance-visibility");
@@ -708,25 +846,89 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem(statisticsPeriodKey, selectedStatisticsMonth);
     };
 
+    const getPeriodRange = month => {
+        const year = Number(month.slice(0, 4));
+        const monthIndex = Number(month.slice(5, 7)) - 1;
+        const start = new Date(year, monthIndex, 1);
+        const end = new Date(year, monthIndex + 1, 0, 23, 59, 59, 999);
+        return { start, end };
+    };
+
+    const formatPeriodLabel = month => {
+        const { start, end } = getPeriodRange(month);
+        const fmt = date => date.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }).replace(/ /g, " ");
+        return `${fmt(start)} - ${fmt(end)}`;
+    };
+
+    const getBalancePeriodTransactions = month => transactions.filter(item => {
+        if (item.status === "Canceled") return false;
+        const date = parseTransactionDate(item.date);
+        return date && monthKey(date) === month;
+    });
+
+    const getHistoricalMainBalance = month => {
+        const { end } = getPeriodRange(month);
+        const currentMonth = monthKey(new Date());
+        if (month === currentMonth) return accounts.main?.balance ?? 0;
+        const laterNet = transactions
+            .filter(item => item.status !== "Canceled" && item.accountKey === "main")
+            .map(item => ({ item, date: parseTransactionDate(item.date) }))
+            .filter(({ date }) => date && date > end)
+            .reduce((sum, { item }) => sum + Number(item.amount || 0), 0);
+        return Math.max(0, (accounts.main?.balance ?? 0) - laterNet);
+    };
+
+    const getBalancePeriodValues = month => {
+        const periodTransactions = getBalancePeriodTransactions(month);
+        const mainTransactions = periodTransactions.filter(item => (item.accountKey || "main") === "main");
+        if (!mainTransactions.length) return { balance: 0, income: 0, expense: 0 };
+        const income = mainTransactions.filter(item => Number(item.amount) > 0).reduce((sum, item) => sum + Number(item.amount), 0);
+        const expense = Math.abs(mainTransactions.filter(item => Number(item.amount) < 0).reduce((sum, item) => sum + Number(item.amount), 0));
+        return { balance: getHistoricalMainBalance(month), income, expense };
+    };
+
+    const renderBalancePeriodMenu = () => {
+        const menu = $("#dashboard-balance-period-menu");
+        if (!menu) return;
+        const now = new Date();
+        const monthKeys = new Set([monthKey(now), ...transactions.map(item => {
+            const date = parseTransactionDate(item.date);
+            return date ? monthKey(date) : null;
+        }).filter(Boolean)]);
+        for (let offset = 1; offset < 18; offset += 1) {
+            monthKeys.add(monthKey(new Date(now.getFullYear(), now.getMonth() - offset, 1)));
+        }
+        const months = [...monthKeys].sort((a, b) => b.localeCompare(a));
+        menu.classList.add("max-h-52", "overflow-y-auto", "[scrollbar-width:none]", "[&::-webkit-scrollbar]:hidden");
+        menu.innerHTML = months.map(month => `
+            <button type="button" data-balance-month="${month}" class="block w-full rounded-md px-3 py-2 text-left text-xs font-medium text-[#555] hover:bg-[#e2f5ee]">${formatPeriodLabel(month)}</button>
+        `).join("");
+        $$('[data-balance-month]', menu).forEach(button => button.addEventListener("click", () => {
+            selectedBalanceMonth = button.dataset.balanceMonth;
+            localStorage.setItem(balancePeriodKey, selectedBalanceMonth);
+            renderBalances();
+            menu.classList.add("hidden");
+            $("#dashboard-balance-period")?.setAttribute("aria-expanded", "false");
+        }));
+    };
+
     const renderBalances = () => {
         $$('[data-account-balance]').forEach(el => {
             const key = el.dataset.accountBalance;
             if (accounts[key]) el.textContent = formatMoney(accounts[key].balance);
         });
 
-        const income = transactions
-            .filter(item => Number(item.amount) > 0 && item.status !== "Canceled")
-            .reduce((sum, item) => sum + Number(item.amount), 0);
-        const expenses = Math.abs(transactions
-            .filter(item => Number(item.amount) < 0 && item.status !== "Canceled")
-            .reduce((sum, item) => sum + Number(item.amount), 0));
+        dashboardPeriodValues = getBalancePeriodValues(selectedBalanceMonth);
 
         const currentBalance = $("#dashboard-current-balance");
         const incomeEl = $("#dashboard-income");
         const expenseEl = $("#dashboard-expense");
-        if (currentBalance) currentBalance.textContent = formatMoney(accounts.main.balance);
-        if (incomeEl) incomeEl.textContent = formatMoney(income);
-        if (expenseEl) expenseEl.textContent = formatMoney(expenses);
+        if (currentBalance) currentBalance.textContent = formatMoney(dashboardPeriodValues.balance);
+        if (incomeEl) incomeEl.textContent = formatMoney(dashboardPeriodValues.income);
+        if (expenseEl) expenseEl.textContent = formatMoney(dashboardPeriodValues.expense);
+
+        const periodLabel = $("#dashboard-balance-period-label");
+        if (periodLabel) periodLabel.textContent = formatPeriodLabel(selectedBalanceMonth);
         updateDashboardBalanceVisibility();
     };
 
@@ -755,23 +957,24 @@ document.addEventListener("DOMContentLoaded", () => {
         const statusClass = transactionStatusClass(item.status);
 
         if (compact) {
+            // Overview uses the same three-column date/amount alignment as Profile.
             return `
-                <div class="transaction-row grid min-w-0 grid-cols-[minmax(95px,1.15fr)_minmax(125px,1fr)_minmax(145px,1.15fr)] items-center gap-x-3 border-b border-[#D8E1DE] py-1">
-                    <p class="transaction-name min-w-0 whitespace-nowrap text-[11px] text-[#777]">${escapeHTML(formatTransactionName(item.name))}</p>
-                    <p class="transaction-date whitespace-nowrap text-center text-[11px] text-[#777]">${escapeHTML(item.date)}</p>
-                    <p class="transaction-amount whitespace-nowrap text-right text-[11px] font-semibold ${amountClass}">${transactionAmountText(item)}</p>
+                <div class="transaction-row grid h-[34px] min-w-0 min-h-[34px] grid-cols-[minmax(0,1.15fr)_minmax(125px,1fr)_minmax(145px,1.15fr)] items-center gap-x-3 border-b border-[#D8E1DE] py-1">
+                    <p class="min-w-0 truncate whitespace-nowrap text-[11px] font-normal leading-tight text-[#777]">${escapeHTML(formatTransactionName(item.name))}</p>
+                    <p class="whitespace-nowrap text-center text-[11px] font-normal leading-tight text-[#777]">${escapeHTML(item.date)}</p>
+                    <p class="whitespace-nowrap text-right text-[11px] font-semibold leading-tight ${amountClass}">${transactionAmountText(item)}</p>
                 </div>`;
         }
 
         return `
-            <div class="transaction-page-row grid min-w-0 grid-cols-[28px_minmax(90px,1.1fr)_minmax(75px,.9fr)_minmax(115px,1fr)_minmax(105px,.9fr)_minmax(90px,.8fr)] items-center gap-x-3 border-b border-[#D8E1DE] py-2 min-h-[48px] xl:grid-cols-[32px_minmax(130px,1.15fr)_minmax(105px,.95fr)_minmax(145px,1fr)_minmax(120px,.9fr)_150px] xl:gap-x-4" data-transaction-search="${escapeHTML(`${item.name} ${item.type} ${item.date} ${item.status} ${item.amount}`)}">
+            <div class="grid min-w-0 grid-cols-[28px_minmax(90px,1.1fr)_minmax(75px,.9fr)_minmax(115px,1fr)_minmax(105px,.9fr)_minmax(90px,.8fr)] items-center gap-x-3 border-b border-[#D8E1DE] py-[4px] min-h-[38px] max-md:min-h-[40px] xl:grid-cols-[32px_minmax(130px,1.15fr)_minmax(105px,.95fr)_minmax(145px,1fr)_minmax(120px,.9fr)_150px] xl:gap-x-4" data-transaction-search="${escapeHTML(`${item.name} ${item.type} ${item.date} ${item.status} ${item.amount}`)}">
                 <div class="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full ${signClass}">
                     <img src="../assets/images/${positive ? "add.png" : "subtract.png"}" alt="${positive ? "Incoming transaction" : "Outgoing transaction"}" class="h-full w-full object-contain">
                 </div>
                 <p data-cell="true" class="min-w-0 whitespace-nowrap text-[11px] font-normal text-[#777]">${escapeHTML(item.name)}</p>
                 <p data-cell="true" class="min-w-0 whitespace-nowrap text-[11px] font-normal text-[#777]">${escapeHTML(item.type)}</p>
                 <p data-cell="true" class="min-w-0 whitespace-nowrap text-[11px] font-normal text-[#777]">${escapeHTML(item.date)}</p>
-                <p data-cell="true" class="whitespace-nowrap text-[11px] font-semibold ${amountClass}">${transactionAmountText(item)}</p>
+                <p data-cell="true" class="whitespace-nowrap text-[11px] font-bold ${amountClass}">${transactionAmountText(item)}</p>
                 <span data-cell="true" class="flex h-[34px] w-full max-w-[178px] items-center justify-center rounded-lg text-[11px] font-medium ${statusClass}">${escapeHTML(item.status)}</span>
             </div>`;
     };
@@ -826,7 +1029,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!container) return;
 
         container.innerHTML = Object.entries(accounts).map(([key, account]) => `
-            <article class="transaction-account-card h-[109px] w-[230px] min-w-[230px] shrink-0 cursor-pointer rounded-xl border-l-[6px] border-transparent bg-[#D4F3E7] px-6 py-5 transition-[border-color,box-shadow] duration-150" data-account-card data-account-key="${escapeHTML(key)}">
+            <article class="h-[120px] min-h-[120px] w-[230px] min-w-[230px] shrink-0 cursor-pointer rounded-xl border-l-[6px] border-transparent bg-[#D4F3E7] px-6 py-5 transition-[border-color,box-shadow] duration-150" data-account-card data-account-key="${escapeHTML(key)}">
                 <div class="flex items-center justify-between gap-4">
                     <p class="min-w-0 truncate text-xs font-semibold text-[#452080]">${escapeHTML(account.name)}</p>
                     <button type="button" data-toggle-transaction-balance data-account-key="${escapeHTML(key)}" aria-label="Hide balance" class="flex h-8 w-8 shrink-0 items-center justify-center rounded-md">
@@ -907,117 +1110,71 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
 const renderCustomAccounts = () => {
-  const accountsContainer = $("#accounts-container");
+  const containers = [
+    $("#accounts-container"),
+    $("#dashboard-accounts-container")
+  ].filter(Boolean);
 
-  if (!accountsContainer) return;
+  if (!containers.length) return;
 
-  // Only accounts created through "Add Account"
   const customEntries = Object.entries(accounts).filter(
     ([key]) => !["main", "school", "holiday"].includes(key)
   );
 
-  // Remove previously generated custom cards
-  $$(".custom-account-card", accountsContainer).forEach((card) => {
-    card.remove();
+  containers.forEach(accountsContainer => {
+    $$(".custom-account-card", accountsContainer).forEach(card => card.remove());
+
+    const addAccountCard = accountsContainer.querySelector("[data-add-account-card]");
+    const isDashboard = accountsContainer.id === "dashboard-accounts-container";
+
+    customEntries.forEach(([key, account]) => {
+      account.maxBalance = ACCOUNT_MAX_BALANCE;
+      const card = document.createElement("article");
+      card.dataset.accountCard = "";
+      card.dataset.accountKey = key;
+      card.className = isDashboard
+        ? "custom-account-card flex h-[100px] min-h-[100px] w-[230px] min-w-[230px] shrink-0 cursor-pointer flex-col justify-center gap-3 rounded-xl border-l-[6px] border-transparent bg-[#D4F3E7] px-4 py-3 transition-[border-color,box-shadow] duration-150"
+        : "custom-account-card flex reen-account-card-138 w-[220px] min-w-[220px] shrink-0 cursor-pointer flex-col justify-between rounded-xl border-l-[6px] border-transparent bg-[#D4F3E7] p-4 transition-[border-color,box-shadow] duration-150";
+
+      if (isDashboard) {
+        card.innerHTML = `
+          <div class="flex min-w-0 items-center gap-3">
+            <p class="min-w-0 truncate text-xs font-semibold text-[#452080]">${escapeHTML(account.name)}</p>
+          </div>
+          <h2 data-account-balance="${escapeHTML(key)}" class="w-full truncate text-left text-sm font-bold leading-none text-[#111]">${formatMoney(account.balance)}</h2>
+        `;
+      } else {
+        card.innerHTML = `
+          <div class="min-w-0">
+            <div class="flex items-center justify-between gap-3">
+              <p class="min-w-0 truncate text-sm font-semibold text-[#452080]">${escapeHTML(account.name)}</p>
+              <button type="button" data-toggle-account-balance class="flex h-5 w-5 shrink-0 items-center justify-center" aria-label="Toggle ${escapeHTML(account.name)} balance">
+                <img src="../assets/icons/eye.svg" alt="" class="h-4 w-4 opacity-70">
+              </button>
+            </div>
+            <h2 data-account-balance="${escapeHTML(key)}" class="mt-4 w-full truncate text-left text-lg font-bold leading-none text-[#111]">${formatMoney(account.balance)}</h2>
+          </div>
+          <div class="flex gap-2">
+            <button type="button" data-account-action="fund" data-account="${escapeHTML(key)}" class="min-w-0 flex-1 rounded-md bg-primary px-2 py-1.5 text-[11px] font-semibold text-white">Fund</button>
+            <button type="button" data-account-action="withdraw" data-account="${escapeHTML(key)}" class="min-w-0 flex-1 rounded-md bg-[#D0D0D0] px-2 py-1.5 text-[11px] font-semibold text-[#333]">Withdraw</button>
+          </div>
+        `;
+      }
+
+      if (addAccountCard) accountsContainer.insertBefore(card, addAccountCard);
+      else accountsContainer.appendChild(card);
+    });
+
+    if (addAccountCard) accountsContainer.appendChild(addAccountCard);
+    bindAccountSelection(accountsContainer);
+    $$('[data-add-account-button]', accountsContainer).forEach(button => {
+      if (button.dataset.bound) return;
+      button.dataset.bound = "true";
+      button.addEventListener("click", showAddAccountModal);
+    });
   });
 
-  // Find the Add Account card
-  const addAccountCard = accountsContainer.querySelector(
-    "[data-add-account-card]"
-  );
-
-  customEntries.forEach(([key, account]) => {
-    const card = document.createElement("article");
-
-    card.dataset.accountCard = "";
-    card.dataset.accountKey = key;
-
-    // EXACT same size/layout as the existing account cards.
-    // No hover effect.
-    card.className =
-      "custom-account-card flex h-[140px] min-h-[140px] w-[220px] min-w-[220px] shrink-0 cursor-pointer flex-col justify-between rounded-xl border-l-[6px] border-transparent bg-[#D4F3E7] p-4 transition-[border-color,box-shadow] duration-150";
-
-    card.innerHTML = `
-      <div class="min-w-0">
-
-        <div class="flex items-center justify-between gap-3">
-
-          <p
-            class="min-w-0 truncate text-sm font-semibold text-[#452080]"
-          >
-            ${escapeHTML(account.name)}
-          </p>
-
-          <button
-            type="button"
-            data-toggle-account-balance
-            class="flex h-5 w-5 shrink-0 items-center justify-center"
-            aria-label="Toggle ${escapeHTML(account.name)} balance"
-          >
-            <img
-              src="../assets/icons/eye.svg"
-              alt=""
-              class="h-4 w-4 opacity-70"
-            >
-          </button>
-
-        </div>
-
-        <h2
-          data-account-balance="${key}"
-          class="mt-4 w-full truncate text-left text-lg font-bold leading-none text-[#111]"
-        >
-          ${formatMoney(account.balance)}
-        </h2>
-
-      </div>
-
-      <div class="flex gap-2">
-
-        <button
-          type="button"
-          data-account-action="fund"
-          data-account="${key}"
-          class="min-w-0 flex-1 rounded-md bg-primary px-2 py-1.5 text-[11px] font-semibold text-white"
-        >
-          Fund
-        </button>
-
-        <button
-          type="button"
-          data-account-action="withdraw"
-          data-account="${key}"
-          class="min-w-0 flex-1 rounded-md bg-[#D0D0D0] px-2 py-1.5 text-[11px] font-semibold text-[#333]"
-        >
-          Withdraw
-        </button>
-
-      </div>
-    `;
-
-    // ALWAYS insert the new account before Add Account
-    if (addAccountCard) {
-      accountsContainer.insertBefore(card, addAccountCard);
-    } else {
-      accountsContainer.appendChild(card);
-    }
-  });
-
-  // Safety check:
-  // Add Account must ALWAYS remain the final card.
-  const finalAddAccountCard = accountsContainer.querySelector(
-    "[data-add-account-card]"
-  );
-
-  if (finalAddAccountCard) {
-    accountsContainer.appendChild(finalAddAccountCard);
-  }
-
-  // Rebind account functionality
-  bindAccountSelection(accountsContainer);
   bindAccountControls();
-
-  // Refresh balances
   renderBalances();
 };
     const escapeHTML = value =>
@@ -1046,10 +1203,10 @@ const renderCustomAccounts = () => {
             const key = balanceElement?.dataset.accountBalance;
             if (!key) return;
 
-            let visible = true;
+            let visible = !dashboardBalancesHidden;
             const icon = $("img", button);
-            if (icon) icon.src = "../assets/icons/eye.svg";
-            button.setAttribute("aria-label", "Hide balance");
+            if (icon) icon.src = visible ? "../assets/icons/eye.svg" : "../assets/icons/eye-closed.svg";
+            button.setAttribute("aria-label", visible ? "Hide balance" : "Show balance");
             button.addEventListener("click", () => {
                 visible = !visible;
                 balanceElement.textContent = visible ? formatMoney(accounts[key]?.balance ?? 0) : "₦ ••••••••";
@@ -1076,8 +1233,13 @@ const renderCustomAccounts = () => {
         const now = new Date();
         const months = Array.from({ length: 12 }, (_, index) => {
             const date = new Date(now.getFullYear(), index, 1);
-            return { key: monthKey(date), label: date.toLocaleDateString("en-US", { month: "long" }) };
+            return {
+                key: monthKey(date),
+                label: date.toLocaleDateString("en-US", { month: "long" })
+            };
         });
+
+        menu.classList.add("h-28", "max-h-28", "overflow-y-auto", "[scrollbar-width:none]", "[&::-webkit-scrollbar]:hidden");
         menu.innerHTML = months.map(month => `
             <button type="button" data-statistics-month="${month.key}" class="block w-full rounded-md px-3 py-2 text-left text-xs font-medium text-[#555] hover:bg-[#e2f5ee]">${month.label}</button>
         `).join("");
@@ -1089,16 +1251,42 @@ const renderCustomAccounts = () => {
         }));
     };
 
+    // ---------------------------------------------------------
+    // Notification overlay
+    // ---------------------------------------------------------
+    // Build notification text from the transaction object so the
+    // amount can use the same green/red treatment as the Figma.
+    const notificationHTML = item => {
+        const transaction = item?.transaction;
+        if (!transaction) {
+            return `<div class="border-b border-[#dedede] px-1.5 py-2 text-[11px] leading-4 text-[#666] last:border-b-0">${escapeHTML(item?.message || "Notification")}</div>`;
+        }
+
+        const amount = `₦${Math.abs(Number(transaction.amount || 0)).toLocaleString("en-NG", { maximumFractionDigits: 0 })}`;
+        const amountClass = Number(transaction.amount) >= 0 ? "text-primary" : "text-danger";
+        const name = escapeHTML(formatTransactionName(transaction.name || "User"));
+
+        let message;
+        if (Number(transaction.amount) < 0) {
+            message = `You sent <span class="font-semibold ${amountClass}">${amount}</span> to ${name}`;
+        } else if (transaction.type === "Bank Transfer") {
+            message = `${name} sent <span class="font-semibold ${amountClass}">${amount}</span> to you`;
+        } else {
+            message = `You added <span class="font-semibold ${amountClass}">${amount}</span> to your Account`;
+        }
+
+        return `<div class="border-b border-[#dedede] px-1.5 py-2 text-[11px] leading-4 text-[#666] last:border-b-0">${message}</div>`;
+    };
+
     const renderNotifications = () => {
         const dot = $("#dashboard-notification-dot");
         const list = $("#dashboard-notification-list");
         if (dot) dot.classList.toggle("hidden", notifications.length === 0);
         if (list) {
+            list.classList.add("max-h-40", "overflow-y-auto", "[scrollbar-width:none]", "[&::-webkit-scrollbar]:hidden");
             list.innerHTML = notifications.length
-                ? notifications.map(item => `
-                    <div class="rounded-lg bg-[#f2fbf8] px-3 py-2.5 text-xs leading-5 text-[#555]">${escapeHTML(item.message)}</div>
-                  `).join("")
-                : `<p class="py-3 text-xs text-[#888]">No notifications.</p>`;
+                ? notifications.map(notificationHTML).join("")
+                : `<p class="px-1.5 py-3 text-xs text-[#888]">No notifications.</p>`;
         }
     };
 
@@ -1108,6 +1296,15 @@ const renderCustomAccounts = () => {
             dashboardBalancesHidden = !dashboardBalancesHidden;
             renderBalances();
         });
+
+        const balancePeriodButton = $("#dashboard-balance-period");
+        const balancePeriodMenu = $("#dashboard-balance-period-menu");
+        balancePeriodButton?.addEventListener("click", event => {
+            event.stopPropagation();
+            balancePeriodMenu?.classList.toggle("hidden");
+            balancePeriodButton.setAttribute("aria-expanded", String(!balancePeriodMenu?.classList.contains("hidden")));
+        });
+        renderBalancePeriodMenu();
 
         const statisticsButton = $("#dashboard-statistics-period");
         const statisticsMenu = $("#dashboard-statistics-period-menu");
@@ -1139,6 +1336,10 @@ const renderCustomAccounts = () => {
                 statisticsMenu?.classList.add("hidden");
                 statisticsButton?.setAttribute("aria-expanded", "false");
             }
+            if (!balancePeriodMenu?.contains(event.target) && event.target !== balancePeriodButton) {
+                balancePeriodMenu?.classList.add("hidden");
+                balancePeriodButton?.setAttribute("aria-expanded", "false");
+            }
         });
 
         renderNotifications();
@@ -1149,6 +1350,7 @@ const renderCustomAccounts = () => {
     // ---------------------------------------------------------
 
     $("#add-account-button")?.addEventListener("click", showAddAccountModal);
+    $$('[data-dashboard-add-account]').forEach(button => button.addEventListener("click", showAddAccountModal));
     bindAccountControls();
     bindAccountSelection($("#accounts-container") || document);
 
@@ -1215,12 +1417,12 @@ const renderCustomAccounts = () => {
     // the sidebar Logout button always works on every authenticated page.
     if (!logoutOverlay) {
         document.body.insertAdjacentHTML("beforeend", `
-            <div id="logout-overlay" class="fixed inset-0 z-[9999] hidden flex items-center justify-center bg-[radial-gradient(circle_at_50%_50%,rgba(51,183,134,.42)_0%,rgba(51,183,134,.25)_38%,rgba(212,243,231,.60)_72%,rgba(255,255,255,.15)_100%)] p-7 font-poppins backdrop-blur-[3px]" aria-hidden="true">
-                <div id="logout-modal" role="dialog" aria-modal="true" aria-labelledby="logout-title" class="relative z-[1] box-border rounded-[30px] bg-white text-[#242424] shadow-[0_24px_70px_rgba(51,183,134,0.18)] reen-overlay-card-logout">
-                    <h2 id="logout-title">Are you sure you want to Logout?</h2>
-                    <div class="reen-overlay-actions">
-                        <button id="cancel-logout" type="button" class="reen-overlay-cancel">Cancel</button>
-                        <button id="confirm-logout" type="button" class="reen-overlay-primary">Logout</button>
+            <div id="logout-overlay" class="fixed inset-0 z-[9999] hidden flex items-center justify-center overflow-y-auto bg-[radial-gradient(circle_at_center,_rgba(51,183,134,.78)_0%,_rgba(51,183,134,.55)_42%,_rgba(212,243,231,.70)_76%,_rgba(255,255,255,.18)_100%)] px-4 py-6 font-poppins backdrop-blur-[3px] sm:px-7 sm:py-8" aria-hidden="true">
+                <div id="logout-modal" role="dialog" aria-modal="true" aria-labelledby="logout-title" class="relative z-[1] flex min-h-[320px] w-full max-w-xl flex-col items-center justify-center gap-12 rounded-[30px] bg-white px-8 py-10 text-center text-[#242424] shadow-[0_24px_70px_rgba(51,183,134,0.18)] sm:px-12">
+                    <h2 id="logout-title" class="text-xl font-semibold leading-snug text-[#666] sm:text-2xl">Are you sure you want to Logout?</h2>
+                    <div class="grid w-full max-w-[400px] grid-cols-2 gap-8">
+                        <button id="cancel-logout" type="button" class="h-14 w-full rounded-xl bg-[#D2D2D2] px-5 text-lg font-semibold text-[#242424] transition hover:bg-[#c7c7c7]">Cancel</button>
+                        <button id="confirm-logout" type="button" class="h-14 w-full rounded-xl bg-primary px-5 text-lg font-semibold text-white transition hover:bg-[#2fae80]">Logout</button>
                     </div>
                 </div>
             </div>`);
@@ -1258,7 +1460,7 @@ const renderCustomAccounts = () => {
     confirmLogout?.addEventListener("click", () => {
         localStorage.removeItem("reenBankCurrentUser");
         localStorage.removeItem("reenBankLoggedIn");
-        window.location.href = "./login.html";
+        window.location.href = "./index.html";
     });
 
     // ---------------------------------------------------------
@@ -1491,4 +1693,12 @@ const renderCustomAccounts = () => {
     renderEverything();
     renderStatistics();
     renderNotifications();
+
+    // Keep current-month balance/statistics tied to real time. Newly created
+    // transactions are picked up without requiring a page refresh.
+    window.setInterval(() => {
+        const currentMonth = monthKey(new Date());
+        if (selectedBalanceMonth === currentMonth) renderBalances();
+        if (selectedStatisticsMonth === currentMonth) renderStatistics();
+    }, 60_000);
 });

@@ -64,7 +64,7 @@
           <li>
             <a
               href="./dashboard.html"
-              class="flex items-center gap-7 text-[15px] font-medium text-[#555555] transition hover:text-primary"
+              class="flex items-center gap-7 text-[15px] font-normal text-[#555555] transition hover:text-primary"
             >
               <span class="flex h-7 w-7 shrink-0 items-center justify-center">
                 <img
@@ -84,7 +84,7 @@
             <a
               href="./accounts.html"
               aria-current="page"
-              class="flex items-center gap-7 text-[15px] font-semibold text-primary"
+              class="flex items-center gap-7 text-[15px] font-normal text-primary"
             >
               <span class="flex h-7 w-7 shrink-0 items-center justify-center">
                 <img
@@ -103,7 +103,7 @@
           <li>
             <a
               href="./transaction.html"
-              class="flex items-center gap-7 text-[15px] font-medium text-[#555555] transition hover:text-primary"
+              class="flex items-center gap-7 text-[15px] font-normal text-[#555555] transition hover:text-primary"
             >
               <span class="flex h-7 w-7 shrink-0 items-center justify-center">
                 <img
@@ -122,7 +122,7 @@
           <li>
             <a
               href="./profile.html"
-              class="flex items-center gap-7 text-[15px] font-medium text-[#555555] transition hover:text-primary"
+              class="flex items-center gap-7 text-[15px] font-normal text-[#555555] transition hover:text-primary"
             >
               <span class="flex h-7 w-7 shrink-0 items-center justify-center">
                 <img
@@ -147,7 +147,7 @@
         <button
           id="logout-button"
           type="button"
-          class="flex items-center gap-7 text-[15px] font-medium text-[#555555] transition hover:text-red-500"
+          class="flex items-center gap-7 text-[15px] font-normal text-[#555555] transition hover:text-red-500"
         >
           <span class="flex h-7 w-7 shrink-0 items-center justify-center">
             <img
@@ -185,7 +185,7 @@
         <!-- =====================================================
              TOP NAVBAR
              ===================================================== -->
-        <header class="shrink-0 pt-5 sm:pt-6 lg:pt-7">
+        <header class="shrink-0 pt-5 sm:pt-6 lg:pt-1">
 
           <div
             class="grid min-w-0 min-h-[44px] items-center gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-10"
@@ -231,21 +231,21 @@
                 class="hidden w-fit items-center justify-center lg:flex"
               >
 
-                <div class="w-fit text-center">
+                <div class="w-fit text-right">
 
                   <p
                     id="dashboard-user-name"
-                    class="whitespace-nowrap text-[13px] font-medium leading-[1.2] text-primary"
+                    class="whitespace-nowrap text-base font-medium leading-tight text-primary"
                   >
                     Maureen Oguche
                   </p>
 
-                  <p
+                  <h2
                     id="dashboard-account-number"
-                    class="mt-1 whitespace-nowrap text-[22px] font-bold leading-none text-[#242424]"
+                    class="mt-0.5 whitespace-nowrap text-3xl font-bold leading-none tracking-tight"
                   >
                     1234567890
-                  </p>
+                </h2>
 
                 </div>
 
@@ -276,7 +276,7 @@
                 <img
                   src="../assets/icons/search.svg"
                   alt="Search"
-                  class="h-5 w-5 shrink-0"
+                  class="h-4 w-4 shrink-0"
                 >
 
                 <input
@@ -299,7 +299,7 @@
                 <img
                   src="../assets/icons/search.svg"
                   alt=""
-                  class="h-5 w-5"
+                  class="h-4 w-4"
                 >
               </button>
 
@@ -332,11 +332,11 @@
                 <!-- Notification Panel -->
                 <div
                   id="dashboard-notification-panel"
-                  class="absolute right-0 top-10 z-[90] hidden w-[310px] rounded-xl border border-[#dce7e2] bg-white p-4 shadow-xl"
+                  class="absolute right-0 top-10 z-[90] hidden w-[300px] max-w-[calc(100vw-32px)] overflow-hidden rounded-xl border border-[#e4e4e4] bg-[#f4f4f4] p-2.5 shadow-xl"
                 >
 
                   <div
-                    class="flex items-center justify-between gap-3"
+                    class="flex items-center gap-3"
                   >
 
                     <h3 class="text-sm font-semibold text-[#111]">
@@ -368,7 +368,7 @@
                 id="dashboard-profile-link"
                 href="./profile.html"
                 aria-label="Open profile"
-                class="relative inline-flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[rgba(69,32,128,0.08)] bg-[#e2cfff] text-sm font-bold leading-none text-[#452080] no-underline sm:h-11 sm:w-11"
+                class="relative inline-flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[rgba(69,32,128,0.08)] bg-[#e2cfff] text-sm font-bold leading-none text-[#452080] no-underline"
               >
 
                 <span
@@ -408,12 +408,12 @@
             <article
               data-account-card
               data-account-key="main"
-              class="flex h-[140px] min-h-[140px] w-[220px] min-w-[220px] shrink-0 cursor-pointer flex-col justify-between rounded-xl border-l-[6px] border-transparent bg-[#D4F3E7] p-4 transition-[border-color,box-shadow] duration-150"
+              class="flex reen-account-card-138 w-[220px] min-w-[220px] shrink-0 cursor-pointer flex-col justify-between rounded-xl border-l-[6px] border-transparent bg-[#D4F3E7] p-4 transition-[border-color,box-shadow] duration-150"
             >
 
               <div class="min-w-0">
 
-                <div class="flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
 
                   <p
                     class="min-w-0 truncate text-sm font-semibold text-[#452080]"
@@ -427,11 +427,7 @@
                     class="flex h-5 w-5 shrink-0 items-center justify-center"
                     aria-label="Toggle Main Account balance"
                   >
-                    <img
-                      src="../assets/icons/eye.svg"
-                      alt=""
-                      class="h-4 w-4 opacity-70"
-                    >
+                    <img src="../assets/icons/eye.svg" alt="" class="h-4 w-4 opacity-70">
                   </button>
 
                 </div>
@@ -476,13 +472,13 @@
 <article
   data-account-card
   data-account-key="school"
-  class="flex h-[140px] min-h-[140px] w-[220px] min-w-[220px] shrink-0 cursor-pointer flex-col justify-between rounded-xl border-l-[6px] border-transparent bg-[#D4F3E7] p-4 transition-[border-color,box-shadow] duration-150"
+  class="flex reen-account-card-138 w-[220px] min-w-[220px] shrink-0 cursor-pointer flex-col justify-between rounded-xl border-l-[6px] border-transparent bg-[#D4F3E7] p-4 transition-[border-color,box-shadow] duration-150"
 >
 
   <div class="min-w-0">
 
     <!-- Account name + eye -->
-    <div class="flex items-center justify-between gap-3">
+    <div class="flex items-center gap-3">
 
       <p
         class="min-w-0 truncate text-sm font-semibold text-[#452080]"
@@ -496,11 +492,7 @@
         class="flex h-5 w-5 shrink-0 items-center justify-center"
         aria-label="Toggle School Savings balance"
       >
-        <img
-          src="../assets/icons/eye.svg"
-          alt=""
-          class="h-4 w-4 opacity-70"
-        >
+        <img src="../assets/icons/eye.svg" alt="" class="h-4 w-4 opacity-70">
       </button>
 
     </div>
@@ -544,12 +536,12 @@
             <article
               data-account-card
               data-account-key="holiday"
-              class="flex h-[140px] min-h-[140px] w-[220px] min-w-[220px] shrink-0 cursor-pointer flex-col justify-between rounded-xl border-l-[6px] border-transparent bg-[#D4F3E7] p-4 transition-[border-color,box-shadow] duration-150"
+              class="flex reen-account-card-138 w-[220px] min-w-[220px] shrink-0 cursor-pointer flex-col justify-between rounded-xl border-l-[6px] border-transparent bg-[#D4F3E7] p-4 transition-[border-color,box-shadow] duration-150"
             >
 
               <div class="min-w-0">
 
-                <div class="flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
 
                   <p
                     class="min-w-0 truncate text-sm font-semibold text-[#452080]"
@@ -563,11 +555,7 @@
                     class="flex h-5 w-5 shrink-0 items-center justify-center"
                     aria-label="Toggle Holiday Plan balance"
                   >
-                    <img
-                      src="../assets/icons/eye.svg"
-                      alt=""
-                      class="h-4 w-4 opacity-70"
-                    >
+                    <img src="../assets/icons/eye.svg" alt="" class="h-4 w-4 opacity-70">
                   </button>
 
                 </div>
@@ -606,37 +594,23 @@
             </article>
 
 
-            <!-- ADD ACCOUNT -->
-            <button
-              id="add-account-button"
-              data-add-account-card
-              type="button"
-              class="flex h-[140px] min-h-[140px] w-[220px] min-w-[220px] shrink-0 flex-col justify-between rounded-xl bg-[#EAEAEA] p-4 text-left"
-            >
 
-              <div class="flex items-center gap-3">
 
-                <span
-                  class="text-2xl font-normal leading-none text-[#555]"
-                >
-                  +
-                </span>
+          <!-- ADD ACCOUNT CARD (always kept last) -->
+          <button
+            type="button"
+            data-add-account-card
+            data-add-account-button
+            aria-label="Add Account"
+            class="flex reen-account-card-138 w-[220px] min-w-[220px] shrink-0 cursor-pointer flex-col justify-between rounded-xl bg-[#F0F0F0] p-4 text-[#333] transition hover:bg-[#e8e8e8]"
+          >
+            <div class="flex items-center gap-3">
+              <span class="text-2xl font-normal leading-none">+</span>
+              <span class="text-sm font-semibold">Add Account</span>
+            </div>
+            <p class="text-lg font-bold leading-none">₦ 00,000.00</p>
+          </button>
 
-                <span
-                  class="truncate text-sm font-semibold text-[#555]"
-                >
-                  Add Account
-                </span>
-
-              </div>
-
-              <h2
-                class="mt-4 w-full truncate text-left text-lg font-bold leading-none text-[#555]"
-              >
-                ₦ 00,000.00
-              </h2>
-
-            </button>
 
           </div>
 
@@ -645,7 +619,7 @@
                TRANSACTIONS
                =================================================== -->
           <div
-            class="mt-0 flex min-h-0 flex-1 flex-col overflow-hidden"
+            class="mt-5 flex min-h-0 flex-1 flex-col overflow-hidden pb-4"
           >
 
             <!-- Heading -->
@@ -692,7 +666,7 @@
               <div
                 id="dashboard-transactions-list"
                 data-accounts-transaction-list
-                class="accounts-no-scrollbar flex h-full min-h-0 min-w-0 flex-col overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [&>*]:min-h-[32px] [&>:nth-child(n+8)]:hidden"
+                class="accounts-no-scrollbar flex h-full min-h-0 min-w-0 flex-col overflow-hidden pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [&>*]:min-h-[34px] [&>*]:shrink-0 [&>:nth-child(n+8)]:hidden"
               ></div>
 
             </div>
@@ -709,51 +683,7 @@
   </div>
 
 
-  <!-- =========================================================
-       LOGOUT OVERLAY
-       ========================================================= -->
-  <div
-    id="logout-overlay"
-    class="fixed inset-0 z-[9999] hidden items-center justify-center bg-[radial-gradient(circle_at_50%_50%,rgba(51,183,134,.42)_0%,rgba(51,183,134,.25)_38%,rgba(212,243,231,.60)_72%,rgba(255,255,255,.15)_100%)] p-7 font-poppins backdrop-blur-[3px]"
-    aria-hidden="true"
-  >
-
-    <div
-      id="logout-modal"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="logout-title"
-      class="relative z-[1] box-border rounded-[30px] bg-white text-[#242424] shadow-[0_24px_70px_rgba(51,183,134,0.18)] reen-overlay-card-logout"
-    >
-
-      <h2 id="logout-title">
-        Are you sure you want to Logout?
-      </h2>
-
-      <div class="reen-overlay-actions">
-
-        <button
-          id="cancel-logout"
-          type="button"
-          class="reen-overlay-cancel"
-        >
-          Cancel
-        </button>
-
-        <button
-          id="confirm-logout"
-          type="button"
-          class="reen-overlay-primary"
-        >
-          Logout
-        </button>
-
-      </div>
-
-    </div>
-
-  </div>
-
+  <!-- Shared logout overlay is created and controlled by bank.js. -->
 
   <!-- =========================================================
        JAVASCRIPT

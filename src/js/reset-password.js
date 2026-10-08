@@ -8,8 +8,14 @@
     const RESET_USER_KEY = "reenBankResetUser";
     const RESET_OTP_KEY = "reenBankResetOTP";
     const RESET_OTP_EXPIRES_KEY = "reenBankResetOTPExpires";
+    const RESET_OTP_SESSION_KEY = "reenBankResetOTPSession";
+    const RESET_OTP_EXPIRES_SESSION_KEY = "reenBankResetOTPExpiresSession";
     const USERS_PREFIX = "user";
     const USER_COUNT_KEY = "reenBankUserCount";
+
+    // OTP values are temporary session data, never persistent localStorage data.
+    localStorage.removeItem(RESET_OTP_KEY);
+    localStorage.removeItem(RESET_OTP_EXPIRES_KEY);
 
     const $ = (selector, root = document) => root.querySelector(selector);
     const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -59,66 +65,79 @@
 
         modal = document.createElement("section");
         modal.id = "reset-password-modal";
-        modal.className = "fixed inset-0 z-[9999] flex items-center justify-center bg-[radial-gradient(circle_at_50%_50%,rgba(51,183,134,.42)_0%,rgba(51,183,134,.25)_38%,rgba(212,243,231,.60)_72%,rgba(255,255,255,.15)_100%)] p-7 font-poppins backdrop-blur-[3px] hidden";
+        modal.className = "fixed inset-0 z-[9999] hidden overflow-hidden bg-[radial-gradient(circle_at_center,_rgba(51,183,134,.78)_0%,_rgba(51,183,134,.55)_42%,_rgba(212,243,231,.70)_76%,_rgba(255,255,255,.18)_100%)] px-3 py-3 font-poppins backdrop-blur-[3px] sm:px-5 sm:py-4";
         modal.setAttribute("aria-hidden", "true");
         modal.innerHTML = `
-            <div class="reset-password-backdrop" data-reset-close></div>
-            <div class="reset-password-dialog" role="dialog" aria-modal="true" aria-labelledby="reset-stage-title">
-                <div id="reset-stage-email" class="reset-stage reset-stage-email">
-                    <h2 id="reset-stage-title" class="reset-stage-title">Reset Password</h2>
-                    <form id="reset-email-form" class="reset-form">
-                        <div class="reset-field">
-                            <label for="reset-email">Email</label>
-                            <div class="reset-input-wrap">
-                                <input id="reset-email" type="email" placeholder="Enter your Email" autocomplete="email" required>
-                                <img src="../assets/icons/mail.svg" alt="" aria-hidden="true">
+            <div class="absolute inset-0" data-reset-close></div>
+            <div class="relative z-10 flex min-h-full w-full items-center justify-center py-1 sm:py-2">
+                <div class="flex max-h-[calc(100dvh-24px)] w-full max-w-[790px] items-center justify-center" role="dialog" aria-modal="true" aria-labelledby="reset-stage-title">
+
+                    <!-- Stage 1: email -->
+                    <div id="reset-stage-email" class="w-full max-h-[calc(100dvh-24px)] overflow-hidden rounded-[30px] bg-white px-6 py-7 text-[#242424] shadow-[0_24px_70px_rgba(51,183,134,0.18)] sm:px-12 sm:py-10">
+                        <h2 id="reset-stage-title" class="text-[30px] font-semibold leading-none text-primary sm:text-[38px]">Reset Password</h2>
+                        <form id="reset-email-form" class="mt-8">
+                            <label for="reset-email" class="mb-2 block text-sm font-semibold">Email</label>
+                            <div class="relative">
+                                <input id="reset-email" type="email" placeholder="Enter your Email" autocomplete="email" required class="h-12 w-full rounded-xl border border-[#999] bg-white px-5 pr-14 text-base text-[#242424] outline-none placeholder:text-[#b8b8b8] focus:border-primary focus:ring-1 focus:ring-primary">
+                                <img src="../assets/icons/mail.svg" alt="" aria-hidden="true" class="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 opacity-60">
+                            </div>
+                            <p id="reset-email-message" class="mt-2 hidden text-xs font-medium" aria-live="polite"></p>
+                            <button type="submit" class="mt-8 h-12 w-full rounded-xl bg-primary px-6 text-xl font-semibold text-white transition hover:bg-[#2fae80] sm:text-2xl">Reset Password</button>
+                        </form>
+                    </div>
+
+                    <!-- Stage 2: OTP -->
+                    <div id="reset-stage-otp" class="hidden w-full max-h-[calc(100dvh-24px)] overflow-hidden rounded-[30px] bg-white px-6 py-7 text-[#242424] shadow-[0_24px_70px_rgba(51,183,134,0.18)] sm:px-12 sm:py-10">
+                        <h2 class="text-[30px] font-semibold leading-none text-primary sm:text-[38px]">Enter Otp</h2>
+                        <p class="mt-7 text-sm leading-5 text-[#b8b8b8] sm:text-base">A 6-digit code has been sent to your email as <span id="reset-otp-email">us***me@gmail.com</span> <button type="button" id="reset-change-email" class="font-semibold text-primary hover:underline">Change</button></p>
+                        <form id="reset-otp-form" class="mt-5">
+                            <p class="mb-3 text-sm font-semibold text-primary">Your verification code: <span id="reset-generated-otp" class="font-bold tracking-[0.25em]">------</span></p>
+                            <div class="grid grid-cols-6 gap-2 sm:gap-4" aria-label="6 digit verification code">
+                                ${Array.from({length:6}, (_,i)=>`<input data-reset-otp maxlength="1" inputmode="numeric" aria-label="Digit ${i+1}" class="h-12 w-full min-w-0 rounded-xl border border-[#999] bg-white text-center text-lg font-semibold outline-none focus:border-primary focus:ring-1 focus:ring-primary">`).join("")}
+                            </div>
+                            <p id="reset-otp-timer" class="mt-4 text-sm font-medium text-primary">0:45 remaining</p>
+                            <p id="reset-otp-message" class="mt-2 hidden text-xs font-medium" aria-live="polite"></p>
+                            <button type="submit" class="mt-6 h-12 w-full rounded-xl bg-primary px-6 text-xl font-semibold text-white transition hover:bg-[#2fae80] sm:text-2xl">Confirm</button>
+                            <p class="mt-4 text-sm text-[#b8b8b8] sm:text-base">Didn't receive the code? <button type="button" id="reset-resend-otp" class="font-semibold text-primary hover:underline">Resend</button></p>
+                        </form>
+                    </div>
+
+                    <!-- Stage 3: new password -->
+                    <div id="reset-stage-password" class="hidden w-full max-h-[calc(100dvh-24px)] overflow-hidden rounded-[30px] bg-white px-6 py-7 text-[#242424] shadow-[0_24px_70px_rgba(51,183,134,0.18)] sm:px-12 sm:py-10">
+                        <h2 class="text-[30px] font-semibold leading-none text-primary sm:text-[38px]">Enter new Password</h2>
+                        <form id="reset-password-form" class="mt-8">
+                            <label for="reset-new-password" class="mb-2 block text-sm font-semibold">New Password</label>
+                            <div class="relative">
+                                <input id="reset-new-password" type="password" placeholder="Enter your Password" autocomplete="new-password" required class="h-12 w-full rounded-xl border border-[#999] bg-white px-5 pr-20 text-base text-[#242424] outline-none placeholder:text-[#b8b8b8] focus:border-primary focus:ring-1 focus:ring-primary">
+                                <img src="../assets/icons/lock-keyhole.svg" alt="" aria-hidden="true" class="pointer-events-none absolute right-12 top-1/2 h-5 w-5 -translate-y-1/2 opacity-60">
+                                <button type="button" data-password-toggle="reset-new-password" aria-label="Show password" class="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-md">
+                                    <img src="../assets/icons/eye-closed.svg" alt="" class="h-5 w-5 opacity-60">
+                                </button>
+                            </div>
+                            <label for="reset-confirm-password" class="mb-2 mt-4 block text-sm font-semibold">Retype Password</label>
+                            <div class="relative">
+                                <input id="reset-confirm-password" type="password" placeholder="Retype your Password" autocomplete="new-password" required class="h-12 w-full rounded-xl border border-[#999] bg-white px-5 pr-20 text-base text-[#242424] outline-none placeholder:text-[#b8b8b8] focus:border-primary focus:ring-1 focus:ring-primary">
+                                <img src="../assets/icons/lock-keyhole.svg" alt="" aria-hidden="true" class="pointer-events-none absolute right-12 top-1/2 h-5 w-5 -translate-y-1/2 opacity-60">
+                                <button type="button" data-password-toggle="reset-confirm-password" aria-label="Show password" class="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-md">
+                                    <img src="../assets/icons/eye-closed.svg" alt="" class="h-5 w-5 opacity-60">
+                                </button>
+                            </div>
+                            <p id="reset-password-message" class="mt-2 hidden text-xs font-medium" aria-live="polite"></p>
+                            <button type="submit" class="mt-8 h-12 w-full rounded-xl bg-primary px-6 text-xl font-semibold text-white transition hover:bg-[#2fae80] sm:text-2xl">Change Password</button>
+                        </form>
+                    </div>
+
+                    <!-- Stage 4: success -->
+                    <div id="reset-stage-success" class="hidden mx-auto flex w-full max-w-xl max-h-[calc(100dvh-24px)] flex-col items-center justify-center overflow-hidden rounded-3xl bg-white px-6 py-7 text-center text-[#242424] shadow-[0_24px_70px_rgba(51,183,134,0.18)] sm:px-10 sm:py-8">
+                        <div class="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#D4F3E7]">
+                            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-primary">
+                                <img src="../assets/icons/check.svg" alt="Success" class="h-6 w-6 brightness-0 invert">
                             </div>
                         </div>
-                        <p id="reset-email-message" class="reset-message hidden" aria-live="polite"></p>
-                        <button type="submit" class="reset-primary-button">Reset Password</button>
-                    </form>
-                </div>
+                        <p class="text-base font-semibold leading-snug text-[#666] sm:text-xl">Your password has been changed!</p>
+                        <button type="button" id="reset-go-back" class="mt-5 h-11 w-full max-w-xl rounded-lg bg-primary px-5 text-base font-semibold text-white transition hover:bg-[#2fae80] sm:h-14 sm:text-lg">Go Back</button>
+                    </div>
 
-                <div id="reset-stage-otp" class="reset-stage reset-stage-otp hidden">
-                    <h2 class="reset-stage-title">Enter Otp</h2>
-                    <p class="reset-stage-description">A 6-digit code has been sent to your email as <span id="reset-otp-email">us***me@gmail.com</span> <button type="button" id="reset-change-email" class="reset-inline-link">Change</button></p>
-                    <form id="reset-otp-form" class="reset-form">
-                        <div class="reset-otp-inputs" aria-label="6 digit verification code">
-                            ${Array.from({length:6}, (_,i)=>`<input class="reset-otp-input" maxlength="1" inputmode="numeric" aria-label="Digit ${i+1}">`).join("")}
-                        </div>
-                        <p id="reset-otp-timer" class="reset-timer">0:45 remaining</p>
-                        <p id="reset-otp-message" class="reset-message hidden" aria-live="polite"></p>
-                        <button type="submit" class="reset-primary-button">Confirm</button>
-                        <p class="reset-resend-text">Didn't receive the code? <button type="button" id="reset-resend-otp" class="reset-inline-link">Resend</button></p>
-                    </form>
-                </div>
-
-                <div id="reset-stage-password" class="reset-stage reset-stage-password hidden">
-                    <h2 class="reset-stage-title">Enter new Password</h2>
-                    <form id="reset-password-form" class="reset-form">
-                        <div class="reset-field">
-                            <label for="reset-new-password">New Password</label>
-                            <div class="reset-input-wrap">
-                                <input id="reset-new-password" type="password" placeholder="Enter your Password" autocomplete="new-password" required>
-                                <img src="../assets/icons/lock-keyhole.svg" alt="" aria-hidden="true">
-                            </div>
-                        </div>
-                        <div class="reset-field">
-                            <label for="reset-confirm-password">Retype Password</label>
-                            <div class="reset-input-wrap">
-                                <input id="reset-confirm-password" type="password" placeholder="Retype your Password" autocomplete="new-password" required>
-                                <img src="../assets/icons/lock-keyhole.svg" alt="" aria-hidden="true">
-                            </div>
-                        </div>
-                        <p id="reset-password-message" class="reset-message hidden" aria-live="polite"></p>
-                        <button type="submit" class="reset-primary-button">Change Password</button>
-                    </form>
-                </div>
-
-                <div id="reset-stage-success" class="reset-stage reset-stage-success hidden">
-                    <div class="reen-success-tick" aria-hidden="true"><img src="../assets/icons/check.svg" alt=""></div>
-                    <p class="reset-success-text">Your password has been changed!</p>
-                    <button type="button" id="reset-go-back" class="reset-primary-button">Go Back</button>
                 </div>
             </div>`;
         document.body.appendChild(modal);
@@ -136,12 +155,26 @@
         const emailInput = $("#reset-email", modal);
         const emailMessage = $("#reset-email-message", modal);
         const otpEmail = $("#reset-otp-email", modal);
-        const otpInputs = $$(".reset-otp-input", modal);
+        const otpInputs = $$(`[data-reset-otp]`, modal);
         const otpTimer = $("#reset-otp-timer", modal);
         const otpMessage = $("#reset-otp-message", modal);
+        const generatedOtp = $("#reset-generated-otp", modal);
         const passwordMessage = $("#reset-password-message", modal);
         const newPassword = $("#reset-new-password", modal);
         const confirmPassword = $("#reset-confirm-password", modal);
+        $$('[data-password-toggle]', modal).forEach(button => {
+            if (button.dataset.bound) return;
+            button.dataset.bound = "true";
+            const input = document.getElementById(button.dataset.passwordToggle);
+            const icon = $("img", button);
+            button.addEventListener("click", () => {
+                if (!input) return;
+                const show = input.type === "password";
+                input.type = show ? "text" : "password";
+                button.setAttribute("aria-label", show ? "Hide password" : "Show password");
+                if (icon) icon.src = show ? "../assets/icons/eye.svg" : "../assets/icons/eye-closed.svg";
+            });
+        });
         const stages = {
             email: $("#reset-stage-email", modal),
             otp: $("#reset-stage-otp", modal),
@@ -154,24 +187,25 @@
             if (!element) return;
             element.textContent = "";
             element.classList.add("hidden");
-            element.classList.remove("reset-message-error", "reset-message-success");
+            element.classList.remove("text-red-500", "text-primary");
         };
         const showMessage = (element, message, success = false) => {
             if (!element) return;
             element.textContent = message;
             element.classList.remove("hidden");
-            element.classList.toggle("reset-message-error", !success);
-            element.classList.toggle("reset-message-success", success);
+            element.classList.toggle("text-red-500", !success);
+            element.classList.toggle("text-primary", success);
         };
         const stopTimer = () => { if (timer) { clearInterval(timer); timer = null; } };
         const startTimer = () => {
             stopTimer();
             const tick = () => {
-                const left = Math.max(0, Number(localStorage.getItem(RESET_OTP_EXPIRES_KEY)) - Date.now());
+                const left = Math.max(0, Number(sessionStorage.getItem(RESET_OTP_EXPIRES_SESSION_KEY)) - Date.now());
                 const seconds = Math.ceil(left / 1000);
                 if (otpTimer) {
                     otpTimer.textContent = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2,"0")} remaining`;
-                    otpTimer.classList.toggle("reset-timer-expired", seconds === 0);
+                    otpTimer.classList.toggle("text-red-500", seconds === 0);
+                    otpTimer.classList.toggle("text-primary", seconds !== 0);
                 }
                 if (seconds === 0) stopTimer();
             };
@@ -192,6 +226,7 @@
             [emailMessage, otpMessage, passwordMessage].forEach(clearMessage);
             if (newPassword) newPassword.value = "";
             if (confirmPassword) confirmPassword.value = "";
+            if (generatedOtp) generatedOtp.textContent = "------";
         };
         const open = prefill => {
             modal.classList.remove("hidden");
@@ -206,15 +241,18 @@
         const createOTP = user => {
             const otp = generateOTP();
             localStorage.setItem(RESET_USER_KEY, user.id);
-            localStorage.setItem(RESET_OTP_KEY, otp);
-            localStorage.setItem(RESET_OTP_EXPIRES_KEY, String(Date.now() + 45000));
-            console.log(`Development reset OTP for ${user.id}:`, otp);
+            const expiresAt = Date.now() + 45000;
+            sessionStorage.setItem(RESET_OTP_SESSION_KEY, otp);
+            sessionStorage.setItem(RESET_OTP_EXPIRES_SESSION_KEY, String(expiresAt));
+            localStorage.removeItem(RESET_OTP_KEY);
+            localStorage.removeItem(RESET_OTP_EXPIRES_KEY);
+            if (generatedOtp) generatedOtp.textContent = otp;
             clearInputs(); startTimer();
         };
 
         $$("[data-reset-close]", modal).forEach(el => el.addEventListener("click", close));
         $("#reset-go-back", modal)?.addEventListener("click", close);
-        $("#reset-change-email", modal)?.addEventListener("click", () => { clearInputs(); stopTimer(); showStage("email"); });
+        $("#reset-change-email", modal)?.addEventListener("click", () => { clearInputs(); stopTimer(); if (generatedOtp) generatedOtp.textContent = "------"; showStage("email"); });
         $("#reset-resend-otp", modal)?.addEventListener("click", () => {
             const id = localStorage.getItem(RESET_USER_KEY);
             const user = getAllUsers().find(item => item.id === id);
@@ -252,8 +290,8 @@
         otpForm?.addEventListener("submit", event => {
             event.preventDefault(); clearMessage(otpMessage);
             const entered = otpInputs.map(input => input.value).join("");
-            const saved = localStorage.getItem(RESET_OTP_KEY);
-            const expires = Number(localStorage.getItem(RESET_OTP_EXPIRES_KEY));
+            const saved = sessionStorage.getItem(RESET_OTP_SESSION_KEY);
+            const expires = Number(sessionStorage.getItem(RESET_OTP_EXPIRES_SESSION_KEY));
             if (entered.length !== 6) return showMessage(otpMessage, "Please enter the complete 6-digit verification code.");
             if (!saved || Date.now() > expires) return showMessage(otpMessage, "This verification code has expired. Please request a new code.");
             if (entered !== saved) return showMessage(otpMessage, "Invalid verification code, please try again.");
@@ -272,7 +310,11 @@
             localStorage.setItem(`${USERS_PREFIX}${user.userNumber}`, JSON.stringify(user));
             const profileUser = JSON.parse(localStorage.getItem("reenBankCurrentUser") || "null");
             if (profileUser?.id === user.id) localStorage.setItem("reenBankCurrentUser", JSON.stringify({ ...profileUser, email: user.email, name: user.name }));
-            localStorage.removeItem(RESET_USER_KEY); localStorage.removeItem(RESET_OTP_KEY); localStorage.removeItem(RESET_OTP_EXPIRES_KEY);
+            localStorage.removeItem(RESET_USER_KEY);
+            localStorage.removeItem(RESET_OTP_KEY);
+            localStorage.removeItem(RESET_OTP_EXPIRES_KEY);
+            sessionStorage.removeItem(RESET_OTP_SESSION_KEY);
+            sessionStorage.removeItem(RESET_OTP_EXPIRES_SESSION_KEY);
             newPassword.value = ""; confirmPassword.value = ""; stopTimer(); showStage("success");
         });
 
