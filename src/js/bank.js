@@ -986,13 +986,19 @@ document.addEventListener("DOMContentLoaded", () => {
         return transactions.filter(item => `${item.name} ${item.type} ${item.date} ${item.status} ${item.amount}`.toLowerCase().includes(query));
     };
 
-    const updateAccountSelectionUI = () => {
-        $$('[data-account-card]').forEach(card => {
-            const isSelected = card.dataset.accountKey === selectedAccountKey;
+ const updateAccountSelectionUI = () => {
+    $$('[data-account-card]').forEach(card => {
+        const isSelected = card.dataset.accountKey === selectedAccountKey;
+
+        if (document.querySelector('#dashboard-accounts-container')) {
+            card.classList.remove("border-l-[#452080]");
+        } else {
             card.classList.toggle("border-l-[#452080]", isSelected);
-            card.setAttribute("aria-pressed", String(isSelected));
-        });
-    };
+        }
+
+        card.setAttribute("aria-pressed", String(isSelected));
+    });
+};
 
     const bindAccountSelection = (root = document) => {
         $$('[data-account-card]', root).forEach(card => {
