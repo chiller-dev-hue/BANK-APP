@@ -1,543 +1,560 @@
 <!DOCTYPE html>
+<!--
+  =========================================================
+  LANDING PAGE — Reen Bank
+  Script: ../js/app.js
+
+  PAGE MAP
+  1. Navbar (STATIC / sticky on desktop, tablet and mobile)
+  2. Hero
+  3. Services (#about)
+  4. FAQ carousel
+  5. Payment partners
+  6. Footer + email call-to-action (#contact)
+  =========================================================
+-->
 <html lang="en" class="scroll-smooth">
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reen Bank</title>
     <link rel="stylesheet" href="../output.css">
     <!-- Poppins Font -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com">
-    <link rel="stylesheet" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
-</head>
-<body class="font-poppins">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="../assets/favicon/logo.png">
+    <link rel="apple-touch-icon" href="../assets/favicon/logo.png">
+  </head>
+  <body class="font-poppins">
 
     <!-- NAVBAR -->
-<header class="relative bg-mint">
-    <nav class="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8 lg:px-10">
+    <header class="sticky top-0 z-50 bg-mint shadow-sm">
+      <nav class="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8 lg:px-10">
 
         <!-- Logo -->
         <div class="flex items-center">
-            <img src="../assets/images/logo.png" alt="Reen Bank Logo" class="h-10 w-auto">
+          <img src="../assets/images/logo.png" alt="Reen Bank Logo" class="h-10 w-auto">
         </div>
 
         <!-- Desktop Navigation -->
         <div class="hidden items-center gap-8 md:flex">
-            <a href="#about" class="text-sm font-medium text-dark transition hover:text-primary">
-                About
-            </a>
-            <a href="#contact" class="text-sm font-medium text-dark transition hover:text-primary">
-                Contact Us
-            </a>
-            <a href="./login.html" class="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90">
-                Login
-            </a>
+          <a href="#about" class="text-sm font-medium text-dark transition hover:text-primary">
+            About
+          </a>
+          <a href="#contact" class="text-sm font-medium text-dark transition hover:text-primary">
+            Contact Us
+          </a>
+          <a href="./login.html" class="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90">
+            Login
+          </a>
         </div>
 
         <!-- Mobile Menu -->
         <div id="mobile-menu" class="absolute right-0 top-full z-50 hidden w-44 border-t border-dark/10 bg-mint px-5 py-6 shadow-lg md:hidden">
-            <div class="mx-auto flex max-w-7xl flex-col items-center gap-5">
-                <a href="#about" class="text-sm font-medium text-dark transition hover:text-primary">
-                    About
-                </a>
-                <a href="#contact" class="text-sm font-medium text-dark transition hover:text-primary">
-                    Contact Us
-                </a>
-                <a href="./login.html" class="inline-flex w-full items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white">
-                    Login
-                </a>
-            </div>    
+          <div class="mx-auto flex max-w-7xl flex-col items-center gap-5">
+            <a href="#about" class="text-sm font-medium text-dark transition hover:text-primary">
+              About
+            </a>
+            <a href="#contact" class="text-sm font-medium text-dark transition hover:text-primary">
+              Contact Us
+            </a>
+            <a href="./login.html" class="inline-flex w-full items-center justify-center rounded-full bg-primary px-6 py-3 text-sm font-semibold text-white">
+              Login
+            </a>
+          </div>
         </div>
-   
+
         <!-- Mobile Menu Button -->
         <button
-            type="button"
-            class="rounded-lg p-2 md:hidden"
-            aria-label="Open menu"
-            aria-expanded="false"
-            id="mobile-menu-button">
-            <img src="../assets/icons/menu.svg" alt="Menu Icon" class="h-6 w-6">
+          type="button"
+          class="rounded-lg p-2 md:hidden"
+          aria-label="Open menu"
+          aria-expanded="false"
+          id="mobile-menu-button">
+          <img src="../assets/icons/menu.svg" alt="Menu Icon" class="h-6 w-6">
         </button>
-    </nav>
-</header>
+      </nav>
+    </header>
 
-<!-- Hero Section -->
-<section class="bg-mint">
-    <div class="mx-auto flex max-w-7xl flex-col items-center gap-10 px-5 py-12 sm:px-8 sm:py-16 lg:flex-row lg:gap-12 lg:px-10 lg:py-20">
+    <!-- Hero Section -->
+    <section class="bg-mint">
+      <div class="mx-auto flex max-w-7xl flex-col items-center gap-10 px-5 py-12 sm:px-8 sm:py-16 lg:flex-row lg:gap-12 lg:px-10 lg:py-20">
 
         <!-- Hero Content -->
         <div class="w-full text-center lg:w-1/2 lg:text-left">
 
-            <!-- Small Label -->
-            <p class="mb-4 text-sm font-semibold uppercase tracking-wider text-primary">
-                Reen Bank
-            </p>
+          <!-- Small Label -->
+          <p class="mb-4 text-sm font-semibold uppercase tracking-wider text-primary">
+            Reen Bank
+          </p>
 
-            <!-- Main Heading -->
-            <h1 class="max-w-2xl text-4xl font-bold leading-tight text-dark sm:text-5xl lg:text-6xl">
-                Experience hassle-free banking
-            </h1>
+          <!-- Main Heading -->
+          <h1 class="max-w-2xl text-4xl font-bold leading-tight text-dark sm:text-5xl lg:text-6xl">
+            Experience hassle-free banking
+          </h1>
 
-            <!-- Description -->
-            <p class="mx-auto mt-6 max-w-xl text-base leading-7 text-dark/70 sm:text-lg lg:mx-0">
-                Manage your money with ease, make secure transactions,
-                and enjoy a simple banking experience built around you.
-            </p>
+          <!-- Description -->
+          <p class="mx-auto mt-6 max-w-xl text-base leading-7 text-dark/70 sm:text-lg lg:mx-0">
+            Manage your money with ease, make secure transactions,
+            and enjoy a simple banking experience built around you.
+          </p>
 
-            <!-- Hero Buttons -->
-            <div class="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center lg:justify-start">
+          <!-- Hero Buttons -->
+          <div class="mt-8 flex flex-col gap-4 sm:flex-row sm:justify-center lg:justify-start">
 
-                <!-- Get Started -->
-                <a href="./register.html" class="inline-flex items-center justify-center rounded-full bg-primary px-7 py-3.5 text-sm font-semibold text-white transition hover:opacity-90">
-                    Get Started
-                </a>
+            <!-- Get Started -->
+            <a href="./register.html" class="inline-flex items-center justify-center rounded-full bg-primary px-7 py-3.5 text-sm font-semibold text-white transition hover:opacity-90">
+              Get Started
+            </a>
 
-                <!-- Learn More -->
-                <a href="#about" class="inline-flex items-center justify-center gap-2 rounded-full border border-dark px-7 py-3.5 text-sm font-semibold text-dark transition hover:bg-dark hover:text-white">
-                    Learn More
+            <!-- Learn More -->
+            <a href="#about" class="inline-flex items-center justify-center gap-2 rounded-full border border-dark px-7 py-3.5 text-sm font-semibold text-dark transition hover:bg-dark hover:text-white">
+              Learn More
 
-                    <img src="../assets/icons/arrow-right.svg" alt="" class="h-4 w-4">
-                </a>
-            </div>
+              <img src="../assets/icons/arrow-right.svg" alt="" class="h-4 w-4">
+            </a>
+          </div>
         </div>
 
         <!-- Hero Visual -->
         <div class="flex w-full justify-center lg:w-1/2 lg:justify-center">
-            <div class="flex w-full justify-center">
-                <img src="../assets/images/Reen_Bank_Credit_Card_Mockup_v01 1.png" alt="Reen Bank card" class="relative left-[-20px] h-auto w-full max-w-xl object-contain sm-left-[-24px] lg:left-0">
-            </div>
+          <div class="flex w-full justify-center">
+            <img src="../assets/images/Reen_Bank_Credit_Card_Mockup_v01 1.png" alt="Reen Bank card" class="relative left-[-20px] h-auto w-full max-w-xl object-contain sm-left-[-24px] lg:left-0">
+          </div>
         </div>
-    </div>
-</section>
+      </div>
+    </section>
 
-<!-- Services Section -->
-<section id="about" class="bg-white px-5 py-16 sm:px-8 sm:py-20 lg:px-10 lg:py-24">
-    <div class="mx-auto max-w-7xl">
+    <!-- Services Section -->
+    <section id="about" class="scroll-mt-20 bg-white px-5 py-16 sm:px-8 sm:py-20 lg:px-10 lg:py-24">
+      <div class="mx-auto max-w-7xl">
 
         <!-- Section Heading -->
         <div class="mx-auto max-w-2xl text-center">
-            <p class="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-                Our Services
-            </p>
-            <h2 class="text-3xl font-bold leading-tight text-dark sm:text-4xl lg:text-5xl">
-                Banking made simple for you
-            </h2>
-            <p class="mt-5 text-base leading-7 text-dark/60 sm:text-lg">
-                From managing your savings to making everyday payments,
-                Reen Bank gives you the tools you need to manage your money with ease.
-            </p>
+          <p class="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+            Our Services
+          </p>
+          <h2 class="text-3xl font-bold leading-tight text-dark sm:text-4xl lg:text-5xl">
+            Banking made simple for you
+          </h2>
+          <p class="mt-5 text-base leading-7 text-dark/60 sm:text-lg">
+            From managing your savings to making everyday payments,
+            Reen Bank gives you the tools you need to manage your money with ease.
+          </p>
         </div>
 
         <!-- Services Grid -->
         <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
 
-            <!-- Personal Banking -->
-            <div class="rounded-3xl border border-black/5 bg-mint p-6 transition hover:-translate-y-1 hover:shadow-lg">
-                <div class="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white">
-                    <img src="../assets/images/personal 1.png" alt="Personal banking" class="h-10 w-10 object-contain">
-                </div>
-                <h3 class="text-xl font-semibold text-dark">
-                    Personal Banking
-                </h3>
-                <p class="mt-3 text-sm leading-6 text-dark/60">
-                    Manage your everyday banking, payments, and finances
-                    from one simple and convenient platform.
-                </p>
+          <!-- Personal Banking -->
+          <div class="rounded-3xl border border-black/5 bg-mint p-6 transition hover:-translate-y-1 hover:shadow-lg">
+            <div class="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white">
+              <img src="../assets/images/personal 1.png" alt="Personal banking" class="h-10 w-10 object-contain">
             </div>
+            <h3 class="text-xl font-semibold text-dark">
+              Personal Banking
+            </h3>
+            <p class="mt-3 text-sm leading-6 text-dark/60">
+              Manage your everyday banking, payments, and finances
+              from one simple and convenient platform.
+            </p>
+          </div>
 
-            <!-- Savings -->
-            <div class="rounded-3xl border border-black/5 bg-mint p-6 transition hover:-translate-y-1 hover:shadow-lg">
-                <div class="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white">
-                    <img src="../assets/images/savings 1.png" alt="Savings" class="h-10 w-10 object-contain">
-                </div>
-                <h3 class="text-xl font-semibold text-dark">
-                    Smart Savings
-                </h3>
-                <p class="mt-3 text-sm leading-6 text-dark/60">
-                    Keep your money organized and build better saving
-                    habits with simple tools designed for you.
-                </p>
+          <!-- Savings -->
+          <div class="rounded-3xl border border-black/5 bg-mint p-6 transition hover:-translate-y-1 hover:shadow-lg">
+            <div class="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white">
+              <img src="../assets/images/savings 1.png" alt="Savings" class="h-10 w-10 object-contain">
             </div>
+            <h3 class="text-xl font-semibold text-dark">
+              Smart Savings
+            </h3>
+            <p class="mt-3 text-sm leading-6 text-dark/60">
+              Keep your money organized and build better saving
+              habits with simple tools designed for you.
+            </p>
+          </div>
 
-            <!-- Money Transfer -->
-            <div class="rounded-3xl border border-black/5 bg-mint p-6 transition hover:-translate-y-1 hover:shadow-lg">
-                <div class="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white">
-                    <img src="../assets/images/money 1.png" alt="Money transfer" class="h-10 w-10 object-contain">
-                </div>
-                <h3 class="text-xl font-semibold text-dark">
-                    Money Transfer
-                </h3>
-                <p class="mt-3 text-sm leading-6 text-dark/60">
-                    Send and receive money quickly while keeping track
-                    of your transactions in one place.
-                </p>
+          <!-- Money Transfer -->
+          <div class="rounded-3xl border border-black/5 bg-mint p-6 transition hover:-translate-y-1 hover:shadow-lg">
+            <div class="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white">
+              <img src="../assets/images/money 1.png" alt="Money transfer" class="h-10 w-10 object-contain">
             </div>
+            <h3 class="text-xl font-semibold text-dark">
+              Money Transfer
+            </h3>
+            <p class="mt-3 text-sm leading-6 text-dark/60">
+              Send and receive money quickly while keeping track
+              of your transactions in one place.
+            </p>
+          </div>
 
-            <!-- Bill Payment -->
-            <div class="rounded-3xl border border-black/5 bg-mint p-6 transition hover:-translate-y-1 hover:shadow-lg">
-                <div class="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white">
-                    <img src="../assets/images/bill 1.png" alt="Bill payment" class="h-10 w-10 object-contain">
-                </div>
-                <h3 class="text-xl font-semibold text-dark">
-                    Bill Payments
-                </h3>
-                <p class="mt-3 text-sm leading-6 text-dark/60">
-                    Pay your bills conveniently and keep your everyday
-                    payments organized without unnecessary stress.
-                </p>
+          <!-- Bill Payment -->
+          <div class="rounded-3xl border border-black/5 bg-mint p-6 transition hover:-translate-y-1 hover:shadow-lg">
+            <div class="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white">
+              <img src="../assets/images/bill 1.png" alt="Bill payment" class="h-10 w-10 object-contain">
             </div>
+            <h3 class="text-xl font-semibold text-dark">
+              Bill Payments
+            </h3>
+            <p class="mt-3 text-sm leading-6 text-dark/60">
+              Pay your bills conveniently and keep your everyday
+              payments organized without unnecessary stress.
+            </p>
+          </div>
 
-            <!-- Deals -->
-            <div class="rounded-3xl border border-black/5 bg-mint p-6 transition hover:-translate-y-1 hover:shadow-lg">
-                <div class="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white">
-                    <img src="../assets/images/deal 1.png" alt="Deals and offers" class="h-10 w-10 object-contain">
-                </div>
-                <h3 class="text-xl font-semibold text-dark">
-                    Deals & Offers
-                </h3>
-                <p class="mt-3 text-sm leading-6 text-dark/60">
-                    Discover useful deals and offers that can help you
-                    get more value from your banking experience.
-                </p>
+          <!-- Deals -->
+          <div class="rounded-3xl border border-black/5 bg-mint p-6 transition hover:-translate-y-1 hover:shadow-lg">
+            <div class="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white">
+              <img src="../assets/images/deal 1.png" alt="Deals and offers" class="h-10 w-10 object-contain">
             </div>
+            <h3 class="text-xl font-semibold text-dark">
+              Deals & Offers
+            </h3>
+            <p class="mt-3 text-sm leading-6 text-dark/60">
+              Discover useful deals and offers that can help you
+              get more value from your banking experience.
+            </p>
+          </div>
 
-            <!-- Credit Card -->
-            <div class="rounded-3xl border border-black/5 bg-mint p-6 transition hover:-translate-y-1 hover:shadow-lg">
-                <div class="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white">
-                    <img src="../assets/images/credit-card 1.png" alt="Credit card" class="h-10 w-10 object-contain">
-                </div>
-                <h3 class="text-xl font-semibold text-dark">
-                    Credit Cards
-                </h3>
-                <p class="mt-3 text-sm leading-6 text-dark/60">
-                    Keep your card information organized and manage
-                    your card-related activities with ease.
-                </p>
+          <!-- Credit Card -->
+          <div class="rounded-3xl border border-black/5 bg-mint p-6 transition hover:-translate-y-1 hover:shadow-lg">
+            <div class="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-white">
+              <img src="../assets/images/credit-card 1.png" alt="Credit card" class="h-10 w-10 object-contain">
             </div>
+            <h3 class="text-xl font-semibold text-dark">
+              Credit Cards
+            </h3>
+            <p class="mt-3 text-sm leading-6 text-dark/60">
+              Keep your card information organized and manage
+              your card-related activities with ease.
+            </p>
+          </div>
         </div>
-    </div>
-</section>
+      </div>
+    </section>
 
-<!-- FAQ Section -->
-<section class="relative overflow-hidden bg-mint px-5 py-16 sm:px-8 sm:py-20 lg:px-10 lg:py-24">
+    <!-- FAQ Section -->
+    <section class="relative overflow-hidden bg-mint px-5 py-16 sm:px-8 sm:py-20 lg:px-10 lg:py-24">
 
-    <!-- Decorative Question Mark -->
-    <div class="pointer-events-none absolute -right-10 -top-10 select-none text-[25rem] font-bold leading-none text-dark/5 sm:text-[30rem] lg:-right-20 lg:-top-20 lg:text-[35rem]" aria-hidden="true">
+      <!-- Decorative Question Mark -->
+      <div class="pointer-events-none absolute -right-10 -top-10 select-none text-[25rem] font-bold leading-none text-dark/5 sm:text-[30rem] lg:-right-20 lg:-top-20 lg:text-[35rem]" aria-hidden="true">
         ?
-    </div>
+      </div>
 
-    <div class="relative mx-auto max-w-7xl">
+      <div class="relative mx-auto max-w-7xl">
 
         <!-- FAQ Heading -->
         <h2 class="text-4xl font-bold text-dark sm:text-5xl lg:text-6xl">
-            FAQs
+          FAQs
         </h2>
 
 
         <!-- FAQ Layout -->
         <div class="mt-12 grid gap-12 lg:grid-cols-2 lg:items-start lg:gap-16">
 
-            <!-- Active FAQ Answer -->
-            <div class="min-h-[360px]">
-                <div class="max-w-2xl">
+          <!-- Active FAQ Answer -->
+          <div class="min-h-[360px]">
+            <div class="max-w-2xl">
 
-                    <!-- Active Question -->
-                    <h3 id="faq-question" class="text-3xl font-semibold leading-tight text-primary underline decoration-1 underline-offset-4 sm:text-4xl">
-                        What types of accounts does Reen Bank offer?
-                    </h3>
+              <!-- Active Question -->
+              <h3 id="faq-question" class="text-3xl font-semibold leading-tight text-primary underline decoration-1 underline-offset-4 sm:text-4xl">
+                What types of accounts does Reen Bank offer?
+              </h3>
 
-                    <!-- Active Answer -->
-                    <p id="faq-answer" class="mt-8 max-w-2xl text-base leading-8 text-dark/65 sm:text-lg">
-                        Reen Bank offers a variety of accounts to suit your
-                        financial needs, including savings accounts, checking
-                        accounts, and credit cards. We also offer loans,
-                        investment services, and other financial products.
-                    </p>
-                </div>
-
-                <!-- Mobile / Carousel Navigation -->
-                <div class="mt-10 flex items-center gap-4 lg:hidden">
-
-                    <!-- Previous -->
-                    <button
-                        id="faq-prev"
-                        type="button"
-                        aria-label="Previous FAQ"
-                        class="flex h-12 w-12 items-center justify-center rounded-full border border-dark/20 bg-white transition hover:bg-primary hover:text-white">
-                        <img src="../assets/icons/arrow-left.svg" alt="" class="h-5 w-5">
-                    </button>
-
-                    <!-- Next -->
-                    <button id="faq-next"
-                        type="button"
-                        aria-label="Next FAQ"
-                        class="flex h-12 w-12 items-center justify-center rounded-full border border-dark/20 bg-white transition hover:bg-primary hover:text-white">
-                        <img src="../assets/icons/arrow-right.svg" alt="" class="h-5 w-5">
-                    </button>
-                </div>
+              <!-- Active Answer -->
+              <p id="faq-answer" class="mt-8 max-w-2xl text-base leading-8 text-dark/65 sm:text-lg">
+                Reen Bank offers a variety of accounts to suit your
+                financial needs, including savings accounts, checking
+                accounts, and credit cards. We also offer loans,
+                investment services, and other financial products.
+              </p>
             </div>
 
+            <!-- Mobile / Carousel Navigation -->
+            <div class="mt-10 flex items-center gap-4 lg:hidden">
 
-            <!-- FAQ Questions -->
-            <div class="space-y-6">
+              <!-- Previous -->
+              <button
+                id="faq-prev"
+                type="button"
+                aria-label="Previous FAQ"
+                class="flex h-12 w-12 items-center justify-center rounded-full border border-dark/20 bg-white transition hover:bg-primary hover:text-white">
+                <img src="../assets/icons/arrow-left.svg" alt="" class="h-5 w-5">
+              </button>
 
-                <!-- Question 1 -->
-                <button
-                    type="button" data-faq-index="0" class="faq-question flex w-full items-start justify-between gap-5 text-left text-lg font-semibold text-[#432080] underline decoration-1 underline-offset-4 transition hover:text-primary sm:text-xl">
-                    <span>
-                        What types of accounts does Reen Bank offer?
-                    </span>
-                    <img src="../assets/icons/arrow-right.svg" alt="" class="mt-1 h-5 w-5 shrink-0">
-                </button>
-
-
-                <!-- Question 2 -->
-                <button type="button"
-                    data-faq-index="1"
-                    class="faq-question flex w-full items-start justify-between gap-5 text-left text-lg font-semibold text-[#432080] underline decoration-1 underline-offset-4 transition hover:text-primary sm:text-xl">
-                    <span>
-                        How do I sign up for an account with Reen Bank?
-                    </span>
-                    <img src="../assets/icons/arrow-right.svg" alt="" class="mt-1 h-5 w-5 shrink-0">
-                </button>
-
-                <!-- Question 3 -->
-                <button type="button"
-                    data-faq-index="2"
-                    class="faq-question flex w-full items-start justify-between gap-5 text-left text-lg font-semibold text-[#432080] underline decoration-1 underline-offset-4 transition hover:text-primary sm:text-xl">
-                    <span>
-                        Is Reen Bank NDIC insured?
-                    </span>
-                    <img src="../assets/icons/arrow-right.svg" alt="" class="mt-1 h-5 w-5 shrink-0">
-                </button>
-
-                <!-- Question 4 -->
-                <button type="button"
-                    data-faq-index="3"
-                    class="faq-question flex w-full items-start justify-between gap-5 text-left text-lg font-semibold text-[#432080] underline decoration-1 underline-offset-4 transition hover:text-primary sm:text-xl">
-                    <span>
-                        How can I access my Reen Bank account online?
-                    </span>
-                    <img src="../assets/icons/arrow-right.svg" alt="" class="mt-1 h-5 w-5 shrink-0">
-                </button>
-
-                <!-- Question 5 -->
-                <button type="button"
-                    data-faq-index="4"
-                    class="faq-question flex w-full items-start justify-between gap-5 text-left text-lg font-semibold text-[#432080] underline decoration-1 underline-offset-4 transition hover:text-primary sm:text-xl">
-                    <span>
-                        What security measures does Reen Bank have in place
-                        to protect my financial information?
-                    </span>
-                    <img src="../assets/icons/arrow-right.svg" alt="" class="mt-1 h-5 w-5 shrink-0">
-                </button>
+              <!-- Next -->
+              <button id="faq-next"
+                type="button"
+                aria-label="Next FAQ"
+                class="flex h-12 w-12 items-center justify-center rounded-full border border-dark/20 bg-white transition hover:bg-primary hover:text-white">
+                <img src="../assets/icons/arrow-right.svg" alt="" class="h-5 w-5">
+              </button>
             </div>
+          </div>
+
+
+          <!-- FAQ Questions -->
+          <div class="space-y-6">
+
+            <!-- Question 1 -->
+            <button
+              type="button" data-faq-index="0" class="faq-question flex w-full items-start justify-between gap-5 text-left text-lg font-semibold text-[#432080] underline decoration-1 underline-offset-4 transition hover:text-primary sm:text-xl">
+              <span>
+                What types of accounts does Reen Bank offer?
+              </span>
+              <img src="../assets/icons/arrow-right.svg" alt="" class="mt-1 h-5 w-5 shrink-0">
+            </button>
+
+
+            <!-- Question 2 -->
+            <button type="button"
+              data-faq-index="1"
+              class="faq-question flex w-full items-start justify-between gap-5 text-left text-lg font-semibold text-[#432080] underline decoration-1 underline-offset-4 transition hover:text-primary sm:text-xl">
+              <span>
+                How do I sign up for an account with Reen Bank?
+              </span>
+              <img src="../assets/icons/arrow-right.svg" alt="" class="mt-1 h-5 w-5 shrink-0">
+            </button>
+
+            <!-- Question 3 -->
+            <button type="button"
+              data-faq-index="2"
+              class="faq-question flex w-full items-start justify-between gap-5 text-left text-lg font-semibold text-[#432080] underline decoration-1 underline-offset-4 transition hover:text-primary sm:text-xl">
+              <span>
+                Is Reen Bank NDIC insured?
+              </span>
+              <img src="../assets/icons/arrow-right.svg" alt="" class="mt-1 h-5 w-5 shrink-0">
+            </button>
+
+            <!-- Question 4 -->
+            <button type="button"
+              data-faq-index="3"
+              class="faq-question flex w-full items-start justify-between gap-5 text-left text-lg font-semibold text-[#432080] underline decoration-1 underline-offset-4 transition hover:text-primary sm:text-xl">
+              <span>
+                How can I access my Reen Bank account online?
+              </span>
+              <img src="../assets/icons/arrow-right.svg" alt="" class="mt-1 h-5 w-5 shrink-0">
+            </button>
+
+            <!-- Question 5 -->
+            <button type="button"
+              data-faq-index="4"
+              class="faq-question flex w-full items-start justify-between gap-5 text-left text-lg font-semibold text-[#432080] underline decoration-1 underline-offset-4 transition hover:text-primary sm:text-xl">
+              <span>
+                What security measures does Reen Bank have in place
+                to protect my financial information?
+              </span>
+              <img src="../assets/icons/arrow-right.svg" alt="" class="mt-1 h-5 w-5 shrink-0">
+            </button>
+          </div>
         </div>
-    </div>
-</section>
+      </div>
+    </section>
 
-<!-- Supported Payment Services Section -->
-<section class="bg-white px-5 py-16 sm:px-8 sm:py-20 lg:px-10 lg:py-24">
-    <div class="mx-auto max-w-7xl">
+    <!-- Supported Payment Services Section -->
+    <section class="bg-white px-5 py-16 sm:px-8 sm:py-20 lg:px-10 lg:py-24">
+      <div class="mx-auto max-w-7xl">
 
         <!-- Section Heading -->
         <div class="mx-auto max-w-2xl text-center">
-            <p class="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
-                Payment Partners
-            </p>
-            <h2 class="text-3xl font-bold leading-tight text-dark sm:text-4xl lg:text-5xl">
-                Supported By Various Finance Services
-            </h2>
-            <p class="mt-5 text-base leading-7 text-dark/60 sm:text-lg">
-                Reen Bank works with popular payment services to make
-                your everyday financial activities easier and more convenient.
-            </p>
+          <p class="mb-3 text-sm font-semibold uppercase tracking-wider text-primary">
+            Payment Partners
+          </p>
+          <h2 class="text-3xl font-bold leading-tight text-dark sm:text-4xl lg:text-5xl">
+            Supported By Various Finance Services
+          </h2>
+          <p class="mt-5 text-base leading-7 text-dark/60 sm:text-lg">
+            Reen Bank works with popular payment services to make
+            your everyday financial activities easier and more convenient.
+          </p>
         </div>
 
         <!-- Payment Partners -->
         <div class="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-6">
 
-            <!-- Mastercard -->
-            <div class="flex h-28 items-center justify-center rounded-2xl border border-black/5 bg-gray-50 p-6 transition hover:-translate-y-1 hover:shadow-md">
-                <img
-                    src="../assets/images/Mastercard_2019_logo 2.png" alt="Mastercard" class="max-h-12 w-auto object-contain">
-            </div>
+          <!-- Mastercard -->
+          <div class="flex h-28 items-center justify-center rounded-2xl border border-black/5 bg-gray-50 p-6 transition hover:-translate-y-1 hover:shadow-md">
+            <img
+              src="../assets/images/Mastercard_2019_logo 2.png" alt="Mastercard" class="max-h-12 w-auto object-contain">
+          </div>
 
-            <!-- Visa -->
-            <div class="flex h-28 items-center justify-center rounded-2xl border border-black/5 bg-gray-50 p-6 transition hover:-translate-y-1 hover:shadow-md">
-                <img src="../assets/images/visa.png" alt="Visa" class="max-h-10 w-auto object-contain">
-            </div>
+          <!-- Visa -->
+          <div class="flex h-28 items-center justify-center rounded-2xl border border-black/5 bg-gray-50 p-6 transition hover:-translate-y-1 hover:shadow-md">
+            <img src="../assets/images/visa.png" alt="Visa" class="max-h-10 w-auto object-contain">
+          </div>
 
-            <!-- PayPal -->
-            <div class="flex h-28 items-center justify-center rounded-2xl border border-black/5 bg-gray-50 p-6 transition hover:-translate-y-1 hover:shadow-md">
-                <img src="../assets/images/PayPal-Logo 1.png" alt="PayPal" class="max-h-12 w-auto object-contain">
-            </div>
+          <!-- PayPal -->
+          <div class="flex h-28 items-center justify-center rounded-2xl border border-black/5 bg-gray-50 p-6 transition hover:-translate-y-1 hover:shadow-md">
+            <img src="../assets/images/PayPal-Logo 1.png" alt="PayPal" class="max-h-12 w-auto object-contain">
+          </div>
 
-            <!-- Payoneer -->
-            <div class="flex h-28 items-center justify-center rounded-2xl border border-black/5 bg-gray-50 p-6 transition hover:-translate-y-1 hover:shadow-md">
-                <img src="../assets/images/Payoneer_logo 1.png" alt="Payoneer" class="max-h-12 w-auto object-contain">
-            </div>
+          <!-- Payoneer -->
+          <div class="flex h-28 items-center justify-center rounded-2xl border border-black/5 bg-gray-50 p-6 transition hover:-translate-y-1 hover:shadow-md">
+            <img src="../assets/images/Payoneer_logo 1.png" alt="Payoneer" class="max-h-12 w-auto object-contain">
+          </div>
         </div>
-    </div>
-</section>
+      </div>
+    </section>
 
-<!-- Footer -->
-<footer id="contact" class="bg-mint px-5 py-12 sm:px-8 lg:px-10 lg:py-16">
-    <div class="mx-auto max-w-7xl">
+    <!-- Footer -->
+    <footer id="contact" class="scroll-mt-20 bg-mint px-5 py-12 sm:px-8 lg:px-10 lg:py-16">
+      <div class="mx-auto max-w-7xl">
 
         <!-- Footer Main -->
         <div class="grid gap-10 lg:grid-cols-12 lg:gap-8">
 
-            <!-- Brand -->
-            <div class="order-1 lg:col-span-3">
-                <div class="inline-flex items-center">
-                    <img src="../assets/images/logo.png" alt="Reen Bank Logo" class="h-10 w-auto">
-                </div>
-                <p class="mt-5 max-w-xs text-sm leading-6 text-dark/60">
-                    Experience hassle-free banking with simple,
-                    secure, and convenient financial services built around you.
+          <!-- Brand -->
+          <div class="order-1 lg:col-span-3">
+            <div class="inline-flex items-center">
+              <img src="../assets/images/logo.png" alt="Reen Bank Logo" class="h-10 w-auto">
+            </div>
+            <p class="mt-5 max-w-xs text-sm leading-6 text-dark/60">
+              Experience hassle-free banking with simple,
+              secure, and convenient financial services built around you.
+            </p>
+          </div>
+
+          <!-- Help -->
+          <div class="order-2 lg:col-span-2">
+            <h3 class="text-base font-semibold text-primary">
+              HELP
+            </h3>
+            <ul class="mt-6 space-y-4">
+              <li>
+                <a href="#" class="text-sm text-dark/60 transition hover:text-primary">
+                  Help Center
+                </a>
+              </li>
+              <li>
+                <a href="#contact" class="text-sm text-dark/60 transition hover:text-primary">
+                  Contact Us
+                </a>
+              </li>
+              <li>
+                <a href="#" class="text-sm text-dark/60 transition hover:text-primary">
+                  How to Use
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- About -->
+          <div class="order-3 lg:col-span-2">
+            <h3 class="text-base font-semibold text-primary">
+              ABOUT
+            </h3>
+            <ul class="mt-6 space-y-4">
+              <li>
+                <a href="#about" class="text-sm text-dark/60 transition hover:text-primary">
+                  About Reen Bank
+                </a>
+              </li>
+              <li>
+                <a href="#" class="text-sm text-dark/60 transition hover:text-primary">
+                  Terms & Conditions
+                </a>
+              </li>
+              <li>
+                <a href="#" class="text-sm text-dark/60 transition hover:text-primary">
+                  Privacy Policy
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Contact -->
+          <div class="order-4 lg:col-span-2">
+            <h3 class="text-base font-semibold text-primary">
+              CONTACT
+            </h3>
+            <ul class="mt-6 space-y-4">
+              <li>
+                <a href="mailto:hello@reenbank.com" class="text-sm text-dark/60 transition hover:text-primary">
+                  hello@reenbank.com
+                </a>
+              </li>
+              <li>
+                <a href="tel:+2348000000000" class="text-sm text-dark/60 transition hover:text-primary">
+                  +234 800 000 0000
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Right CTA Section -->
+          <div class="order-5 lg:col-span-3">
+            <div class="relative min-h-[360px] overflow-hidden rounded-[2rem]">
+
+              <!-- Background Image -->
+              <img
+                src="../assets/images/Rectangle 159.png" alt="" class="absolute inset-0 h-full w-full object-cover">
+
+              <!-- Dark Overlay -->
+              <div class="absolute inset-0 bg-black/35"></div>
+
+              <!-- CTA Content -->
+              <div class="relative z-10 flex h-full flex-col justify-end p-6 text-white sm:p-8">
+                <p class="text-base sm:text-lg">
+                  New to Reen Bank?
                 </p>
-            </div>
-
-            <!-- Help -->
-            <div class="order-2 lg:col-span-2">
-                <h3 class="text-base font-semibold text-primary">
-                    HELP
+                <h3 class="mt-3 text-3xl font-bold leading-tight sm:text-4xl">
+                  Enter your Email
+                  <br>
+                  and Get Started Now
                 </h3>
-                <ul class="mt-6 space-y-4">
-                    <li>
-                        <a href="#" class="text-sm text-dark/60 transition hover:text-primary">
-                            Help Center
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#contact" class="text-sm text-dark/60 transition hover:text-primary">
-                           Contact Us
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="text-sm text-dark/60 transition hover:text-primary">
-                            How to Use
-                        </a>
-                    </li>
-                </ul>
-            </div>
 
-            <!-- About -->
-            <div class="order-3 lg:col-span-2">
-                <h3 class="text-base font-semibold text-primary">
-                    ABOUT
-                </h3>
-                <ul class="mt-6 space-y-4">
-                    <li>
-                        <a href="#about" class="text-sm text-dark/60 transition hover:text-primary">
-                            About Reen Bank
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="text-sm text-dark/60 transition hover:text-primary">
-                            Terms & Conditions
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="text-sm text-dark/60 transition hover:text-primary">
-                            Privacy Policy
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
-            <!-- Contact -->
-            <div class="order-4 lg:col-span-2">
-                <h3 class="text-base font-semibold text-primary">
-                    CONTACT
-                </h3>
-                <ul class="mt-6 space-y-4">
-                    <li>
-                        <a href="mailto:hello@reenbank.com" class="text-sm text-dark/60 transition hover:text-primary">
-                            hello@reenbank.com
-                        </a>
-                    </li>
-                    <li>
-                        <a href="tel:+2348000000000" class="text-sm text-dark/60 transition hover:text-primary">
-                            +234 800 000 0000
-                        </a>
-                    </li>
-                </ul>
-            </div>
-
-            <!-- Right CTA Section -->
-            <div class="order-5 lg:col-span-3">
-                <div class="relative min-h-[360px] overflow-hidden rounded-[2rem]">
-
-                    <!-- Background Image -->
-                    <img
-                        src="../assets/images/Rectangle 159.png" alt="" class="absolute inset-0 h-full w-full object-cover">
-
-                    <!-- Dark Overlay -->
-                    <div class="absolute inset-0 bg-black/35"></div>
-
-                    <!-- CTA Content -->
-                    <div class="relative z-10 flex h-full flex-col justify-end p-6 text-white sm:p-8">
-                        <p class="text-base sm:text-lg">
-                            New to Reen Bank?
-                        </p>
-                        <h3 class="mt-3 text-3xl font-bold leading-tight sm:text-4xl">
-                            Enter your Email
-                            <br>
-                            and Get Started Now
-                        </h3>
-
-                        <!-- Email Form -->
-                        <div class="mt-7 flex flex-col gap-3">
-                            <input type="email"
-                                placeholder="Enter your Email"
-                                aria-label="Email address"
-                                class="w-full rounded-lg border border-danger bg-black/20 px-4 py-3 text-sm text-white outline-none placeholder:text-white/60 focus:border-primary">
-                            <a href="#" class="flex w-full items-center justify-center rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90">
-                                Get Started
-                            </a>
-                        </div>
-                    </div>
+                <!-- Email Form -->
+                <div class="mt-7 flex flex-col gap-3">
+                  <input type="email"
+                    placeholder="Enter your Email"
+                    aria-label="Email address"
+                    class="w-full rounded-lg border border-danger bg-black/20 px-4 py-3 text-sm text-white outline-none placeholder:text-white/60 focus:border-primary">
+                  <a href="./register.html" class="flex w-full items-center justify-center rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90">
+                    Get Started
+                  </a>
                 </div>
+              </div>
             </div>
+          </div>
         </div>
 
         <!-- Logo / Social / Copyright Area -->
         <div class="mt-12 border-t border-dark/10 pt-8">
-            <div class="flex flex-col gap-8">
+          <div class="flex flex-col gap-8">
 
-                <!-- Social Links -->
-                <div class="order-1 flex items-center gap-3">
-                    <a href="#" aria-label="Facebook" class="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white transition hover:opacity-80">
-                        f
-                    </a>
-                    <a href="#" aria-label="Instagram" class="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white transition hover:opacity-80">
-                        ig
-                    </a>
-                    <a href="#"
-                        aria-label="Twitter"
-                        class="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white transition hover:opacity-80">
-                        𝕏
-                    </a>
-                </div>
-
-                <!-- Regulatory / Copyright -->
-                <div class="order-2 border-t border-dark/10 pt-5">
-                    <p class="text-sm leading-6 text-dark/60">
-                        © 2026 Reen Bank. All rights reserved.
-                    </p>
-                    <p class="mt-2 text-sm leading-6 text-dark/60">
-                        Insured by NDIC and licensed by CBN.
-                    </p>
-                </div>
+            <!-- Social Links -->
+            <div class="order-1 flex items-center gap-3">
+              <a href="#" aria-label="Facebook" class="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white transition hover:opacity-80">
+                f
+              </a>
+              <a href="#" aria-label="Instagram" class="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white transition hover:opacity-80">
+                ig
+              </a>
+              <a href="#"
+                aria-label="Twitter"
+                class="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-white transition hover:opacity-80">
+                𝕏
+              </a>
             </div>
+
+            <!-- Regulatory / Copyright -->
+            <div class="order-2 border-t border-dark/10 pt-5">
+              <p class="text-sm leading-6 text-dark/60">
+                © 2026 Reen Bank. All rights reserved.
+              </p>
+              <p class="mt-2 text-sm leading-6 text-dark/60">
+                Insured by NDIC and licensed by CBN.
+              </p>
+            </div>
+          </div>
         </div>
-    </div>
-</footer>
+      </div>
+    </footer>
 
-<!-- Javascript -->
- <script src="../js/app.js"></script>
+    <!-- Javascript -->
+    <script src="../js/app.js"></script>
 
-</body>
+  </body>
 </html>

@@ -1,7 +1,17 @@
-// LANDING PAGE
+/* =========================================================
+   REEN BANK — LANDING PAGE SCRIPT  (index.html)
+
+   TABLE OF CONTENTS
+   1. Mobile navigation menu
+   2. FAQ carousel (list, arrows, swipe)
+   3. Footer "Get Started" email call-to-action
+   ========================================================= */
+
+// Wait until the page is fully loaded before touching any element.
 
 document.addEventListener("DOMContentLoaded", () => {
 
+    // ---------------------------------------------------------
     // MOBILE NAVIGATION
     const mobileMenuButton = document.getElementById("mobile-menu-button");
     const mobileMenu = document.getElementById("mobile-menu");

@@ -1,18 +1,34 @@
 /* =========================================================
    REEN BANK AUTHENTICATION
-   Register -> OTP -> Login
+   Used by: register.html, otp-verification.html, login.html
+
+   Flow: Register -> OTP verification -> Login
    Multiple users are stored permanently in localStorage.
    Passwords are stored as SHA-256 hashes, not plain text.
+
+   TABLE OF CONTENTS
+   1. Storage keys
+   2. Legacy-user migration
+   3. Small helpers (DOM, messages, user storage)
+   4. Password security (validation + hashing)
+   5. Password eye toggle
+   6. REGISTER PAGE
+   7. OTP VERIFICATION PAGE
+   8. LOGIN PAGE
    ========================================================= */
 
+// 1. STORAGE KEYS
+// Every registered user is saved as user1, user2, ... in localStorage.
 const USERS_PREFIX = "user";
 const USER_COUNT_KEY = "reenBankUserCount";
 const PENDING_USER_KEY = "reenBankPendingUser";
 const OTP_KEY = "reenBankOTP";
 const OTP_EXPIRES_KEY = "reenBankOTPExpires";
+// Temporary OTP data (lives in sessionStorage only).
 const OTP_SESSION_KEY = "reenBankOTPSession";
 const OTP_EXPIRES_SESSION_KEY = "reenBankOTPExpiresSession";
 const PREFILL_EMAIL_KEY = "reenBankPrefillEmail";
+// Who is signed in right now / remember-me choice.
 const CURRENT_USER_KEY = "reenBankCurrentUser";
 const REMEMBER_ME_KEY = "reenBankRememberMe";
 
@@ -67,10 +83,12 @@ function migrateLegacyUser() {
    Small helpers
    --------------------------------------------------------- */
 
+// Shortcut for document.getElementById.
 function getElement(id) {
     return document.getElementById(id);
 }
 
+// Shows a red (error) or green (success) message inside a message element.
 function showMessage(element, message, type = "error") {
     if (!element) return;
 
@@ -82,6 +100,7 @@ function showMessage(element, message, type = "error") {
     );
 }
 
+// Clears and hides a message element.
 function hideMessage(element) {
     if (!element) return;
 
@@ -90,14 +109,17 @@ function hideMessage(element) {
     element.classList.remove("text-red-500", "text-primary");
 }
 
+// How many users have registered so far.
 function getUserCount() {
     return Number(localStorage.getItem(USER_COUNT_KEY)) || 0;
 }
 
+// Builds the storage key for a user number, e.g. 3 -> "user3".
 function getUserKey(number) {
     return `${USERS_PREFIX}${number}`;
 }
 
+// Reads one saved user (null when missing or corrupted).
 function getUser(number) {
     const saved = localStorage.getItem(getUserKey(number));
 
@@ -110,10 +132,12 @@ function getUser(number) {
     }
 }
 
+// Saves one user record.
 function saveUser(number, user) {
     localStorage.setItem(getUserKey(number), JSON.stringify(user));
 }
 
+// Returns every saved user, each tagged with its userNumber.
 function getAllUsers() {
     const users = [];
 
@@ -157,6 +181,7 @@ function validatePassword(password) {
     return "";
 }
 
+// Returns the SHA-256 hash (hex) of a password.
 async function hashPassword(password) {
     const data = new TextEncoder().encode(password);
     const hashBuffer = await crypto.subtle.digest("SHA-256", data);
@@ -166,12 +191,15 @@ async function hashPassword(password) {
         .join("");
 }
 
+// Run the one-time migration as soon as hashPassword() exists.
 migrateLegacyUser();
 
 /* ---------------------------------------------------------
    Password eye helpers
    --------------------------------------------------------- */
 
+// Adds show / hide behaviour to a password field.
+// The eye button only appears once the user has typed something.
 function setupPasswordToggle({
     input,
     button,
@@ -241,6 +269,7 @@ function setupPasswordToggle({
    REGISTER PAGE
    ========================================================= */
 
+// Only runs on register.html (the form exists there).
 const registerForm = getElement("register-form");
 
 if (registerForm) {
@@ -389,6 +418,7 @@ if (registerForm) {
    OTP VERIFICATION PAGE
    ========================================================= */
 
+// Only runs on otp-verification.html.
 const otpForm = getElement("otp-form");
 
 if (otpForm) {
@@ -402,6 +432,7 @@ if (otpForm) {
 
     const pendingUserKey = localStorage.getItem(PENDING_USER_KEY);
 
+    // The user who just registered and still needs to verify their email.
     function getPendingUser() {
         if (!pendingUserKey) return null;
 
@@ -412,6 +443,7 @@ if (otpForm) {
         return getUser(Number(match[1]));
     }
 
+    // Hides the middle of an email, e.g. "johndoe@mail.com" -> "j*****e@mail.com".
     function maskEmail(email) {
         if (!email || !email.includes("@")) return "";
 
@@ -489,6 +521,7 @@ if (otpForm) {
         });
     });
 
+    // Counts down the OTP validity time (mm:ss) and turns red at zero.
     function startOTPTimer() {
         if (!otpTimer) return;
 
@@ -645,6 +678,7 @@ if (otpForm) {
    LOGIN PAGE
    ========================================================= */
 
+// Only runs on login.html.
 const loginForm = getElement("login-form");
 
 if (loginForm) {
@@ -667,6 +701,7 @@ if (loginForm) {
         wrapper: passwordWrapper
     });
 
+    // Case-insensitive lookup of a registered user by email.
     function findUserByEmail(email) {
         return getAllUsers().find(
             user => user.email.toLowerCase() === email.toLowerCase()

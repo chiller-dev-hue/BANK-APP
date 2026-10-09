@@ -1,12 +1,30 @@
 /* =========================================================
-   REEN BANK — DASHBOARD / ACCOUNTS / TRANSACTIONS / PROFILE
-   Frontend-only state is stored per registered user in localStorage.
+   REEN BANK — SHARED APP SCRIPT
+   Used by: dashboard.html, accounts.html, transaction.html, profile.html
+
+   All data is frontend-only and stored PER USER in localStorage
+   (keys are suffixed with the logged-in user's id).
+
+   TABLE OF CONTENTS
+   1.  Session guard ........ redirect to login when nobody is signed in
+   2.  Helpers .............. initials, money formatting, JSON + date utils
+   3.  Saved state .......... accounts, transactions, notifications, repair
+   4.  Header identity ...... name, account number, avatar / profile photo
+   5.  Mobile navigation .... sidebar open / close
+   6.  Modals ............... success overlay, fund / withdraw, add account
+   7.  State + rendering .... balances, statistics, transactions, accounts
+   8.  Dashboard controls ... balance visibility, periods, notifications
+   9.  Search ............... transaction + accounts search boxes
+   10. Logout ............... confirmation overlay
+   11. Profile page ......... profile form, photo upload, reset password
+   12. Start-up ............. first render + live month refresh
 ========================================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
     const $ = (selector, root = document) => root.querySelector(selector);
     const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
+    // 1. SESSION GUARD — read the signed-in user; bounce to login if missing.
     const currentUserRaw = localStorage.getItem("reenBankCurrentUser");
     let currentUser = null;
 
@@ -21,6 +39,8 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
+    // 2. HELPERS
+    // Turns a full name into avatar initials (last two words), e.g. "Maureen Oguche" -> "MO".
     const getInitials = (name = "") => {
         const parts = name.trim().split(/\s+/).filter(Boolean);
         if (!parts.length) return "RB";
@@ -28,6 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return parts.slice(-2).map(part => part[0].toUpperCase()).join("");
     };
 
+    // Formats a number as Naira with two decimals, e.g. 1500 -> "₦ 1,500.00".
     const formatMoney = amount =>
         `₦ ${Number(amount || 0).toLocaleString("en-NG", {
             minimumFractionDigits: 2,
@@ -41,6 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
             maximumFractionDigits: 0
         })}`;
 
+    // localStorage keys (each one is scoped to the current user's id).
     const accountStorageKey = `reenBankAccounts_${currentUser.id}`;
     const transactionStorageKey = `reenBankTransactions_${currentUser.id}`;
     const accountNumberKey = `reenBankAccountNumber_${currentUser.id}`;
@@ -48,21 +70,26 @@ document.addEventListener("DOMContentLoaded", () => {
     const notificationStorageKey = `reenBankNotifications_${currentUser.id}`;
     const statisticsPeriodKey = `reenBankStatisticsPeriod_${currentUser.id}`;
     const beneficiaryStorageKey = `reenBankBeneficiaries_${currentUser.id}`;
+    // Maximum balance any single account may hold (free tier limit).
     const ACCOUNT_MAX_BALANCE = 1_000_000_000;
     const balancePeriodKey = `reenBankBalancePeriod_${currentUser.id}`;
 
+    // 3. SAVED STATE
+    // Demo balances used for users who already have saved bank data.
     const defaultAccounts = {
         main: { name: "Main Account", balance: 44500 },
         school: { name: "School Savings", balance: 44500 },
         holiday: { name: "Holiday Plan", balance: 44500 }
     };
 
+    // Brand-new users start with empty accounts.
     const newUserAccounts = {
         main: { name: "Main Account", balance: 0 },
         school: { name: "School Savings", balance: 0 },
         holiday: { name: "Holiday Plan", balance: 0 }
     };
 
+    // Demo transaction history for users who already have saved bank data.
     const defaultTransactions = [
         { name: "Oluwaben Jamin", type: "Bank Transfer", date: "06.Mar.2023 - 09:39", amount: -10000, status: "Pending" },
         { name: "Oluwaben Jamin", type: "Direct Pay", date: "06.Mar.2023 - 09:39", amount: 10000, status: "Completed" },
@@ -73,6 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
         { name: "Oluwaben Jamin", type: "Bank Transfer", date: "06.Mar.2023 - 09:39", amount: -10000, status: "Canceled" }
     ];
 
+    // Safely reads and parses a localStorage value; returns `fallback` on any error.
     const readJSON = (key, fallback) => {
         try {
             const value = JSON.parse(localStorage.getItem(key));
@@ -82,9 +110,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
+    // Plain-text amount with sign, used when seeding notifications.
     const transactionAmountTextSafe = item =>
         `${Number(item?.amount || 0) >= 0 ? "+" : "-"} ₦ ${Math.abs(Number(item?.amount || 0)).toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
+    // Converts strings like "06.Mar.2023 - 09:39" into a Date (or null if unreadable).
     const parseTransactionDate = value => {
         if (!value) return null;
         const text = String(value);
@@ -105,8 +135,10 @@ document.addEventListener("DOMContentLoaded", () => {
         return Number.isNaN(fallback.getTime()) ? null : fallback;
     };
 
+    // Month identifier used for period filters, e.g. "2023-03".
     const monthKey = date => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
 
+    // Load accounts / transactions (existing users keep data, new users start empty).
     const hasSavedBankState = Boolean(
         localStorage.getItem(accountStorageKey) || localStorage.getItem(transactionStorageKey)
     );
@@ -161,6 +193,7 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem(accountStorageKey, JSON.stringify(accounts));
     localStorage.setItem(transactionStorageKey, JSON.stringify(transactions));
 
+    // Returns the user's 10-digit account number, generating and saving one on first use.
     const getAccountNumber = () => {
         let number = localStorage.getItem(accountNumberKey);
         if (!number) {
@@ -189,14 +222,6 @@ document.addEventListener("DOMContentLoaded", () => {
     // Shared user/header information
     // ---------------------------------------------------------
 
-    $$("#dashboard-user-name, #dashboard-user-name-mobile").forEach(el => {
-        el.textContent = currentUser.name || "Reen Bank User";
-    });
-
-    $$("#dashboard-account-number, #dashboard-account-number-mobile").forEach(el => {
-        el.textContent = accountNumber;
-    });
-
     // Profile header uses the same shared identity state as Dashboard/Accounts.
     // Keep an explicit fallback so the name/number never disappear if older
     // saved user data is incomplete.
@@ -214,10 +239,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // Profile photo support. Photos are stored per user as a small compressed
     // data URL so they persist after reload/logout without needing a server.
     const profilePhotoKey = `reenBankProfileImage_${currentUser.id}`;
+    // 4. PROFILE PHOTO — read the saved photo (data URL) for this user.
     const getProfilePhoto = () => {
         try { return localStorage.getItem(profilePhotoKey) || ""; } catch { return ""; }
     };
 
+    // Shows the photo (or initials when empty) in the header avatar and on the profile page.
     const applyProfilePhoto = (photo) => {
         const avatarSelectors = [
             "#dashboard-profile-initials",
@@ -270,12 +297,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const overlay = $("#dashboard-overlay");
     const menuButton = $("#dashboard-menu-button");
 
+    // Slide the sidebar out and hide the dark overlay.
     const closeMenu = () => {
         sidebar?.classList.add("-translate-x-full");
         overlay?.classList.add("hidden");
         menuButton?.setAttribute("aria-expanded", "false");
     };
 
+    // Slide the sidebar in and show the dark overlay.
     const openMenu = () => {
         sidebar?.classList.remove("-translate-x-full");
         overlay?.classList.remove("hidden");
@@ -311,8 +340,10 @@ document.addEventListener("DOMContentLoaded", () => {
         "Optimus Bank", "Signature Bank", "Parallex Bank"
     ];
 
+    // The currently open action modal (fund / withdraw / add account), if any.
     let actionModal = null;
 
+    // Removes the open modal from the page and restores body scrolling.
     const closeActionModal = () => {
         actionModal?.remove();
         actionModal = null;
@@ -333,6 +364,7 @@ document.addEventListener("DOMContentLoaded", () => {
         $("[data-success-done]", actionModal)?.addEventListener("click", onDone);
     };
 
+    // HTML for the list of saved beneficiaries shown in the beneficiary picker.
     const getBeneficiaryOptions = () => beneficiaries.length
         ? beneficiaries.map(item => `
             <button type="button" data-beneficiary-id="${escapeHTML(item.id)}" class="flex w-full flex-col gap-0.5 rounded-lg px-3 py-2 text-left transition hover:bg-[#f2fbf8]">
@@ -341,6 +373,7 @@ document.addEventListener("DOMContentLoaded", () => {
             </button>`).join("")
         : `<p class="px-3 py-3 text-xs text-[#888]">No saved beneficiaries yet.</p>`;
 
+    // Remembers a transfer recipient so they can be picked again later.
     const saveBeneficiary = beneficiary => {
         const exists = beneficiaries.some(item => item.accountNumber === beneficiary.accountNumber && item.bank === beneficiary.bank);
         if (!exists) {
@@ -349,8 +382,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
+    // Error text shown when a deposit would push an account over its maximum balance.
     const accountLimitError = () => `This account has a maximum balance limit of ${formatOverlayAmount(ACCOUNT_MAX_BALANCE)}. Upgrade to PRO to increase your account limit.`;
 
+    // Builds and opens the full-screen modal for Fund / Withdraw actions on an account.
     const createActionModal = ({ title, accountKey, action }) => {
         closeActionModal();
         const account = accounts[accountKey];
@@ -782,6 +817,7 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem(notificationStorageKey, JSON.stringify(notifications));
     };
 
+    // Dashboard balance / statistics period + visibility state.
     let dashboardBalancesHidden = false;
     const latestTransactionDate = transactions
         .map(item => parseTransactionDate(item.date))
@@ -795,6 +831,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let selectedBalanceMonth = readJSON(balancePeriodKey, monthKey(new Date()));
     let dashboardPeriodValues = { balance: 0, income: 0, expense: 0 };
 
+    // Masks or reveals the balance amounts (eye button) on the dashboard.
     const updateDashboardBalanceVisibility = () => {
         const periodValues = dashboardPeriodValues;
         const currentBalance = $("#dashboard-current-balance");
@@ -815,12 +852,14 @@ document.addEventListener("DOMContentLoaded", () => {
         if (icon) icon.src = dashboardBalancesHidden ? "../assets/icons/eye-closed.svg" : "../assets/icons/eye.svg";
     };
 
+    // Transactions that fall inside a given month.
     const getMonthTransactions = month => transactions.filter(item => {
         if (item.status === "Canceled") return false;
         const date = parseTransactionDate(item.date);
         return date && monthKey(date) === month;
     });
 
+    // Draws the Income / Expense bars and totals for the selected month.
     const renderStatistics = () => {
         const now = new Date();
         const selectedTransactions = getMonthTransactions(selectedStatisticsMonth);
@@ -846,6 +885,7 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem(statisticsPeriodKey, selectedStatisticsMonth);
     };
 
+    // First and last day of a month (used by the balance period picker).
     const getPeriodRange = month => {
         const year = Number(month.slice(0, 4));
         const monthIndex = Number(month.slice(5, 7)) - 1;
@@ -854,6 +894,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return { start, end };
     };
 
+    // Human-readable label for a period, e.g. "01 Mar 2023 - 31 Mar 2023".
     const formatPeriodLabel = month => {
         const { start, end } = getPeriodRange(month);
         const fmt = date => date.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }).replace(/ /g, " ");
@@ -866,6 +907,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return date && monthKey(date) === month;
     });
 
+    // Works backwards from today's balance to find the Main Account balance at the end of a month.
     const getHistoricalMainBalance = month => {
         const { end } = getPeriodRange(month);
         const currentMonth = monthKey(new Date());
@@ -878,6 +920,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return Math.max(0, (accounts.main?.balance ?? 0) - laterNet);
     };
 
+    // Balance / income / expense totals for a selected month.
     const getBalancePeriodValues = month => {
         const periodTransactions = getBalancePeriodTransactions(month);
         const mainTransactions = periodTransactions.filter(item => (item.accountKey || "main") === "main");
@@ -887,6 +930,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return { balance: getHistoricalMainBalance(month), income, expense };
     };
 
+    // Builds the dropdown that lets the user pick the balance period.
     const renderBalancePeriodMenu = () => {
         const menu = $("#dashboard-balance-period-menu");
         if (!menu) return;
@@ -912,6 +956,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }));
     };
 
+    // Updates every balance figure on the page (cards, overview, profile).
     const renderBalances = () => {
         $$('[data-account-balance]').forEach(el => {
             const key = el.dataset.accountBalance;
@@ -932,6 +977,7 @@ document.addEventListener("DOMContentLoaded", () => {
         updateDashboardBalanceVisibility();
     };
 
+    // Colour classes for Pending / Completed / Canceled badges.
     const transactionStatusClass = status => {
         if (status === "Completed") return "bg-primary text-white";
         if (status === "Canceled") return "bg-[#e55353] text-white";
@@ -950,6 +996,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return `${parts[0]} ${parts[1]} ${parts[2].slice(0, 2)}...`;
     };
 
+    // HTML for one transaction row (`compact` = short version used on Overview / Profile).
     const transactionRowHTML = (item, compact = false) => {
         const positive = Number(item.amount) >= 0;
         const signClass = positive ? "bg-[#33B786]" : "bg-danger";
@@ -968,10 +1015,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         return `
             <div class="grid min-w-0 grid-cols-[28px_minmax(90px,1.1fr)_minmax(75px,.9fr)_minmax(115px,1fr)_minmax(105px,.9fr)_minmax(90px,.8fr)] items-center gap-x-3 border-b border-[#D8E1DE] py-[4px] min-h-[38px] max-md:min-h-[40px] xl:grid-cols-[32px_minmax(130px,1.15fr)_minmax(105px,.95fr)_minmax(145px,1fr)_minmax(120px,.9fr)_150px] xl:gap-x-4" data-transaction-search="${escapeHTML(`${item.name} ${item.type} ${item.date} ${item.status} ${item.amount}`)}">
-                <div class="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full ${signClass}">
+                <div class="flex h-8 w-8 max-lg:!h-6 max-lg:!w-6 shrink-0 items-center justify-center overflow-hidden rounded-full ${signClass}">
                     <img src="../assets/images/${positive ? "add.png" : "subtract.png"}" alt="${positive ? "Incoming transaction" : "Outgoing transaction"}" class="h-full w-full object-contain">
                 </div>
-                <p data-cell="true" class="min-w-0 whitespace-nowrap text-[11px] font-normal text-[#777]">${escapeHTML(item.name)}</p>
+                <p data-cell="true" class="min-w-0 whitespace-nowrap text-[11px] font-normal text-[#777]"><span class="lg:hidden">${escapeHTML(formatTransactionName(item.name))}</span><span class="max-lg:hidden">${escapeHTML(item.name)}</span></p>
                 <p data-cell="true" class="min-w-0 whitespace-nowrap text-[11px] font-normal text-[#777]">${escapeHTML(item.type)}</p>
                 <p data-cell="true" class="min-w-0 whitespace-nowrap text-[11px] font-normal text-[#777]">${escapeHTML(item.date)}</p>
                 <p data-cell="true" class="whitespace-nowrap text-[11px] font-bold ${amountClass}">${transactionAmountText(item)}</p>
@@ -979,27 +1026,31 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>`;
     };
 
+    // Lower-cased value of a search box (empty string if it does not exist).
     const getSearchValue = selector => $(selector)?.value.trim().toLowerCase() || "";
 
+    // Filters the transaction list by a search query.
     const filterTransactions = (query) => {
         if (!query) return transactions;
         return transactions.filter(item => `${item.name} ${item.type} ${item.date} ${item.status} ${item.amount}`.toLowerCase().includes(query));
     };
 
- const updateAccountSelectionUI = () => {
-    $$('[data-account-card]').forEach(card => {
-        const isSelected = card.dataset.accountKey === selectedAccountKey;
+    // Highlights the selected account card (purple left border + aria-pressed).
+    const updateAccountSelectionUI = () => {
+        $$('[data-account-card]').forEach(card => {
+            const isSelected = card.dataset.accountKey === selectedAccountKey;
 
-        if (document.querySelector('#dashboard-accounts-container')) {
-            card.classList.remove("border-l-[#452080]");
-        } else {
-            card.classList.toggle("border-l-[#452080]", isSelected);
-        }
+            if (document.querySelector('#dashboard-accounts-container')) {
+                card.classList.remove("border-l-[#452080]");
+            } else {
+                card.classList.toggle("border-l-[#452080]", isSelected);
+            }
 
-        card.setAttribute("aria-pressed", String(isSelected));
-    });
-};
+            card.setAttribute("aria-pressed", String(isSelected));
+        });
+    };
 
+    // Makes account cards clickable so they can be selected.
     const bindAccountSelection = (root = document) => {
         $$('[data-account-card]', root).forEach(card => {
             if (card.dataset.selectionBound) return;
@@ -1030,6 +1081,7 @@ document.addEventListener("DOMContentLoaded", () => {
         updateAccountSelectionUI();
     };
 
+    // Draws the account cards at the top of the Transactions page.
     const renderTransactionAccounts = () => {
         const container = $("#transaction-accounts-container");
         if (!container) return;
@@ -1064,6 +1116,7 @@ document.addEventListener("DOMContentLoaded", () => {
         bindAccountSelection(container);
     };
 
+    // Draws every transaction list (Overview, Profile, Accounts and full Transactions page).
     const renderTransactions = () => {
         const dashboardList = $("#dashboard-transactions-list");
         const dashboardSearch = getSearchValue("#dashboard-transaction-search");
@@ -1115,79 +1168,82 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-const renderCustomAccounts = () => {
-  const containers = [
-    $("#accounts-container"),
-    $("#dashboard-accounts-container")
-  ].filter(Boolean);
+    // Draws the extra accounts the user has created, plus the "add account" card.
+    const renderCustomAccounts = () => {
+      const containers = [
+        $("#accounts-container"),
+        $("#dashboard-accounts-container")
+      ].filter(Boolean);
 
-  if (!containers.length) return;
+      if (!containers.length) return;
 
-  const customEntries = Object.entries(accounts).filter(
-    ([key]) => !["main", "school", "holiday"].includes(key)
-  );
+      const customEntries = Object.entries(accounts).filter(
+        ([key]) => !["main", "school", "holiday"].includes(key)
+      );
 
-  containers.forEach(accountsContainer => {
-    $$(".custom-account-card", accountsContainer).forEach(card => card.remove());
+      containers.forEach(accountsContainer => {
+        $$(".custom-account-card", accountsContainer).forEach(card => card.remove());
 
-    const addAccountCard = accountsContainer.querySelector("[data-add-account-card]");
-    const isDashboard = accountsContainer.id === "dashboard-accounts-container";
+        const addAccountCard = accountsContainer.querySelector("[data-add-account-card]");
+        const isDashboard = accountsContainer.id === "dashboard-accounts-container";
 
-    customEntries.forEach(([key, account]) => {
-      account.maxBalance = ACCOUNT_MAX_BALANCE;
-      const card = document.createElement("article");
-      card.dataset.accountCard = "";
-      card.dataset.accountKey = key;
-      card.className = isDashboard
-        ? "custom-account-card flex h-[100px] min-h-[100px] w-[230px] min-w-[230px] shrink-0 cursor-pointer flex-col justify-center gap-3 rounded-xl border-l-[6px] border-transparent bg-[#D4F3E7] px-4 py-3 transition-[border-color,box-shadow] duration-150"
-        : "custom-account-card flex reen-account-card-138 w-[220px] min-w-[220px] shrink-0 cursor-pointer flex-col justify-between rounded-xl border-l-[6px] border-transparent bg-[#D4F3E7] p-4 transition-[border-color,box-shadow] duration-150";
+        customEntries.forEach(([key, account]) => {
+          account.maxBalance = ACCOUNT_MAX_BALANCE;
+          const card = document.createElement("article");
+          card.dataset.accountCard = "";
+          card.dataset.accountKey = key;
+          card.className = isDashboard
+            ? "custom-account-card flex h-[100px] min-h-[100px] w-[230px] min-w-[230px] shrink-0 cursor-pointer flex-col justify-center gap-3 rounded-xl border-l-[6px] border-transparent bg-[#D4F3E7] px-4 py-3 transition-[border-color,box-shadow] duration-150"
+            : "custom-account-card flex reen-account-card-138 lg:!h-[144px] lg:[&>div:first-child]:flex lg:[&>div:first-child]:flex-1 lg:[&>div:first-child]:flex-col lg:[&_[data-account-balance]]:!my-auto w-[220px] min-w-[220px] shrink-0 cursor-pointer flex-col justify-between rounded-xl border-l-[6px] border-transparent bg-[#D4F3E7] p-4 transition-[border-color,box-shadow] duration-150";
 
-      if (isDashboard) {
-        card.innerHTML = `
-          <div class="flex min-w-0 items-center gap-3">
-            <p class="min-w-0 truncate text-xs font-semibold text-[#452080]">${escapeHTML(account.name)}</p>
-          </div>
-          <h2 data-account-balance="${escapeHTML(key)}" class="w-full truncate text-left text-sm font-bold leading-none text-[#111]">${formatMoney(account.balance)}</h2>
-        `;
-      } else {
-        card.innerHTML = `
-          <div class="min-w-0">
-            <div class="flex items-center justify-between gap-3">
-              <p class="min-w-0 truncate text-sm font-semibold text-[#452080]">${escapeHTML(account.name)}</p>
-              <button type="button" data-toggle-account-balance class="flex h-5 w-5 shrink-0 items-center justify-center" aria-label="Toggle ${escapeHTML(account.name)} balance">
-                <img src="../assets/icons/eye.svg" alt="" class="h-4 w-4 opacity-70">
-              </button>
-            </div>
-            <h2 data-account-balance="${escapeHTML(key)}" class="mt-4 w-full truncate text-left text-lg font-bold leading-none text-[#111]">${formatMoney(account.balance)}</h2>
-          </div>
-          <div class="flex gap-2">
-            <button type="button" data-account-action="fund" data-account="${escapeHTML(key)}" class="min-w-0 flex-1 rounded-md bg-primary px-2 py-1.5 text-[11px] font-semibold text-white">Fund</button>
-            <button type="button" data-account-action="withdraw" data-account="${escapeHTML(key)}" class="min-w-0 flex-1 rounded-md bg-[#D0D0D0] px-2 py-1.5 text-[11px] font-semibold text-[#333]">Withdraw</button>
-          </div>
-        `;
-      }
+          if (isDashboard) {
+            card.innerHTML = `
+              <div class="flex min-w-0 items-center gap-3">
+                <p class="min-w-0 truncate text-xs font-semibold text-[#452080]">${escapeHTML(account.name)}</p>
+              </div>
+              <h2 data-account-balance="${escapeHTML(key)}" class="w-full truncate text-left text-sm font-bold leading-none text-[#111]">${formatMoney(account.balance)}</h2>
+            `;
+          } else {
+            card.innerHTML = `
+              <div class="min-w-0">
+                <div class="flex items-center justify-between gap-3">
+                  <p class="min-w-0 truncate text-sm font-semibold text-[#452080]">${escapeHTML(account.name)}</p>
+                  <button type="button" data-toggle-account-balance class="flex h-5 w-5 shrink-0 items-center justify-center" aria-label="Toggle ${escapeHTML(account.name)} balance">
+                    <img src="../assets/icons/eye.svg" alt="" class="h-4 w-4 opacity-70">
+                  </button>
+                </div>
+                <h2 data-account-balance="${escapeHTML(key)}" class="mt-4 w-full truncate text-left text-lg font-bold leading-none text-[#111]">${formatMoney(account.balance)}</h2>
+              </div>
+              <div class="flex gap-2 lg:translate-y-1.5">
+                <button type="button" data-account-action="fund" data-account="${escapeHTML(key)}" class="min-w-0 flex-1 rounded-md bg-primary px-2 py-1.5 text-[11px] font-semibold text-white">Fund</button>
+                <button type="button" data-account-action="withdraw" data-account="${escapeHTML(key)}" class="min-w-0 flex-1 rounded-md bg-[#D0D0D0] px-2 py-1.5 text-[11px] font-semibold text-[#333]">Withdraw</button>
+              </div>
+            `;
+          }
 
-      if (addAccountCard) accountsContainer.insertBefore(card, addAccountCard);
-      else accountsContainer.appendChild(card);
-    });
+          if (addAccountCard) accountsContainer.insertBefore(card, addAccountCard);
+          else accountsContainer.appendChild(card);
+        });
 
-    if (addAccountCard) accountsContainer.appendChild(addAccountCard);
-    bindAccountSelection(accountsContainer);
-    $$('[data-add-account-button]', accountsContainer).forEach(button => {
-      if (button.dataset.bound) return;
-      button.dataset.bound = "true";
-      button.addEventListener("click", showAddAccountModal);
-    });
-  });
+        if (addAccountCard) accountsContainer.appendChild(addAccountCard);
+        bindAccountSelection(accountsContainer);
+        $$('[data-add-account-button]', accountsContainer).forEach(button => {
+          if (button.dataset.bound) return;
+          button.dataset.bound = "true";
+          button.addEventListener("click", showAddAccountModal);
+        });
+      });
 
-  bindAccountControls();
-  renderBalances();
-};
+      bindAccountControls();
+      renderBalances();
+    };
+    // Escapes user-entered text before it is placed into HTML (prevents XSS).
     const escapeHTML = value =>
         String(value).replace(/[&<>"']/g, char => ({
             "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
         }[char]));
 
+    // Wires up the Fund / Withdraw buttons on each account card (opens the action modal).
     const bindAccountControls = () => {
         $$("[data-account-action]").forEach(button => {
             if (button.dataset.bound) return;
@@ -1222,6 +1278,7 @@ const renderCustomAccounts = () => {
         });
     };
 
+    // Re-renders all balances, accounts and transaction lists after any change.
     const renderEverything = () => {
         renderBalances();
         renderTransactions();
@@ -1284,6 +1341,7 @@ const renderCustomAccounts = () => {
         return `<div class="border-b border-[#dedede] px-1.5 py-2 text-[11px] leading-4 text-[#666] last:border-b-0">${message}</div>`;
     };
 
+    // Draws the notification list and shows / hides the red dot on the bell.
     const renderNotifications = () => {
         const dot = $("#dashboard-notification-dot");
         const list = $("#dashboard-notification-list");
@@ -1296,6 +1354,7 @@ const renderCustomAccounts = () => {
         }
     };
 
+    // Wires up the header + dashboard controls (bell, balance eye, period menus, clear button).
     const setupDashboardControls = () => {
         const visibilityButton = $("#dashboard-balance-visibility");
         visibilityButton?.addEventListener("click", () => {
@@ -1440,6 +1499,7 @@ const renderCustomAccounts = () => {
 
     const logoutButtons = $$("#logout-button");
 
+    // Show the "Are you sure?" logout confirmation.
     const openLogoutModal = () => {
         if (!logoutOverlay) return;
         logoutOverlay.classList.remove("hidden");
@@ -1448,6 +1508,7 @@ const renderCustomAccounts = () => {
         document.body.classList.add("overflow-hidden");
     };
 
+    // Hide the logout confirmation.
     const closeLogoutModal = () => {
         if (!logoutOverlay) return;
         logoutOverlay.classList.add("hidden");
@@ -1494,6 +1555,7 @@ const renderCustomAccounts = () => {
         if (profilePhoneInput) profilePhoneInput.value = currentUser.phone || "";
         if (profileGenderInput) profileGenderInput.value = currentUser.gender || "";
 
+        // Fills the profile form + header with the saved user details.
         const updateProfileUI = () => {
             const nextInitials = getInitials(currentUser.name);
             if (profileNameDisplay) profileNameDisplay.textContent = currentUser.name || "Reen Bank User";
@@ -1673,6 +1735,7 @@ const renderCustomAccounts = () => {
         if (icon) icon.src = nextHidden ? "../assets/icons/eye-closed.svg" : "../assets/icons/eye.svg";
     });
 
+    // SHA-256 hash of a password (falls back to a simple hash if Web Crypto is unavailable).
     async function hashPassword(password) {
         if (!window.crypto?.subtle) {
             // Development fallback for environments without Web Crypto.
@@ -1691,6 +1754,8 @@ const renderCustomAccounts = () => {
             .join("");
     }
 
+    // 12. START-UP
+    // On Accounts / Transactions pages the Main Account starts selected.
     if ($("#accounts-container") || $("#transaction-accounts-container")) {
         selectedAccountKey = "main";
     }

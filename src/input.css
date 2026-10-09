@@ -1,20 +1,15 @@
-/* =========================================================
-   REEN BANK — TAILWIND ENTRY FILE
+   /* REEN BANK — TAILWIND ENTRY FILE
    ---------------------------------------------------------
    Keep this file focused on the Tailwind build and project
    theme. Page-specific styling belongs directly in HTML/JS
-   through Tailwind utility classes.
-========================================================= */
-
+   through Tailwind utility classes. */
 @import "tailwindcss";
 
 /* Files Tailwind should scan for utility classes. */
 @source "../html/**/*.html";
 @source "./js/**/*.js";
 
-/* =========================================================
-   REEN BANK THEME
-========================================================= */
+   /* REEN BANK THEME */
 @theme {
     --font-poppins: "Poppins", sans-serif;
 
@@ -23,27 +18,4 @@
     --color-dark: #181818;
     --color-soft-green: #BFDAD0;
     --color-danger: #FF4B55;
-}
-
-
-/* Reen Bank custom password-eye controls: suppress browser-native reveal buttons. */
-input[type="password"]::-ms-reveal,
-input[type="password"]::-ms-clear {
-  display: none;
-}
-
-/* Runtime utility additions kept in sync with the edited HTML. */
-.h-\[126px\]{height:126px}
-.min-h-\[126px\]{min-height:126px}
-.h-\[160px\]{height:160px}
-.min-h-\[160px\]{min-height:160px}
-.max-w-\[540px\]{max-width:540px}
-.max-h-\[calc\(100dvh-28px\)\]{max-height:calc(100dvh - 28px)}
-
-/* Reen Bank page-specific sizing helpers. */
-@layer components {
-  .reen-account-card-138 {
-    height: 138px !important;
-    min-height: 138px !important;
-  }
 }

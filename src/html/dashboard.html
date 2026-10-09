@@ -1,474 +1,489 @@
 <!DOCTYPE html>
+<!--
+  =========================================================
+  OVERVIEW (DASHBOARD) — Reen Bank
+  Script: ../js/bank.js
+
+  PAGE MAP
+  1. Sidebar navigation + mobile overlay
+  2. Header (STATIC / sticky on mobile and tablet)
+  3. Left column: balance card, accounts, statistics
+  4. Right column: recent transactions, upgrade card
+  =========================================================
+-->
 <html lang="en" class="[scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Overview | Reen Bank</title>
-  <link rel="stylesheet" href="../output.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Overview | Reen Bank</title>
+    <link rel="stylesheet" href="../output.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-</head>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="../assets/favicon/logo.png">
+    <link rel="apple-touch-icon" href="../assets/favicon/logo.png">
+  </head>
 
-<body class="[scrollbar-width:none] [&::-webkit-scrollbar]:hidden h-screen overflow-hidden bg-[#f2fbf8] font-poppins text-[#242424]">
-  <div class="pointer-events-none fixed inset-0 -z-10 bg-[#f2fbf8]" aria-hidden="true"></div>
+  <body class="[scrollbar-width:none] [&::-webkit-scrollbar]:hidden h-screen overflow-hidden max-lg:h-auto max-lg:overflow-y-auto bg-[#f2fbf8] font-poppins text-[#242424]">
+    <div class="pointer-events-none fixed inset-0 -z-10 bg-[#f2fbf8]" aria-hidden="true"></div>
 
-  <div class="flex h-screen min-h-0 lg:flex">
+    <div class="flex h-screen min-h-0 max-lg:h-auto lg:flex">
 
-    <!-- SIDEBAR -->
-    <aside id="dashboard-sidebar" class="fixed inset-y-0 left-0 z-50 flex w-[270px] -translate-x-full flex-col overflow-hidden bg-[#f2fbf8] px-8 py-8 transition-transform duration-300 lg:translate-x-0">
+      <!-- SIDEBAR -->
+      <aside id="dashboard-sidebar" class="fixed inset-y-0 left-0 z-50 flex w-[270px] -translate-x-full flex-col overflow-hidden bg-[#f2fbf8] px-8 py-8 transition-transform duration-300 lg:translate-x-0">
 
-      <!-- LOGO -->
-      <div class="flex items-center">
-        <img src="../assets/images/logo.png" alt="Reen Bank" class="h-11 w-auto">
-      </div>
+        <!-- LOGO -->
+        <div class="flex items-center">
+          <img src="../assets/images/logo.png" alt="Reen Bank" class="h-11 w-auto">
+        </div>
 
-      <!-- NAVIGATION -->
-      <nav class="mt-24">
-        <ul class="space-y-7">
-          <li>
-            <a href="./dashboard.html" aria-current="page" class="flex items-center gap-7 text-[15px] font-normal text-primary">
-              <span class="flex h-7 w-7 shrink-0 items-center justify-center">
-                <img src="../assets/icons/house.svg" alt="" class="h-6 w-6">
-              </span>
-              <span>Overview</span>
-            </a>
-          </li>
+        <!-- NAVIGATION -->
+        <nav class="mt-24">
+          <ul class="space-y-7">
+            <li>
+              <a href="./dashboard.html" aria-current="page" class="flex items-center gap-7 text-[15px] font-normal text-primary">
+                <span class="flex h-7 w-7 shrink-0 items-center justify-center">
+                  <img src="../assets/icons/house.svg" alt="" class="h-6 w-6">
+                </span>
+                <span>Overview</span>
+              </a>
+            </li>
 
-          <li>
-            <a href="./accounts.html" class="flex items-center gap-7 text-[15px] font-normal text-[#555555] transition hover:text-primary">
-              <span class="flex h-7 w-7 shrink-0 items-center justify-center">
-                <img src="../assets/icons/credit-card.svg" alt="" class="h-6 w-6">
-              </span>
-              <span>Accounts</span>
-            </a>
-          </li>
+            <li>
+              <a href="./accounts.html" class="flex items-center gap-7 text-[15px] font-normal text-[#555555] transition hover:text-primary">
+                <span class="flex h-7 w-7 shrink-0 items-center justify-center">
+                  <img src="../assets/icons/credit-card.svg" alt="" class="h-6 w-6">
+                </span>
+                <span>Accounts</span>
+              </a>
+            </li>
 
-          <li>
-            <a href="./transaction.html" class="flex items-center gap-7 text-[15px] font-normal text-[#555555] transition hover:text-primary">
-              <span class="flex h-7 w-7 shrink-0 items-center justify-center">
-                <img src="../assets/icons/arrow-left-right.svg" alt="" class="h-6 w-6">
-              </span>
-              <span>Transactions</span>
-            </a>
-          </li>
+            <li>
+              <a href="./transaction.html" class="flex items-center gap-7 text-[15px] font-normal text-[#555555] transition hover:text-primary">
+                <span class="flex h-7 w-7 shrink-0 items-center justify-center">
+                  <img src="../assets/icons/arrow-left-right.svg" alt="" class="h-6 w-6">
+                </span>
+                <span>Transactions</span>
+              </a>
+            </li>
 
-          <li>
-            <a href="./profile.html" class="flex items-center gap-7 text-[15px] font-normal text-[#555555] transition hover:text-primary">
-              <span class="flex h-7 w-7 shrink-0 items-center justify-center">
-                <img src="../assets/icons/user.svg" alt="" class="h-6 w-6">
-              </span>
-              <span>Profile</span>
-            </a>
-          </li>
-        </ul>
-      </nav>
+            <li>
+              <a href="./profile.html" class="flex items-center gap-7 text-[15px] font-normal text-[#555555] transition hover:text-primary">
+                <span class="flex h-7 w-7 shrink-0 items-center justify-center">
+                  <img src="../assets/icons/user.svg" alt="" class="h-6 w-6">
+                </span>
+                <span>Profile</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
 
-      <!-- LOGOUT -->
-      <div class="mt-auto">
-        <button id="logout-button" type="button" class="flex items-center gap-7 text-[15px] font-normal text-[#555555] transition hover:text-red-500">
-          <span class="flex h-7 w-7 shrink-0 items-center justify-center">
-            <img src="../assets/icons/log-out.svg" alt="" class="h-6 w-6">
-          </span>
-          <span>Logout</span>
-        </button>
-      </div>
-    </aside>
+        <!-- LOGOUT -->
+        <div class="mt-auto">
+          <button id="logout-button" type="button" class="flex items-center gap-7 text-[15px] font-normal text-[#555555] transition hover:text-red-500">
+            <span class="flex h-7 w-7 shrink-0 items-center justify-center">
+              <img src="../assets/icons/log-out.svg" alt="" class="h-6 w-6">
+            </span>
+            <span>Logout</span>
+          </button>
+        </div>
+      </aside>
 
-    <div id="dashboard-overlay" class="fixed inset-0 z-40 hidden bg-black/30 lg:hidden"></div>
+      <div id="dashboard-overlay" class="fixed inset-0 z-40 hidden bg-black/30 lg:hidden"></div>
 
-    <!-- MAIN CONTENT AREA -->
-    <main class="[scrollbar-width:none] [&::-webkit-scrollbar]:hidden min-w-0 min-h-0 flex-1 overflow-hidden px-4 sm:px-6 lg:ml-[260px] lg:px-8 xl:px-12">
-<!-- HEADER -->
-<header class="dashboard-header shrink-0 pt-8 sm:pt-6 lg:pt-7">
-  <div class="dashboard-header-grid grid grid-cols-1 gap-8 lg:grid-cols-12 lg:items-center lg:gap-10 xl:gap-12">
+      <!-- MAIN CONTENT AREA -->
+      <main class="[scrollbar-width:none] [&::-webkit-scrollbar]:hidden min-w-0 min-h-0 flex-1 overflow-hidden max-lg:overflow-visible px-4 sm:px-6 lg:ml-[260px] lg:px-8 xl:px-12">
+        <!-- HEADER -->
+        <header class="dashboard-header shrink-0 pt-8 sm:pt-6 lg:pt-7 max-lg:sticky max-lg:top-0 max-lg:z-30 max-lg:-mx-4 max-lg:bg-[#f2fbf8] max-lg:px-4 max-lg:pb-3 sm:max-lg:-mx-6 sm:max-lg:px-6">
+          <div class="dashboard-header-grid grid grid-cols-1 gap-8 max-lg:grid-cols-[auto_minmax(0,1fr)_auto_auto] max-lg:items-center max-lg:gap-y-5 max-sm:gap-x-1.5 sm:max-lg:gap-x-2 lg:grid-cols-12 lg:items-center lg:gap-10 xl:gap-12">
 
-    <!-- LEFT HEADER COLUMN (col-span-7) -->
-    <div class="flex w-full items-center justify-between gap-4 lg:col-span-7 xl:col-span-7">
+            <!-- LEFT HEADER COLUMN (col-span-7) -->
+            <div class="flex w-full items-center justify-between gap-4 max-lg:contents lg:col-span-7 xl:col-span-7">
 
-      <!-- OVERVIEW TITLE & MOBILE MENU -->
-      <div class="flex items-center gap-3">
-        <button
-          id="dashboard-menu-button"
-          type="button"
-          aria-label="Open navigation menu"
-          aria-expanded="false"
-          aria-controls="dashboard-sidebar"
-          class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-black/10 bg-white lg:hidden"
-        >
-          <img src="../assets/icons/menu.svg" alt="" class="h-4 w-4" />
-        </button>
+              <!-- OVERVIEW TITLE & MOBILE MENU -->
+              <div class="flex items-center gap-3 max-lg:contents">
+                <button
+                  id="dashboard-menu-button"
+                  type="button"
+                  aria-label="Open navigation menu"
+                  aria-expanded="false"
+                  aria-controls="dashboard-sidebar"
+                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-black/10 bg-white max-lg:order-1 lg:hidden"
+                >
+                  <img src="../assets/icons/menu.svg" alt="" class="h-4 w-4" />
+                </button>
 
-        <h1 class="dashboard-overview-title m-0 text-2xl font-bold leading-none tracking-tight text-[#111] sm:text-3xl">
-          Overview
-        </h1>
-      </div>
+                <h1 class="dashboard-overview-title m-0 max-lg:order-5 max-lg:col-span-4 text-2xl font-bold leading-none tracking-tight text-[#111] sm:text-3xl">
+                  Overview
+                </h1>
+              </div>
 
-      <!-- ACCOUNT IDENTITY -->
-      <div class="text-right">
-        <p
-          id="dashboard-user-name"
-          class="whitespace-nowrap text-base font-medium leading-tight text-primary"
-        >
-          Agbetiloye David
-        </p>
+              <!-- ACCOUNT IDENTITY -->
+              <div class="text-right max-lg:order-2 max-lg:text-left">
+                <p
+                  id="dashboard-user-name"
+                  class="whitespace-nowrap text-base max-sm:text-xs font-medium leading-tight text-primary"
+                >
+                  Agbetiloye David
+                </p>
 
-        <h2
-          id="dashboard-account-number"
-          class="mt-0.5 whitespace-nowrap text-3xl font-bold leading-none tracking-tight"
-        >
-          2393759161
-        </h2>
-      </div>
+                <h2
+                  id="dashboard-account-number"
+                  class="mt-0.5 whitespace-nowrap text-3xl max-sm:text-lg font-bold leading-none tracking-tight"
+                >
+                  2393759161
+                </h2>
+              </div>
 
-    </div>
+            </div>
 
-    <!-- RIGHT HEADER COLUMN (col-span-5) -->
-    <div class="dashboard-header-actions flex items-center justify-between lg:col-span-5 xl:col-span-5">
+            <!-- RIGHT HEADER COLUMN (col-span-5) -->
+            <div class="dashboard-header-actions flex items-center justify-between max-lg:contents lg:col-span-5 xl:col-span-5">
 
-      <!-- SEARCH (ALIGNED TO THE LEFT EDGE OF THE RIGHT COLUMN) -->
-      <div class="flex items-center gap-2">
-         <img
+              <!-- SEARCH (ALIGNED TO THE LEFT EDGE OF THE RIGHT COLUMN) -->
+              <div class="flex items-center gap-2 max-lg:order-3 max-sm:gap-1.5">
+                <img
                   src="../assets/icons/search.svg"
                   alt="Search"
                   class="h-4 w-4 shrink-0"
                 >
 
-        <input
-          id="dashboard-transaction-search"
-          type="search"
-          placeholder="Search"
-          aria-label="Search transactions"
-          class="w-20 bg-transparent text-xs text-[#333] outline-none placeholder:text-[#888] sm:w-24"
-        />
-      </div>
+                <input
+                  id="dashboard-transaction-search"
+                  type="search"
+                  placeholder="Search"
+                  aria-label="Search transactions"
+                  class="w-20 max-sm:w-12 bg-transparent text-xs text-[#333] outline-none placeholder:text-[#888] sm:w-24"
+                />
+              </div>
 
-      <!-- NOTIFICATION & PROFILE (GROUPED AT THE RIGHT EDGE) -->
-      <div class="flex items-center gap-4 sm:gap-6">
-        
-        <!-- NOTIFICATION -->
-        <div class="relative">
-          <button
-            id="dashboard-notification-button"
-            type="button"
-            aria-label="Notifications"
-            aria-expanded="false"
-            class="relative flex h-8 w-8 shrink-0 items-center justify-center"
-          >
-            <img
-              src="../assets/icons/bell.svg"
-              alt=""
-              class="h-5 w-5 opacity-70"
-            />
+              <!-- NOTIFICATION & PROFILE (GROUPED AT THE RIGHT EDGE) -->
+              <div class="flex items-center gap-4 max-lg:order-4 max-sm:gap-2 sm:gap-6">
 
-            <span
-              id="dashboard-notification-dot"
-              class="absolute right-1 top-1 h-2 w-2 rounded-full bg-red-500"
-            ></span>
-          </button>
+                <!-- NOTIFICATION -->
+                <div class="relative">
+                  <button
+                    id="dashboard-notification-button"
+                    type="button"
+                    aria-label="Notifications"
+                    aria-expanded="false"
+                    class="relative flex h-8 w-8 shrink-0 items-center justify-center"
+                  >
+                    <img
+                      src="../assets/icons/bell.svg"
+                      alt=""
+                      class="h-5 w-5 opacity-70"
+                    />
 
-          <!-- NOTIFICATION PANEL -->
-          <div
-            id="dashboard-notification-panel"
-            class="absolute right-0 top-10 z-[90] hidden w-[300px] max-w-[calc(100vw-32px)] overflow-hidden rounded-xl border border-[#e4e4e4] bg-[#f4f4f4] p-2.5 shadow-xl"
-          >
-            <div class="flex items-center justify-between gap-3">
-              <h3 class="text-xs font-semibold text-[#555]">Notifications</h3>
-              <button
-                id="dashboard-clear-notifications"
-                type="button"
-                class="text-xs font-semibold text-[#33B786] hover:underline"
-              >
-                Clear
-              </button>
-            </div>
-            <div id="dashboard-notification-list" class="mt-1 max-h-32 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"></div>
-          </div>
-        </div>
-
-        <!-- PROFILE AVATAR -->
-        <a
-          id="dashboard-profile-link"
-          href="./profile.html"
-          aria-label="Open profile"
-          class="relative inline-flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[rgba(69,32,128,0.08)] bg-[#e2cfff] text-sm font-bold leading-none text-[#452080] no-underline"
-        >
-          <span id="dashboard-profile-initials" aria-hidden="true" class="absolute inset-0 flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-[#e2cfff] bg-cover bg-center bg-no-repeat">
-            AD
-          </span>
-        </a>
-
-      </div>
-
-    </div>
-
-  </div>
-</header>
-
-<!-- CONTENT SECTION -->
-      <section class="min-h-0 flex-1 overflow-hidden pt-5 sm:pt-6 lg:pt-7">
-        
-        <!-- MAIN DASHBOARD TWO-COLUMN GRID -->
-        <div class="grid h-full min-h-0 grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8 xl:gap-10">
-
-          <!-- ================= LEFT COLUMN ================= -->
-          <div class="min-h-0 space-y-5 lg:col-span-7 xl:col-span-7">
-
-            <!-- 1. CURRENT ACCOUNT BALANCE CARD -->
-            <div>
-                <div class="mb-3 flex items-center justify-between">
-                <h2 class="text-base font-semibold text-[#111]">Current Account Balance</h2>
-                <div class="flex items-center gap-2.5">
-                  <button id="dashboard-balance-visibility" type="button" data-toggle-account-balance aria-label="Hide amounts" class="flex h-7 w-7 items-center justify-center rounded-md bg-[#e2f5ee] transition hover:bg-[#d4f2e7]">
-                    <img src="../assets/icons/eye.svg" alt="" class="h-3.5 w-3.5 opacity-60">
+                    <span
+                      id="dashboard-notification-dot"
+                      class="absolute right-1 top-1 h-2 w-2 rounded-full bg-red-500"
+                    ></span>
                   </button>
-                  <div class="relative">
-                    <button id="dashboard-balance-period" type="button" aria-haspopup="listbox" aria-expanded="false" class="flex items-center gap-2 rounded-md bg-[#e2f5ee] px-3 py-1 text-xs font-medium text-[#555]">
-                      <img src="../assets/icons/calendar.svg" alt="" class="h-3.5 w-3.5 opacity-60">
-                      <span id="dashboard-balance-period-label">Feb 22 - Mar 21, 2023</span>
-                      <img src="../assets/icons/chevron-down.svg" alt="" class="h-3 w-3 opacity-60">
-                    </button>
-                    <div id="dashboard-balance-period-menu" class="absolute right-0 top-9 z-30 hidden w-44 rounded-lg border border-[#dce7e2] bg-white p-1 shadow-lg"></div>
+
+                  <!-- NOTIFICATION PANEL -->
+                  <div
+                    id="dashboard-notification-panel"
+                    class="absolute right-0 top-10 z-[90] hidden w-[300px] max-w-[calc(100vw-32px)] overflow-hidden rounded-xl border border-[#e4e4e4] bg-[#f4f4f4] p-2.5 shadow-xl"
+                  >
+                    <div class="flex items-center justify-between gap-3">
+                      <h3 class="text-xs font-semibold text-[#555]">Notifications</h3>
+                      <button
+                        id="dashboard-clear-notifications"
+                        type="button"
+                        class="text-xs font-semibold text-[#33B786] hover:underline"
+                      >
+                        Clear
+                      </button>
+                    </div>
+                    <div id="dashboard-notification-list" class="mt-1 max-h-32 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"></div>
                   </div>
                 </div>
-              </div>
 
-<div class="rounded-2xl bg-[#D4F3E7] p-4 sm:p-5">
-  <div class="grid w-full grid-cols-[1.35fr_1fr_1fr] items-center gap-5 sm:gap-6">
-
-    <!-- LOGO & CURRENT BALANCE -->
-    <div class="flex min-w-0 items-center gap-3">
-      <img
-        src="../assets/images/image 32.png"
-        alt="RB Logo"
-        class="h-8 w-8 shrink-0 object-contain sm:h-9 sm:w-9"
-      >
-
-      <div class="min-w-0 overflow-hidden">
-        <p class="text-[11px] font-medium leading-tight text-[#452080]">
-          Current Balance
-        </p>
-
-        <h3
-          id="dashboard-current-balance"
-          data-balance-amount="current"
-          class="mt-0.5 max-w-full truncate whitespace-nowrap text-sm font-bold leading-tight tracking-tight text-[#111]"
-        >
-          ₦ 0.00
-        </h3>
-      </div>
-    </div>
-
-    <!-- INCOME -->
-    <div class="min-w-0 overflow-hidden">
-      <p class="text-[11px] font-medium leading-tight text-[#452080]">
-        Income
-      </p>
-
-      <p
-        id="dashboard-income"
-        data-balance-amount="income"
-        class="mt-0.5 max-w-full truncate whitespace-nowrap text-sm font-bold leading-tight tracking-tight text-[#111]"
-      >
-        ₦ 0.00
-      </p>
-    </div>
-
-    <!-- EXPENSE -->
-    <div class="min-w-0 overflow-hidden">
-      <p class="text-[11px] font-medium leading-tight text-[#452080]">
-        Expense
-      </p>
-
-      <p
-        id="dashboard-expense"
-        data-balance-amount="expense"
-        class="mt-0.5 max-w-full truncate whitespace-nowrap text-sm font-bold leading-tight tracking-tight text-[#111]"
-      >
-        ₦ 0.00
-      </p>
-    </div>
-
-  </div>
-</div>
-            </div>
-
-            <!-- 2. ACCOUNTS SECTION -->
-            <div>
-              <div class="mb-3 flex items-center justify-between">
-                <h2 class="text-base font-semibold text-[#111]">Accounts</h2>
-                <button id="add-account-button" type="button" aria-label="Add Account" class="flex h-6 w-6 items-center justify-center rounded bg-[#EAEAEA] text-sm font-semibold text-[#555] transition hover:bg-[#dedede]">
-                  +
-                </button>
-              </div>
-
-              <div id="dashboard-accounts-container" class="[scrollbar-width:none] [&::-webkit-scrollbar]:hidden flex min-w-0 flex-nowrap gap-4 overflow-x-auto overflow-y-hidden overscroll-x-contain pb-1 scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                <!-- MAIN ACCOUNT -->
-                <article data-account-card data-account-key="main" class="flex h-[100px] min-h-[100px] w-[230px] min-w-[230px] shrink-0 cursor-pointer flex-col justify-center gap-3 rounded-xl border-l-[6px] border-transparent bg-[#D4F3E7] px-4 py-3 transition-[border-color,box-shadow] duration-150">
-                  <div class="flex min-w-0 items-center gap-3">
-                    <p class="min-w-0 truncate text-xs font-semibold text-[#452080]">Main Account</p>
-                  </div>
-                  <h3 data-account-balance="main" class="w-full truncate text-sm font-bold leading-none text-[#111]">₦ 0.00</h3>
-                </article>
-
-                <!-- SCHOOL SAVINGS -->
-                <article data-account-card data-account-key="school" class="flex h-[100px] min-h-[100px] w-[230px] min-w-[230px] shrink-0 cursor-pointer flex-col justify-center gap-3 rounded-xl border-l-[6px] border-transparent bg-[#D4F3E7] px-4 py-3 transition-[border-color,box-shadow] duration-150">
-                  <div class="flex min-w-0 items-center gap-3">
-                    <p class="min-w-0 truncate text-xs font-semibold text-[#452080]">School Savings</p>
-                  </div>
-                  <h3 data-account-balance="school" class="w-full truncate text-sm font-bold leading-none text-[#111]">₦ 0.00</h3>
-                </article>
-
-                <!-- HOLIDAY PLAN -->
-                <article data-account-card data-account-key="holiday" class="flex h-[100px] min-h-[100px] w-[230px] min-w-[230px] shrink-0 cursor-pointer flex-col justify-center gap-3 rounded-xl border-l-[6px] border-transparent bg-[#D4F3E7] px-4 py-3 transition-[border-color,box-shadow] duration-150">
-                  <div class="flex min-w-0 items-center gap-3">
-                    <p class="min-w-0 truncate text-xs font-semibold text-[#452080]">Holiday Plan</p>
-                  </div>
-                  <h3 data-account-balance="holiday" class="w-full truncate text-sm font-bold leading-none text-[#111]">₦ 0.00</h3>
-                </article>
-              </div>
-            </div>
-<!-- 3. STATISTICS SECTION -->
-<div>
-  <div class="mb-3 flex items-center justify-between">
-    <h2 class="text-base font-semibold text-[#111]">Statistics</h2>
-    <div class="relative flex items-center gap-2 rounded-md bg-[#e2f5ee] px-3 py-1 text-xs font-medium text-[#555]">
-      <button id="dashboard-statistics-period" type="button" aria-haspopup="listbox" aria-expanded="false" class="flex items-center gap-2 rounded-md bg-transparent text-xs font-medium text-[#555]">
-        <span id="dashboard-statistics-period-label">This Month</span>
-        <svg class="h-3 w-3 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-      </button>
-      <div id="dashboard-statistics-period-menu" class="absolute right-0 top-9 z-30 hidden w-40 rounded-lg border border-[#dce7e2] bg-white p-1 shadow-lg"></div>
-    </div>
-  </div>
-
-  <div class="space-y-4 py-2">
-    <!-- INCOME ROW -->
-    <div class="grid w-full grid-cols-[110px_minmax(0,1fr)_135px] items-center gap-x-3 md:grid-cols-[110px_minmax(0,1fr)_180px] xl:grid-cols-[110px_minmax(0,1fr)_220px]">
-      <div class="flex min-w-0 shrink-0 items-center gap-2.5">
-        <img src="../assets/images/image 34.png" alt="RB Logo" class="h-6 w-6 shrink-0">
-        <span class="text-[11px] font-medium text-[#555]">Income</span>
-      </div>
-      <div class="h-3.5 w-full min-w-0 overflow-hidden rounded-full bg-[#EAEAEA]">
-        <div id="dashboard-income-bar" class="h-full w-full rounded-full bg-[#33B786] transition-all duration-300"></div>
-      </div>
-      <span id="dashboard-stat-income" class="w-[135px] min-w-[135px] max-w-[135px] justify-self-end whitespace-nowrap overflow-visible text-right text-[11px] font-bold text-[#111] sm:text-xs md:w-[180px] md:min-w-[180px] md:max-w-[180px] xl:w-[220px] xl:min-w-[220px] xl:max-w-[220px]">₦ 10,010,000.00</span>
-    </div>
-
-    <!-- EXPENSE ROW -->
-    <div class="grid w-full grid-cols-[110px_minmax(0,1fr)_135px] items-center gap-x-3 md:grid-cols-[110px_minmax(0,1fr)_180px] xl:grid-cols-[110px_minmax(0,1fr)_220px]">
-      <div class="flex min-w-0 shrink-0 items-center gap-2.5">
-        <img src="../assets/images/image 32.png" alt="RB Logo" class="h-6 w-6 shrink-0">
-        <span class="text-[11px] font-medium text-[#555]">Expense</span>
-      </div>
-      <div class="h-3.5 w-full min-w-0 overflow-hidden rounded-full bg-[#EAEAEA]">
-        <div id="dashboard-expense-bar" class="h-full w-[60%] rounded-full bg-[#E55353] transition-all duration-300"></div>
-      </div>
-      <span id="dashboard-stat-expense" class="w-[135px] min-w-[135px] max-w-[135px] justify-self-end whitespace-nowrap overflow-visible text-right text-[11px] font-bold text-[#111] sm:text-xs md:w-[180px] md:min-w-[180px] md:max-w-[180px] xl:w-[220px] xl:min-w-[220px] xl:max-w-[220px]">₦ 6,000.00</span>
-    </div>
-  </div>
-</div>
-          </div>
-
-
-          <!-- ================= RIGHT COLUMN (RIGHT SIDEBAR PANEL) ================= -->
-          <div class="min-h-0 space-y-5 lg:col-span-5 xl:col-span-5">
-
-            <!-- 1. TRANSACTIONS SECTION -->
-            <div>
-              <div class="mb-3 flex items-center justify-between">
-                <h2 class="text-base font-semibold text-[#111]">Transactions</h2>
-                <a href="./transaction.html" class="flex h-6 w-6 items-center justify-center text-[#33B786] transition hover:opacity-80" aria-label="View all transactions">
-                  <svg class="h-4 w-4 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
-                  </svg>
+                <!-- PROFILE AVATAR -->
+                <a
+                  id="dashboard-profile-link"
+                  href="./profile.html"
+                  aria-label="Open profile"
+                  class="relative inline-flex h-10 w-10 max-sm:h-9 max-sm:w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[rgba(69,32,128,0.08)] bg-[#e2cfff] text-sm font-bold leading-none text-[#452080] no-underline"
+                >
+                  <span id="dashboard-profile-initials" aria-hidden="true" class="absolute inset-0 flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-[#e2cfff] bg-cover bg-center bg-no-repeat">
+                    AD
+                  </span>
                 </a>
+
               </div>
 
-              <!-- TRANSACTIONS LIST -->
-              <div id="dashboard-transactions-list" class="space-y-0.5 pt-1">
+            </div>
 
-                <div class="transaction-data-row flex items-center justify-between text-xs">
-                  <span class="font-medium text-[#666]">Oluwaben Jamin</span>
-                  <span class="text-[#888]">06.Mar.2023 - 09:39</span>
-                  <span class="font-bold text-[#E55353]">- 10,000.00</span>
+          </div>
+        </header>
+
+        <!-- CONTENT SECTION -->
+        <section class="min-h-0 flex-1 overflow-hidden max-lg:overflow-visible max-lg:pb-8 pt-5 sm:pt-6 lg:pt-7">
+
+          <!-- MAIN DASHBOARD TWO-COLUMN GRID -->
+          <div class="grid h-full min-h-0 max-lg:h-auto grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8 xl:gap-10">
+
+            <!-- ================= LEFT COLUMN ================= -->
+            <div class="min-h-0 space-y-5 lg:col-span-7 xl:col-span-7">
+
+              <!-- 1. CURRENT ACCOUNT BALANCE CARD -->
+              <div>
+                <div class="mb-3 flex items-center justify-between max-[360px]:gap-x-2.5 min-[361px]:max-sm:gap-x-4 sm:max-lg:gap-x-5">
+                  <h2 class="text-base max-sm:text-xs font-semibold text-[#111] max-lg:whitespace-nowrap">Current Account Balance</h2>
+                  <div class="flex items-center gap-2.5 max-sm:gap-1.5 max-lg:shrink-0">
+                    <button id="dashboard-balance-visibility" type="button" data-toggle-account-balance aria-label="Hide amounts" class="flex h-7 w-7 max-sm:h-6 max-sm:w-6 items-center justify-center rounded-md bg-[#e2f5ee] transition hover:bg-[#d4f2e7]">
+                      <img src="../assets/icons/eye.svg" alt="" class="h-3.5 w-3.5 opacity-60">
+                    </button>
+                    <div class="relative">
+                      <button id="dashboard-balance-period" type="button" aria-haspopup="listbox" aria-expanded="false" class="flex items-center gap-2 rounded-md bg-[#e2f5ee] px-3 py-1 text-xs font-medium text-[#555] max-sm:gap-1 max-sm:px-1.5 max-sm:text-[10px] max-lg:whitespace-nowrap">
+                        <img src="../assets/icons/calendar.svg" alt="" class="h-3.5 w-3.5 max-sm:h-3 max-sm:w-3 max-[380px]:hidden opacity-60">
+                        <span id="dashboard-balance-period-label">Feb 22 - Mar 21, 2023</span>
+                        <img src="../assets/icons/chevron-down.svg" alt="" class="h-3 w-3 max-sm:h-2.5 max-sm:w-2.5 opacity-60">
+                      </button>
+                      <div id="dashboard-balance-period-menu" class="absolute right-0 top-9 z-30 hidden w-44 rounded-lg border border-[#dce7e2] bg-white p-1 shadow-lg"></div>
+                    </div>
+                  </div>
                 </div>
 
-                <div class="transaction-data-row flex items-center justify-between text-xs">
-                  <span class="font-medium text-[#666]">Oluwaben Jamin</span>
-                  <span class="text-[#888]">06.Mar.2023 - 09:39</span>
-                  <span class="font-bold text-[#33B786]">+10,000.00</span>
+                <div class="rounded-2xl bg-[#D4F3E7] p-4 max-sm:px-4 max-sm:py-3 sm:p-5">
+                  <div class="grid w-full grid-cols-[1.35fr_1fr_1fr] max-sm:flex max-sm:flex-wrap max-sm:justify-between max-sm:gap-x-3 max-sm:gap-y-3 items-center gap-5 sm:gap-6">
+
+                    <!-- LOGO & CURRENT BALANCE -->
+                    <div class="flex min-w-0 items-center gap-3 max-sm:shrink-0 max-sm:gap-2">
+                      <img
+                        src="../assets/images/image 32.png"
+                        alt="RB Logo"
+                        class="h-8 w-8 shrink-0 object-contain max-sm:h-5 max-sm:w-5 sm:h-9 sm:w-9"
+                      >
+
+                      <div class="min-w-0 overflow-hidden max-lg:overflow-visible">
+                        <p class="text-[11px] max-sm:text-[9px] font-medium leading-tight text-[#452080] max-lg:whitespace-nowrap">
+                          Current Balance
+                        </p>
+
+                        <h3
+                          id="dashboard-current-balance"
+                          data-balance-amount="current"
+                          class="mt-0.5 max-w-full truncate whitespace-nowrap text-sm max-sm:text-[clamp(7px,2.3vw,11px)] font-bold leading-tight tracking-tight text-[#111] max-lg:overflow-visible max-lg:text-clip"
+                        >
+                          ₦ 0.00
+                        </h3>
+                      </div>
+                    </div>
+
+                    <!-- INCOME -->
+                    <div class="min-w-0 overflow-hidden max-lg:overflow-visible max-sm:shrink-0">
+                      <p class="text-[11px] max-sm:text-[9px] font-medium leading-tight text-[#452080] max-lg:whitespace-nowrap">
+                        Income
+                      </p>
+
+                      <p
+                        id="dashboard-income"
+                        data-balance-amount="income"
+                        class="mt-0.5 max-w-full truncate whitespace-nowrap text-sm max-sm:text-[clamp(7px,2.3vw,11px)] font-bold leading-tight tracking-tight text-[#111] max-lg:overflow-visible max-lg:text-clip"
+                      >
+                        ₦ 0.00
+                      </p>
+                    </div>
+
+                    <!-- EXPENSE -->
+                    <div class="min-w-0 overflow-hidden max-lg:overflow-visible max-sm:shrink-0">
+                      <p class="text-[11px] max-sm:text-[9px] font-medium leading-tight text-[#452080] max-lg:whitespace-nowrap">
+                        Expense
+                      </p>
+
+                      <p
+                        id="dashboard-expense"
+                        data-balance-amount="expense"
+                        class="mt-0.5 max-w-full truncate whitespace-nowrap text-sm max-sm:text-[clamp(7px,2.3vw,11px)] font-bold leading-tight tracking-tight text-[#111] max-lg:overflow-visible max-lg:text-clip"
+                      >
+                        ₦ 0.00
+                      </p>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2. ACCOUNTS SECTION -->
+              <div>
+                <div class="mb-3 flex items-center justify-between">
+                  <h2 class="text-base font-semibold text-[#111]">Accounts</h2>
+                  <button id="add-account-button" type="button" aria-label="Add Account" class="flex h-6 w-6 items-center justify-center rounded bg-[#EAEAEA] text-sm font-semibold text-[#555] transition hover:bg-[#dedede]">
+                    +
+                  </button>
                 </div>
 
-                <div class="transaction-data-row flex items-center justify-between text-xs">
-                  <span class="font-medium text-[#666]">Oluwaben Jamin</span>
-                  <span class="text-[#888]">06.Mar.2023 - 09:39</span>
-                  <span class="font-bold text-[#E55353]">- 10,000.00</span>
+                <div id="dashboard-accounts-container" class="[scrollbar-width:none] [&::-webkit-scrollbar]:hidden flex min-w-0 flex-nowrap gap-4 overflow-x-auto overflow-y-hidden overscroll-x-contain pb-1 scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                  <!-- MAIN ACCOUNT -->
+                  <article data-account-card data-account-key="main" class="flex h-[100px] min-h-[100px] w-[230px] min-w-[230px] shrink-0 cursor-pointer flex-col justify-center gap-3 rounded-xl border-l-[6px] border-transparent bg-[#D4F3E7] px-4 py-3 transition-[border-color,box-shadow] duration-150">
+                    <div class="flex min-w-0 items-center gap-3">
+                      <p class="min-w-0 truncate text-xs font-semibold text-[#452080]">Main Account</p>
+                    </div>
+                    <h3 data-account-balance="main" class="w-full truncate text-sm font-bold leading-none text-[#111]">₦ 0.00</h3>
+                  </article>
+
+                  <!-- SCHOOL SAVINGS -->
+                  <article data-account-card data-account-key="school" class="flex h-[100px] min-h-[100px] w-[230px] min-w-[230px] shrink-0 cursor-pointer flex-col justify-center gap-3 rounded-xl border-l-[6px] border-transparent bg-[#D4F3E7] px-4 py-3 transition-[border-color,box-shadow] duration-150">
+                    <div class="flex min-w-0 items-center gap-3">
+                      <p class="min-w-0 truncate text-xs font-semibold text-[#452080]">School Savings</p>
+                    </div>
+                    <h3 data-account-balance="school" class="w-full truncate text-sm font-bold leading-none text-[#111]">₦ 0.00</h3>
+                  </article>
+
+                  <!-- HOLIDAY PLAN -->
+                  <article data-account-card data-account-key="holiday" class="flex h-[100px] min-h-[100px] w-[230px] min-w-[230px] shrink-0 cursor-pointer flex-col justify-center gap-3 rounded-xl border-l-[6px] border-transparent bg-[#D4F3E7] px-4 py-3 transition-[border-color,box-shadow] duration-150">
+                    <div class="flex min-w-0 items-center gap-3">
+                      <p class="min-w-0 truncate text-xs font-semibold text-[#452080]">Holiday Plan</p>
+                    </div>
+                    <h3 data-account-balance="holiday" class="w-full truncate text-sm font-bold leading-none text-[#111]">₦ 0.00</h3>
+                  </article>
+                </div>
+              </div>
+              <!-- 3. STATISTICS SECTION -->
+              <div>
+                <div class="mb-3 flex items-center justify-between">
+                  <h2 class="text-base font-semibold text-[#111]">Statistics</h2>
+                  <div class="relative flex items-center gap-2 rounded-md bg-[#e2f5ee] px-3 py-1 text-xs font-medium text-[#555]">
+                    <button id="dashboard-statistics-period" type="button" aria-haspopup="listbox" aria-expanded="false" class="flex items-center gap-2 rounded-md bg-transparent text-xs font-medium text-[#555]">
+                      <span id="dashboard-statistics-period-label">This Month</span>
+                      <svg class="h-3 w-3 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                    <div id="dashboard-statistics-period-menu" class="absolute right-0 top-9 z-30 hidden w-40 rounded-lg border border-[#dce7e2] bg-white p-1 shadow-lg"></div>
+                  </div>
                 </div>
 
-                <div class="transaction-data-row flex items-center justify-between text-xs">
-                  <span class="font-medium text-[#666]">Oluwaben Jamin</span>
-                  <span class="text-[#888]">06.Mar.2023 - 09:39</span>
-                  <span class="font-bold text-[#33B786]">+10,000.00</span>
-                </div>
+                <div class="space-y-4 py-2">
+                  <!-- INCOME ROW -->
+                  <div class="grid w-full grid-cols-[110px_minmax(0,1fr)_135px] items-center gap-x-3 md:grid-cols-[110px_minmax(0,1fr)_180px] xl:grid-cols-[110px_minmax(0,1fr)_220px]">
+                    <div class="flex min-w-0 shrink-0 items-center gap-2.5">
+                      <img src="../assets/images/image 34.png" alt="RB Logo" class="h-6 w-6 shrink-0">
+                      <span class="text-[11px] font-medium text-[#555]">Income</span>
+                    </div>
+                    <div class="h-3.5 w-full min-w-0 overflow-hidden rounded-full bg-[#EAEAEA]">
+                      <div id="dashboard-income-bar" class="h-full w-full rounded-full bg-[#33B786] transition-all duration-300"></div>
+                    </div>
+                    <span id="dashboard-stat-income" class="w-[135px] min-w-[135px] max-w-[135px] justify-self-end whitespace-nowrap overflow-visible text-right text-[11px] font-bold text-[#111] sm:text-xs md:w-[180px] md:min-w-[180px] md:max-w-[180px] xl:w-[220px] xl:min-w-[220px] xl:max-w-[220px]">₦ 10,010,000.00</span>
+                  </div>
 
-                <div class="transaction-data-row flex items-center justify-between text-xs">
-                  <span class="font-medium text-[#666]">Oluwaben Jamin</span>
-                  <span class="text-[#888]">06.Mar.2023 - 09:39</span>
-                  <span class="font-bold text-[#E55353]">- 10,000.00</span>
+                  <!-- EXPENSE ROW -->
+                  <div class="grid w-full grid-cols-[110px_minmax(0,1fr)_135px] items-center gap-x-3 md:grid-cols-[110px_minmax(0,1fr)_180px] xl:grid-cols-[110px_minmax(0,1fr)_220px]">
+                    <div class="flex min-w-0 shrink-0 items-center gap-2.5">
+                      <img src="../assets/images/image 32.png" alt="RB Logo" class="h-6 w-6 shrink-0">
+                      <span class="text-[11px] font-medium text-[#555]">Expense</span>
+                    </div>
+                    <div class="h-3.5 w-full min-w-0 overflow-hidden rounded-full bg-[#EAEAEA]">
+                      <div id="dashboard-expense-bar" class="h-full w-[60%] rounded-full bg-[#E55353] transition-all duration-300"></div>
+                    </div>
+                    <span id="dashboard-stat-expense" class="w-[135px] min-w-[135px] max-w-[135px] justify-self-end whitespace-nowrap overflow-visible text-right text-[11px] font-bold text-[#111] sm:text-xs md:w-[180px] md:min-w-[180px] md:max-w-[180px] xl:w-[220px] xl:min-w-[220px] xl:max-w-[220px]">₦ 6,000.00</span>
+                  </div>
                 </div>
-
-                <div class="transaction-data-row flex items-center justify-between text-xs">
-                  <span class="font-medium text-[#666]">Oluwaben Jamin</span>
-                  <span class="text-[#888]">06.Mar.2023 - 09:39</span>
-                  <span class="font-bold text-[#33B786]">+10,000.00</span>
-                </div>
-
-                <div class="transaction-data-row flex items-center justify-between text-xs">
-                  <span class="font-medium text-[#666]">Oluwaben Jamin</span>
-                  <span class="text-[#888]">06.Mar.2023 - 09:39</span>
-                  <span class="font-bold text-[#E55353]">- 10,000.00</span>
-                </div>
-
-                <div class="transaction-data-row flex items-center justify-between text-xs">
-                  <span class="font-medium text-[#666]">Oluwaben Jamin</span>
-                  <span class="text-[#888]">06.Mar.2023 - 09:39</span>
-                  <span class="font-bold text-[#33B786]">+10,000.00</span>
-                </div>
-
               </div>
             </div>
 
-            <!-- 2. UPGRADE TO PRO CARD -->
-            <div class="pt-2">
-              <div class="relative flex h-32 min-h-32 flex-col justify-between overflow-hidden rounded-2xl bg-[#33B786] p-4 text-white shadow-sm">
-                <img src="../assets/images/Rectangle 167.png" alt="" aria-hidden="true" class="pointer-events-none absolute inset-0 h-full w-full object-cover" />
 
-                <!-- TOP ARROW ICON BUTTON -->
-                <div class="relative z-10">
-                  <a href="#" class="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white transition hover:bg-white/30" aria-label="Upgrade to Pro">
+            <!-- ================= RIGHT COLUMN (RIGHT SIDEBAR PANEL) ================= -->
+            <div class="min-h-0 space-y-5 lg:col-span-5 xl:col-span-5">
+
+              <!-- 1. TRANSACTIONS SECTION -->
+              <div>
+                <div class="mb-3 flex items-center justify-between">
+                  <h2 class="text-base font-semibold text-[#111]">Transactions</h2>
+                  <a href="./transaction.html" class="flex h-6 w-6 items-center justify-center text-[#33B786] transition hover:opacity-80" aria-label="View all transactions">
                     <svg class="h-4 w-4 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2.5">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
                     </svg>
                   </a>
                 </div>
 
-                <!-- BOTTOM HEADING & SUBTITLE -->
-                <div class="relative z-10 mt-2">
-                  <h3 class="text-xl font-bold leading-tight">Upgrade to PRO</h3>
-                  <p class="mt-1 text-xs text-white/80">Sign in on more than one device</p>
-                </div>
+                <!-- TRANSACTIONS LIST -->
+                <div id="dashboard-transactions-list" class="space-y-0.5 pt-1 max-lg:[&>*]:grid max-lg:[&>*]:grid-cols-[1fr_auto_1fr] max-lg:[&>*>:nth-child(2)]:whitespace-nowrap max-lg:[&>*>:nth-child(2)]:text-center max-lg:[&>*>:nth-child(3)]:text-right">
 
+                  <div class="transaction-data-row flex items-center justify-between text-xs">
+                    <span class="font-medium text-[#666]">Oluwaben Jamin</span>
+                    <span class="text-[#888]">06.Mar.2023 - 09:39</span>
+                    <span class="font-bold text-[#E55353]">- 10,000.00</span>
+                  </div>
+
+                  <div class="transaction-data-row flex items-center justify-between text-xs">
+                    <span class="font-medium text-[#666]">Oluwaben Jamin</span>
+                    <span class="text-[#888]">06.Mar.2023 - 09:39</span>
+                    <span class="font-bold text-[#33B786]">+10,000.00</span>
+                  </div>
+
+                  <div class="transaction-data-row flex items-center justify-between text-xs">
+                    <span class="font-medium text-[#666]">Oluwaben Jamin</span>
+                    <span class="text-[#888]">06.Mar.2023 - 09:39</span>
+                    <span class="font-bold text-[#E55353]">- 10,000.00</span>
+                  </div>
+
+                  <div class="transaction-data-row flex items-center justify-between text-xs">
+                    <span class="font-medium text-[#666]">Oluwaben Jamin</span>
+                    <span class="text-[#888]">06.Mar.2023 - 09:39</span>
+                    <span class="font-bold text-[#33B786]">+10,000.00</span>
+                  </div>
+
+                  <div class="transaction-data-row flex items-center justify-between text-xs">
+                    <span class="font-medium text-[#666]">Oluwaben Jamin</span>
+                    <span class="text-[#888]">06.Mar.2023 - 09:39</span>
+                    <span class="font-bold text-[#E55353]">- 10,000.00</span>
+                  </div>
+
+                  <div class="transaction-data-row flex items-center justify-between text-xs">
+                    <span class="font-medium text-[#666]">Oluwaben Jamin</span>
+                    <span class="text-[#888]">06.Mar.2023 - 09:39</span>
+                    <span class="font-bold text-[#33B786]">+10,000.00</span>
+                  </div>
+
+                  <div class="transaction-data-row flex items-center justify-between text-xs">
+                    <span class="font-medium text-[#666]">Oluwaben Jamin</span>
+                    <span class="text-[#888]">06.Mar.2023 - 09:39</span>
+                    <span class="font-bold text-[#E55353]">- 10,000.00</span>
+                  </div>
+
+                  <div class="transaction-data-row flex items-center justify-between text-xs">
+                    <span class="font-medium text-[#666]">Oluwaben Jamin</span>
+                    <span class="text-[#888]">06.Mar.2023 - 09:39</span>
+                    <span class="font-bold text-[#33B786]">+10,000.00</span>
+                  </div>
+
+                </div>
               </div>
+
+              <!-- 2. UPGRADE TO PRO CARD -->
+              <div class="pt-2">
+                <div class="relative flex h-32 min-h-32 flex-col justify-between overflow-hidden rounded-2xl bg-[#33B786] p-4 text-white shadow-sm">
+                  <img src="../assets/images/Rectangle 167.png" alt="" aria-hidden="true" class="pointer-events-none absolute inset-0 h-full w-full object-cover" />
+
+                  <!-- TOP ARROW ICON BUTTON -->
+                  <div class="relative z-10">
+                    <a href="#" class="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white transition hover:bg-white/30" aria-label="Upgrade to Pro">
+                      <svg class="h-4 w-4 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+                      </svg>
+                    </a>
+                  </div>
+
+                  <!-- BOTTOM HEADING & SUBTITLE -->
+                  <div class="relative z-10 mt-2">
+                    <h3 class="text-xl font-bold leading-tight">Upgrade to PRO</h3>
+                    <p class="mt-1 text-xs text-white/80">Sign in on more than one device</p>
+                  </div>
+
+                </div>
+              </div>
+
             </div>
 
           </div>
+        </section>
+      </main>
+    </div>
 
-        </div>
-      </section>
-    </main>
-  </div>
-
-  <script src="../js/bank.js"></script>
-</body>
+    <script src="../js/bank.js"></script>
+  </body>
 </html>

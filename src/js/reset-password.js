@@ -1,10 +1,19 @@
 /* =========================================================
    REEN BANK — SHARED RESET PASSWORD OVERLAY
-   Login + Profile use the same Figma multi-stage flow.
+   Used by: login.html ("Reset Password" link) and profile.html
+
+   Multi-stage flow:
    Stage 1: Email -> Stage 2: OTP -> Stage 3: New Password
    -> Stage 4: Success
+
+   TABLE OF CONTENTS
+   1. Storage keys
+   2. User + password helpers
+   3. Overlay markup (getModal)
+   4. Flow logic + event wiring (init)
 ========================================================= */
 (function () {
+    // 1. STORAGE KEYS
     const RESET_USER_KEY = "reenBankResetUser";
     const RESET_OTP_KEY = "reenBankResetOTP";
     const RESET_OTP_EXPIRES_KEY = "reenBankResetOTPExpires";
@@ -17,9 +26,12 @@
     localStorage.removeItem(RESET_OTP_KEY);
     localStorage.removeItem(RESET_OTP_EXPIRES_KEY);
 
+    // 2. SMALL HELPERS
+    // $ = first match, $$ = all matches (as a real array).
     const $ = (selector, root = document) => root.querySelector(selector);
     const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 
+    // Registered-user storage (same format as auth.js).
     const getUserCount = () => Number(localStorage.getItem(USER_COUNT_KEY)) || 0;
     const getUser = number => {
         try { return JSON.parse(localStorage.getItem(`${USERS_PREFIX}${number}`)); }
@@ -34,6 +46,7 @@
         return users;
     };
 
+    // SHA-256 hash (hex) of a password; simple fallback if Web Crypto is unavailable.
     const hashPassword = async password => {
         const data = new TextEncoder().encode(password);
         if (window.crypto?.subtle) {
@@ -45,6 +58,7 @@
         return `fallback-${Math.abs(hash)}`;
     };
 
+    // Same password rules as registration; returns an error string or "".
     const passwordError = password => {
         if (password.length < 8) return "Password must be at least 8 characters long.";
         if (!/[A-Za-z]/.test(password)) return "Password must contain at least one letter.";
@@ -52,6 +66,7 @@
         return "";
     };
 
+    // Hides part of an email address before displaying it.
     const maskEmail = email => {
         const [name, domain] = String(email).split("@");
         if (!name || !domain) return email;
@@ -59,6 +74,7 @@
         return `${visible}${"*".repeat(Math.max(2, name.length - visible.length))}@${domain}`;
     };
 
+    // 3. OVERLAY — finds the reset-password overlay, or builds and styles it on first use.
     const getModal = () => {
         let modal = document.getElementById("reset-password-modal");
         if (modal) return modal;
@@ -144,6 +160,7 @@
         return modal;
     };
 
+    // 4. FLOW LOGIC — wires the four stages together (runs once per page).
     const init = () => {
         const modal = getModal();
         if (!modal || modal.dataset.resetBound === "true") return;

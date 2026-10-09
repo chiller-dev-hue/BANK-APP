@@ -1,4 +1,17 @@
 <!DOCTYPE html>
+<!--
+  =========================================================
+  TRANSACTIONS PAGE — Reen Bank
+  Script: ../js/bank.js
+
+  PAGE MAP
+  1. Sidebar navigation + mobile overlay
+  2. Header (title, identity, search, notifications, avatar)
+  3. Account selector cards
+  4. Full transaction list
+  5. Scripts
+  =========================================================
+-->
 <html lang="en">
 
 <head>
@@ -20,6 +33,9 @@
     href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
     rel="stylesheet"
   >
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="../assets/favicon/logo.png">
+  <link rel="apple-touch-icon" href="../assets/favicon/logo.png">
 </head>
 
 
@@ -197,13 +213,13 @@
     - Right: Account identity + Search + Notification + Profile
   -->
   <div
-    class="grid min-w-0 items-center gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-10"
+    class="grid min-w-0 max-lg:min-h-[44px] items-center gap-5 max-lg:grid-cols-[auto_minmax(0,1fr)_auto_auto_auto] max-sm:gap-x-1.5 sm:max-lg:gap-x-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-10"
   >
 
     <!-- =================================================
          PAGE TITLE
          ================================================= -->
-    <div class="flex min-w-0 items-center gap-3">
+    <div class="flex min-w-0 items-center gap-3 max-lg:contents">
 
       <!-- Mobile Menu Button -->
       <button
@@ -223,7 +239,7 @@
 
       <!-- Page Title -->
       <h1
-        class="m-0 shrink-0 text-[28px] font-semibold leading-none tracking-tight sm:text-[32px]"
+        class="m-0 shrink-0 text-[28px] font-semibold leading-none tracking-tight max-lg:order-last max-lg:col-span-5 max-lg:font-bold max-lg:text-[#111] max-sm:text-[24px] sm:max-lg:!text-[30px] sm:text-[32px]"
       >
         Transactions
       </h1>
@@ -236,7 +252,7 @@
          ACCOUNT IDENTITY + SEARCH + NOTIFICATION + PROFILE
          ================================================= -->
     <div
-      class="flex min-w-0 items-center justify-end gap-7 lg:gap-8"
+      class="flex min-w-0 items-center justify-end gap-7 max-lg:contents lg:gap-8"
     >
 
       <!-- ===============================================
@@ -246,15 +262,15 @@
            It will not be forced to 145px wide.
            =============================================== -->
       <div
-        class="hidden w-fit items-center justify-center lg:flex"
+        class="hidden w-fit items-center justify-center max-lg:flex lg:flex"
       >
 
-        <div class="w-fit text-right">
+        <div class="w-fit text-right max-lg:text-left">
 
           <!-- Account Name -->
           <p
             id="dashboard-user-name"
-            class="whitespace-nowrap text-base font-medium leading-tight text-primary"
+            class="whitespace-nowrap text-base max-sm:text-xs font-medium leading-tight text-primary"
           >
             Maureen Oguche
           </p>
@@ -262,7 +278,7 @@
           <!-- Account Number -->
           <p
             id="dashboard-account-number"
-            class="mt-0.5 whitespace-nowrap text-3xl font-bold leading-none tracking-tight"
+            class="mt-0.5 whitespace-nowrap text-3xl max-sm:text-lg font-bold leading-none tracking-tight"
           >
             1234567890
           </p>
@@ -298,7 +314,7 @@
            Kept close to identity but with breathing room.
            =============================================== -->
       <div
-        class="hidden min-w-0 items-center gap-2 md:flex"
+        class="hidden min-w-0 items-center gap-2 max-md:flex max-sm:gap-1.5 md:flex"
       >
 
         <img
@@ -312,7 +328,7 @@
           type="search"
           placeholder="Search"
           aria-label="Search"
-          class="w-24 bg-transparent text-xs outline-none placeholder:text-[#777] sm:w-28"
+          class="w-24 max-sm:!w-12 sm:max-lg:!w-24 bg-transparent text-xs outline-none placeholder:text-[#777] sm:w-28"
         >
 
       </div>
@@ -324,7 +340,7 @@
       <button
         type="button"
         aria-label="Search"
-        class="flex h-8 w-8 items-center justify-center md:hidden"
+        class="flex h-8 w-8 items-center justify-center max-md:hidden md:hidden"
       >
         <img
           src="../assets/icons/search.svg"
@@ -404,7 +420,7 @@
         id="dashboard-profile-link"
         href="./profile.html"
         aria-label="Open profile"
-        class="relative inline-flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[rgba(69,32,128,0.08)] bg-[#e2cfff] text-sm font-bold leading-none text-[#452080] no-underline "
+        class="relative inline-flex h-10 w-10 max-sm:h-9 max-sm:w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[rgba(69,32,128,0.08)] bg-[#e2cfff] text-sm font-bold leading-none text-[#452080] no-underline "
       >
 
         <span
@@ -427,7 +443,7 @@
              TRANSACTIONS PAGE CONTENT
              =================================================== -->
         <section
-          class="flex min-h-0 flex-1 flex-col overflow-hidden pt-4 sm:pt-5 lg:pt-6"
+          class="flex min-h-0 flex-1 flex-col overflow-hidden pt-4 sm:pt-5 max-lg:!pt-7 lg:pt-6"
         >
 
 
@@ -451,12 +467,12 @@
      ================================================= -->
 <div class="mt-5 min-h-0 flex-1 overflow-hidden pb-5">
 
-  <div class="h-full min-h-0 overflow-y-auto overflow-x-hidden pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+  <div class="h-full min-h-0 overflow-y-auto overflow-x-hidden max-lg:!overflow-x-auto pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
 
     <div
       id="full-transactions-list"
       aria-live="polite"
-      class="min-w-0"
+      class="min-w-0 max-lg:!min-w-[720px]"
     ></div>
 
   </div>

@@ -1,5 +1,16 @@
-```html
 <!DOCTYPE html>
+<!--
+  =========================================================
+  ACCOUNTS PAGE — Reen Bank
+  Script: ../js/bank.js
+
+  PAGE MAP
+  1. Sidebar navigation + mobile overlay
+  2. Header (title, identity, search, notifications, avatar)
+  3. Account cards + selected-account transactions
+  4. Scripts
+  =========================================================
+-->
 <html lang="en">
 
 <head>
@@ -16,6 +27,9 @@
     href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
     rel="stylesheet"
   >
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="../assets/favicon/logo.png">
+  <link rel="apple-touch-icon" href="../assets/favicon/logo.png">
 </head>
 
 
@@ -185,14 +199,14 @@
         <!-- =====================================================
              TOP NAVBAR
              ===================================================== -->
-        <header class="shrink-0 pt-5 sm:pt-6 lg:pt-1">
+        <header class="shrink-0 pt-5 sm:pt-6 lg:pt-7">
 
           <div
-            class="grid min-w-0 min-h-[44px] items-center gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-10"
+            class="grid min-w-0 min-h-[44px] items-center gap-5 max-lg:grid-cols-[auto_minmax(0,1fr)_auto_auto_auto] max-sm:gap-x-1.5 sm:max-lg:gap-x-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-10"
           >
 
             <!-- LEFT: PAGE TITLE -->
-            <div class="flex min-w-0 items-center gap-3">
+            <div class="flex min-w-0 items-center gap-3 max-lg:contents">
 
               <!-- Mobile Menu -->
               <button
@@ -213,7 +227,7 @@
 
               <!-- Page Title -->
               <h1
-                class="m-0 shrink-0 text-[28px] font-semibold leading-none tracking-tight sm:text-[32px]"
+                class="m-0 shrink-0 text-[28px] font-semibold leading-none tracking-tight max-lg:order-last max-lg:col-span-5 max-lg:font-bold max-lg:text-[#111] max-sm:text-[24px] sm:max-lg:!text-[30px] sm:text-[32px]"
               >
                 Accounts
               </h1>
@@ -223,26 +237,26 @@
 
             <!-- RIGHT SIDE -->
             <div
-              class="flex min-w-0 items-center justify-end gap-6 lg:gap-8"
+              class="flex min-w-0 items-center justify-end gap-6 max-lg:contents lg:gap-8"
             >
 
               <!-- Desktop Account Identity -->
               <div
-                class="hidden w-fit items-center justify-center lg:flex"
+                class="hidden w-fit items-center justify-center max-lg:flex lg:flex"
               >
 
-                <div class="w-fit text-right">
+                <div class="w-fit text-right max-lg:text-left">
 
                   <p
                     id="dashboard-user-name"
-                    class="whitespace-nowrap text-base font-medium leading-tight text-primary"
+                    class="whitespace-nowrap text-base max-sm:text-xs font-medium leading-tight text-primary"
                   >
                     Maureen Oguche
                   </p>
 
                   <h2
                     id="dashboard-account-number"
-                    class="mt-0.5 whitespace-nowrap text-3xl font-bold leading-none tracking-tight"
+                    class="mt-0.5 whitespace-nowrap text-3xl max-sm:text-lg font-bold leading-none tracking-tight"
                   >
                     1234567890
                 </h2>
@@ -270,7 +284,7 @@
 
               <!-- SEARCH -->
               <div
-                class="hidden min-w-0 items-center gap-2 md:flex"
+                class="hidden min-w-0 items-center gap-2 max-md:flex max-sm:gap-1.5 md:flex"
               >
 
                 <img
@@ -284,7 +298,7 @@
                   type="search"
                   placeholder="Search"
                   aria-label="Search"
-                  class="w-20 bg-transparent text-xs outline-none placeholder:text-[#777] sm:w-24"
+                  class="w-20 max-sm:w-12 bg-transparent text-xs outline-none placeholder:text-[#777] sm:w-24"
                 >
 
               </div>
@@ -294,7 +308,7 @@
               <button
                 type="button"
                 aria-label="Search"
-                class="flex h-8 w-8 items-center justify-center md:hidden"
+                class="flex h-8 w-8 items-center justify-center max-md:hidden md:hidden"
               >
                 <img
                   src="../assets/icons/search.svg"
@@ -368,7 +382,7 @@
                 id="dashboard-profile-link"
                 href="./profile.html"
                 aria-label="Open profile"
-                class="relative inline-flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[rgba(69,32,128,0.08)] bg-[#e2cfff] text-sm font-bold leading-none text-[#452080] no-underline"
+                class="relative inline-flex h-10 w-10 max-sm:h-9 max-sm:w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[rgba(69,32,128,0.08)] bg-[#e2cfff] text-sm font-bold leading-none text-[#452080] no-underline"
               >
 
                 <span
@@ -392,7 +406,7 @@
              ACCOUNTS + TRANSACTIONS CONTENT
              =================================================== -->
         <section
-          class="flex min-h-0 flex-1 flex-col overflow-hidden pt-4 sm:pt-5 lg:pt-6"
+          class="flex min-h-0 flex-1 flex-col overflow-hidden pt-4 sm:pt-5 lg:pt-3"
         >
 
 
@@ -401,14 +415,14 @@
                ================================================= -->
           <div
             id="accounts-container"
-            class="accounts-no-scrollbar flex min-w-0 shrink-0 gap-4 overflow-x-auto overflow-y-hidden pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            class="accounts-no-scrollbar flex min-w-0 shrink-0 gap-4 overflow-x-auto overflow-y-hidden pb-1 max-lg:mt-3 max-lg:[&>*]:!h-[146px] max-lg:[&_[data-account-card]>div:first-child]:contents max-lg:[&_[data-account-balance]]:mt-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
 
             <!-- MAIN ACCOUNT -->
             <article
               data-account-card
               data-account-key="main"
-              class="flex reen-account-card-138 w-[220px] min-w-[220px] shrink-0 cursor-pointer flex-col justify-between rounded-xl border-l-[6px] border-transparent bg-[#D4F3E7] p-4 transition-[border-color,box-shadow] duration-150"
+              class="flex reen-account-card-138 lg:!h-[144px] lg:[&>div:first-child]:flex lg:[&>div:first-child]:flex-1 lg:[&>div:first-child]:flex-col lg:[&_[data-account-balance]]:!my-auto w-[220px] min-w-[220px] shrink-0 cursor-pointer flex-col justify-between rounded-xl border-l-[6px] border-transparent bg-[#D4F3E7] p-4 transition-[border-color,box-shadow] duration-150"
             >
 
               <div class="min-w-0">
@@ -441,7 +455,7 @@
 
               </div>
 
-              <div class="flex gap-2">
+              <div class="flex gap-2 lg:translate-y-1.5">
 
                 <button
                   type="button"
@@ -472,7 +486,7 @@
 <article
   data-account-card
   data-account-key="school"
-  class="flex reen-account-card-138 w-[220px] min-w-[220px] shrink-0 cursor-pointer flex-col justify-between rounded-xl border-l-[6px] border-transparent bg-[#D4F3E7] p-4 transition-[border-color,box-shadow] duration-150"
+  class="flex reen-account-card-138 lg:!h-[144px] lg:[&>div:first-child]:flex lg:[&>div:first-child]:flex-1 lg:[&>div:first-child]:flex-col lg:[&_[data-account-balance]]:!my-auto w-[220px] min-w-[220px] shrink-0 cursor-pointer flex-col justify-between rounded-xl border-l-[6px] border-transparent bg-[#D4F3E7] p-4 transition-[border-color,box-shadow] duration-150"
 >
 
   <div class="min-w-0">
@@ -508,7 +522,7 @@
   </div>
 
   <!-- Same button layout as Main Account -->
-  <div class="flex gap-2">
+  <div class="flex gap-2 lg:translate-y-1.5">
 
     <button
       type="button"
@@ -536,7 +550,7 @@
             <article
               data-account-card
               data-account-key="holiday"
-              class="flex reen-account-card-138 w-[220px] min-w-[220px] shrink-0 cursor-pointer flex-col justify-between rounded-xl border-l-[6px] border-transparent bg-[#D4F3E7] p-4 transition-[border-color,box-shadow] duration-150"
+              class="flex reen-account-card-138 lg:!h-[144px] lg:[&>div:first-child]:flex lg:[&>div:first-child]:flex-1 lg:[&>div:first-child]:flex-col lg:[&_[data-account-balance]]:!my-auto w-[220px] min-w-[220px] shrink-0 cursor-pointer flex-col justify-between rounded-xl border-l-[6px] border-transparent bg-[#D4F3E7] p-4 transition-[border-color,box-shadow] duration-150"
             >
 
               <div class="min-w-0">
@@ -569,7 +583,7 @@
 
               </div>
 
-              <div class="flex gap-2">
+              <div class="flex gap-2 lg:translate-y-1.5">
 
                 <button
                   type="button"
@@ -602,7 +616,7 @@
             data-add-account-card
             data-add-account-button
             aria-label="Add Account"
-            class="flex reen-account-card-138 w-[220px] min-w-[220px] shrink-0 cursor-pointer flex-col justify-between rounded-xl bg-[#F0F0F0] p-4 text-[#333] transition hover:bg-[#e8e8e8]"
+            class="flex reen-account-card-138 lg:!h-[144px] w-[220px] min-w-[220px] shrink-0 cursor-pointer flex-col justify-between rounded-xl bg-[#F0F0F0] p-4 text-[#333] transition hover:bg-[#e8e8e8]"
           >
             <div class="flex items-center gap-3">
               <span class="text-2xl font-normal leading-none">+</span>
@@ -619,7 +633,7 @@
                TRANSACTIONS
                =================================================== -->
           <div
-            class="mt-5 flex min-h-0 flex-1 flex-col overflow-hidden pb-4"
+            class="mt-5 flex min-h-0 flex-1 flex-col overflow-hidden pb-4 lg:mt-2 lg:pb-2"
           >
 
             <!-- Heading -->
@@ -666,7 +680,7 @@
               <div
                 id="dashboard-transactions-list"
                 data-accounts-transaction-list
-                class="accounts-no-scrollbar flex h-full min-h-0 min-w-0 flex-col overflow-hidden pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [&>*]:min-h-[34px] [&>*]:shrink-0 [&>:nth-child(n+8)]:hidden"
+                class="accounts-no-scrollbar flex h-full min-h-0 min-w-0 flex-col overflow-hidden pb-2 lg:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [&>*]:min-h-[34px] [&>*]:shrink-0 [&>:nth-child(n+8)]:hidden max-lg:!overflow-x-auto max-lg:!overflow-y-hidden max-lg:[&>div]:!min-w-[720px]"
               ></div>
 
             </div>
@@ -692,4 +706,3 @@
 
 </body>
 </html>
-```
